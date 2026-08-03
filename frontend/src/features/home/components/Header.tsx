@@ -1,4 +1,3 @@
-// src/features/home/components/Header.tsx
 import Link from "next/link";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";

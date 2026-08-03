@@ -47,7 +47,7 @@ export function RoomCard({ room }: RoomCardProps) {
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral">
           <div className="flex items-center gap-1.5">
             <Users className="h-4 w-4" />
-            <span>{room.capacity}</span>
+            <span>{room.capacity} Orang</span>
           </div>
         </div>
       </CardHeader>
@@ -57,16 +57,7 @@ export function RoomCard({ room }: RoomCardProps) {
           {room.description}
         </p>
       </CardContent>
-
-      <Separator className="bg-border/60" />
-
       <CardFooter className="flex items-center justify-between pt-6">
-        <div className="flex flex-col">
-          <span className="text-xs text-neutral">Harga per sesi</span>
-          <span className="text-lg font-bold text-primary">
-            ${room.pricePerSession.toFixed(2)}
-          </span>
-        </div>
         <Button
           variant="outline"
           disabled={!room.isAvailable}

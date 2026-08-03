@@ -8,7 +8,6 @@ import { RoomFilters } from "@/features/home/components/RoomFilters";
 import { mockRooms } from "@/data/mockRooms";
 
 export default function HomePage() {
-  // State manajemen
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
   const filteredRooms = mockRooms.filter(room => {
     if (showAvailableOnly) {
@@ -23,13 +22,12 @@ export default function HomePage() {
       
       <main className="flex-1 container mx-auto max-w-7xl px-4 md:px-8 py-10">
         
-        {/* Header Seksi & Jumlah Hasil */}
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary">
-            Available Study Rooms
+            Ruang Belajar Tersedia
           </h1>
           <p className="text-neutral mt-2 sm:mt-0 font-medium">
-            Showing {filteredRooms.length} results
+            Menampilkan {filteredRooms.length} hasil
           </p>
         </div>
 
@@ -38,17 +36,15 @@ export default function HomePage() {
           onShowAvailableOnlyChange={setShowAvailableOnly} 
         />
 
-        {/* Grid Ruangan */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredRooms.map(room => (
             <RoomCard key={room.id} room={room} />
           ))}
         </div>
         
-        {/* Empty State */}
         {filteredRooms.length === 0 && (
           <div className="py-20 text-center text-neutral bg-muted rounded-lg mt-8">
-            <p className="text-lg">No rooms match your current filters.</p>
+            <p className="text-lg">Tidak ada ruangan yang sesuai dengan filter Anda.</p>
           </div>
         )}
       </main>

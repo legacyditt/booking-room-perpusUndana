@@ -8,16 +8,16 @@ export function Footer() {
           
           <div className="text-center md:text-left font-serif text-base">
             <p>
-              &copy; {new Date().getFullYear()} University Library Services. Preserving Knowledge, Enabling Discovery.
+              &copy; {new Date().getFullYear()} Layanan Perpustakaan Universitas. Melestarikan Pengetahuan, Memungkinkan Penemuan.
             </p>
           </div>
 
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 font-medium">
-            <Link href="#" className="hover:text-primary underline underline-offset-4">Terms of Use</Link>
-            <Link href="#" className="hover:text-primary underline underline-offset-4">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary underline underline-offset-4">Accessibility</Link>
-            <Link href="#" className="hover:text-primary underline underline-offset-4">Contact Librarian</Link>
-            <Link href="#" className="hover:text-primary underline underline-offset-4">Library Map</Link>
+            <Link href="#" className="hover:text-primary underline underline-offset-4">Syarat Penggunaan</Link>
+            <Link href="#" className="hover:text-primary underline underline-offset-4">Kebijakan Privasi</Link>
+            <Link href="#" className="hover:text-primary underline underline-offset-4">Aksesibilitas</Link>
+            <Link href="#" className="hover:text-primary underline underline-offset-4">Hubungi Pustakawan</Link>
+            <Link href="#" className="hover:text-primary underline underline-offset-4">Peta Perpustakaan</Link>
           </nav>
           
         </div>

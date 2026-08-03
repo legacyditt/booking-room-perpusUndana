@@ -7,7 +7,6 @@ export interface Room {
   id: string;
   name: string;
   capacity: string;
-  features: RoomFeature[];
   description: string;
   pricePerSession: number;
   imageUrl: string;

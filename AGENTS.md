@@ -22,6 +22,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
   4. Tawarkan command commit setiap 1 task selesai.
   5. Gunakan standar _Conventional Commits_ (feat, fix, chore, dll).
   6. Selalu tambahkan setiap file roadmap (contoh: `roadmap-*.md`) ke dalam `.gitignore` agar file manajemen proyek tidak ikut ter-push ke repository.
-  7. **Audit Pekerjaan User:** Saat user meminta untuk lanjut ke task berikutnya, SELALU lakukan audit/pengecekan terhadap kode yang baru saja dikerjakan/diubah oleh user. Beritahukan secara proaktif jika ada kesalahan, ketidaksesuaian dengan arsitektur, atau potensi bug sebelum beralih ke task baru.
+  7. **Audit Pekerjaan User:** Saat user meminta untuk lanjut ke task berikutnya, SELALU lakukan audit/pengecekan terhadap kode yang baru saja dikerjakan/diubah oleh user. Selain itu, **WAJIB jalankan perintah `npm run build` dan `npx tsc --noEmit`** (atau perintah pengecekan sejenis) di terminal untuk memastikan tidak ada error sebelum beralih ke task baru. Beritahukan secara proaktif jika ada kesalahan, ketidaksesuaian dengan arsitektur, atau potensi bug.
 
 - **UI/UX:** Wajib merujuk pada `ui-ux-pro-max` dan `design-taste-frontend` (beserta paket `taste-skill` lainnya) untuk standar desain premium, interaksi, dan menghindari antarmuka generik (anti-slop).

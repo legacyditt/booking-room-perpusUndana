@@ -18,13 +18,12 @@ model User {
 }
 
 model Room {
-  id           Int           @id @default(autoincrement())
-  name         String
-  capacity     Int
-  isAvailable  Boolean       @default(true)
-  isPerSeat    Boolean       @default(false)
-  bookings     Booking[]
-  bookingPrice BookingPrice?
+  id          Int       @id @default(autoincrement())
+  name        String
+  capacity    Int
+  isAvailable Boolean   @default(true)
+  isPerSeat   Boolean   @default(false)
+  bookings    Booking[]
 }
 
 model Session {
@@ -47,12 +46,6 @@ model Booking {
   room    Room    @relation(fields: [roomId], references: [id])
   session Session @relation(fields: [sessionId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
-}
-
-model BookingPrice {
-  roomId Int     @id
-  price  Decimal
-  room   Room    @relation(fields: [roomId], references: [id])
 }
 
 enum Role {

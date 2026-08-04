@@ -12,10 +12,15 @@ export default function HomePage() {
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
   const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
 
-  // Filter ruangan berdasarkan Ketersediaan dan Tipe Ruangan (Reguler / Premium)
+  // Simulasi Filter ruangan berdasarkan Ketersediaan dan Tipe Ruangan (karena properties tersebut dihapus dari mockRooms)
   const filteredRooms = mockRooms.filter((room) => {
-    const isRoomAvailable = showAvailableOnly ? room.isAvailable : true;
-    const isMatchingType = room.type === roomType;
+    // Simulasi ketersediaan: Anggap Ruang 4 sedang tidak tersedia, sisanya tersedia
+    const isAvailableMock = room.id !== "4";
+    const isRoomAvailable = showAvailableOnly ? isAvailableMock : true;
+
+    // Simulasi Tipe Ruangan: Anggap Ruang 1 & 2 Reguler, 3 & 4 Premium
+    const typeMock = (room.id === "1" || room.id === "2") ? "reguler" : "premium";
+    const isMatchingType = typeMock === roomType;
 
     return isRoomAvailable && isMatchingType;
   });

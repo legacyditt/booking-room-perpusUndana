@@ -21,7 +21,7 @@ export function Header() {
             Cari Ruangan
           </Link>
           <Link
-            href="/bookings"
+            href="/reservations"
             className="text-neutral hover:text-primary transition-colors"
           >
             Pemesanan Saya

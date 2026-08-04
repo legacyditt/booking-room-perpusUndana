@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import roomRoute from './routes/room.routes';
 
@@ -10,7 +11,7 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'API Backend is running successfully!' });
 });
 
-app.use('rooms', roomRoute)
+app.use('/rooms', roomRoute)
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

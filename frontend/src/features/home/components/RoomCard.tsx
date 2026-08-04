@@ -59,7 +59,7 @@ export function RoomCard({ room }: RoomCardProps) {
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">
         <Button
-          variant="outline-primary"
+          variant="outlinePrimary"
           disabled={!room.isAvailable}
           className="px-6"
         >

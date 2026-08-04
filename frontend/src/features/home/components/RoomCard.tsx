@@ -16,6 +16,12 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
+  // Simulasi nilai yang dihapus dari Room type
+  const isAvailableMock = room.id !== "4";
+  const descriptionMock = room.id === "1" ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi." : 
+                          room.id === "4" ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik." :
+                          "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
+
   return (
     <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
       <div className="relative aspect-[4/3] w-full bg-muted">
@@ -34,9 +40,9 @@ export function RoomCard({ room }: RoomCardProps) {
         >
           <CheckCircle
             weight="fill"
-            className={room.isAvailable ? "text-green-600" : "text-neutral"}
+            className={isAvailableMock ? "text-green-600" : "text-neutral"}
           />
-          {room.isAvailable ? "Tersedia" : "Tidak Tersedia"}
+          {isAvailableMock ? "Tersedia" : "Tidak Tersedia"}
         </Badge>
       </div>
 
@@ -55,7 +61,7 @@ export function RoomCard({ room }: RoomCardProps) {
 
       <CardContent className="pb-6">
         <p className="text-sm leading-relaxed text-neutral/80 min-h-[60px]">
-          {room.description}
+          {descriptionMock}
         </p>
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">

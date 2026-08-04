@@ -7,6 +7,7 @@ import {
   Calendar as CalendarIcon,
   Clock,
   Users,
+  CheckCircle
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -35,29 +36,61 @@ export function BookingDetailsForm({
   room,
   sessions,
 }: BookingDetailsFormProps) {
-  // State tanggal menggunakan objek Date (bukan string lagi) agar kompatibel dengan Shadcn Calendar
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
+  
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  const formatRupiah = (angka: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(angka);
+  };
+
+  const isPremium = room.type === "premium";
+  const standardRate = room.pricePerSession;
+  const totalPrice = selectedSession && date ? standardRate : 0;
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-white border border-border/50 rounded-xl shadow-sm h-full">
-      {/* Header Info */}
-      <div className="border-b border-border pb-4">
+    <div className="flex flex-col gap-6 h-full">
+      
+      {/* Card 1: Informasi Ruangan & Kapasitas */}
+      <div className="p-6 bg-white border border-border/50 rounded-xl shadow-sm flex flex-col gap-4">
         <h1 className="text-3xl font-serif font-bold text-primary">
           {room.name}
         </h1>
+        <div className="flex items-center gap-3 text-neutral/80">
+          <Users className="w-5 h-5 text-primary" />
+          <span className="text-sm font-medium">
+            Kapasitas: Maksimal {room.capacity} Orang
+          </span>
+        </div>
       </div>
 
-      {/* Booking Form Area */}
-      <div className="flex flex-col gap-4 flex-1">
-        <h3 className="font-bold text-lg text-primary">Booking Details</h3>
+      {/* Card 2: Form Booking Details */}
+      <div className="p-6 bg-white border border-border/50 rounded-xl shadow-sm flex flex-col gap-6">
+        <h3 className="font-bold text-xl text-primary border-b border-border pb-4">
+          Booking Details
+        </h3>
 
-        {/* Input Tanggal  */}
+        {/* Pricing Info (Conditional Rendering: Hanya dirender jika isPremium true) */}
+        {isPremium && (
+          <div className="flex justify-between items-center border-b border-border pb-4">
+            <span className="text-sm font-medium text-neutral">Standard Rate</span>
+            <span className="text-lg font-bold text-primary">
+              {formatRupiah(standardRate)} / sesi
+            </span>
+          </div>
+        )}
+
+        {/* Input Tanggal */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold text-neutral uppercase tracking-wider">
             Pilih Tanggal
           </label>
-          <Popover>
+          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger
               className={cn(
                 buttonVariants({ variant: "outline" }),
@@ -76,7 +109,10 @@ export function BookingDetailsForm({
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={(selectedDate) => {
+                  setDate(selectedDate);
+                  setIsCalendarOpen(false);
+                }}
                 locale={id}
               />
             </PopoverContent>
@@ -114,20 +150,28 @@ export function BookingDetailsForm({
           </Select>
         </div>
 
-        {/* Info Kapasitas ) */}
-        <div className="flex items-center gap-3 py-3 px-4 bg-muted/50 rounded-md border border-border mt-auto">
-          <Users className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium text-neutral">
-            Kapasitas Saat Ini :{" "}
-            <span className="text-primary font-bold">0 / {room.capacity}</span>{" "}
-            Orang
-          </span>
-        </div>
+        {/* Total Price Section (Conditional Rendering) */}
+        {isPremium && (
+          <div className="mt-4 pt-4 border-t border-border flex flex-col gap-2">
+            <div className="flex justify-between items-center">
+              <span className="text-base font-bold text-neutral">Total</span>
+              <span className="text-2xl font-bold text-primary">
+                {formatRupiah(totalPrice)}
+              </span>
+            </div>
+            <p className="text-xs text-neutral/70 text-right">
+              *Diskon khusus tersedia untuk dosen & mahasiswa pascasarjana.
+            </p>
+          </div>
+        )}
 
         {/* Action Button */}
-        <Button className="w-full py-5 text-base font-bold shadow-md mt-2">
-          <CalendarIcon className="w-5 h-5 mr-2" weight="bold" />
-          Pesan Sekarang
+        <Button 
+          className="w-full py-6 text-base font-bold shadow-md mt-2 transition-all hover:-translate-y-1"
+          disabled={!date || !selectedSession}
+        >
+          <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
+          {isPremium ? "Book Now" : "Reservasi Sekarang"}
         </Button>
       </div>
     </div>

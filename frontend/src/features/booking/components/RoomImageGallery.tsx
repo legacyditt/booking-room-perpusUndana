@@ -7,7 +7,7 @@ interface RoomImageGalleryProps {
 
 export function RoomImageGallery({ room }: RoomImageGalleryProps) {
   return (
-    <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-[600px] rounded-xl overflow-hidden shadow-lg">
+    <div className="relative w-full aspect-[4/3] md:aspect-auto md:h-[450px] rounded-xl overflow-hidden shadow-lg">
       <Image
         src={room.imageUrl || "/placeholder-room.jpg"}
         alt={room.name}

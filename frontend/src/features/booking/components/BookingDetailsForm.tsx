@@ -41,13 +41,12 @@ export function BookingDetailsForm({
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  const formatRupiah = (angka: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(angka);
-  };
+const rupiahFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 0,
+});
+const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
   const isPremium = room.type === "premium";
 

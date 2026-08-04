@@ -1,0 +1,55 @@
+info:
+  name: Update Room
+  type: http
+  seq: 4
+
+docs: |-
+  Memperbarui data ruangan berdasarkan ID.
+
+  **Path Parameters:**
+  - `id` (number, required) — ID ruangan.
+
+  **Request Body (application/json):**
+  - `name` (string, required)
+  - `capacity` (number, required)
+  - `imageUrl` (string, required)
+
+  **Response 200:**
+  ```json
+  {
+    "message": "Room Updated Successfully",
+    "data": {
+      "id": 1,
+      "name": "Ruang Archibald",
+      "capacity": 3,
+      "imageUrl": "/rooms/archibald.jpg"
+    }
+  }
+  ```
+
+  **Response 404:**
+  ```json
+  { "message": "Room Not Found" }
+  ```
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/rooms/1"
+  auth: inherit
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Ruang Archibald",
+        "capacity": 3,
+        "imageUrl": "/rooms/archibald.jpg"
+      }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

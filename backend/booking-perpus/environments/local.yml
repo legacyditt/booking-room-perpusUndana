@@ -1,1 +1,4 @@
 name: local
+variables:
+  - name: baseUrl
+    value: localhost:3001

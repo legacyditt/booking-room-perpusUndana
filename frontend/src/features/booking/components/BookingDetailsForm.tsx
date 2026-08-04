@@ -2,8 +2,12 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock, Users } from "@phosphor-icons/react/dist/ssr";
-
+import { id } from "date-fns/locale";
+import {
+  Calendar as CalendarIcon,
+  Clock,
+  Users,
+} from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -19,7 +23,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
 
@@ -68,7 +71,7 @@ export function BookingDetailsForm({
             >
               <CalendarIcon className="mr-3 h-5 w-5 text-neutral" />
               {date ? (
-                format(date, "PPP")
+                format(date, "PPPP", { locale: id })
               ) : (
                 <span>Pilih Tanggal Pemesanan</span>
               )}
@@ -78,6 +81,7 @@ export function BookingDetailsForm({
                 mode="single"
                 selected={date}
                 onSelect={setDate}
+                locale={id}
               />
             </PopoverContent>
           </Popover>
@@ -95,7 +99,15 @@ export function BookingDetailsForm({
             <SelectTrigger className="w-full px-4 py-6 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <SelectValue placeholder="Pilih Waktu Sesi" />
+                <SelectValue placeholder="Pilih Waktu Sesi">
+                  {selectedSession ? (
+                    sessions
+                      .filter((s) => s.id === selectedSession)
+                      .map((s) => `${s.name} (${s.timeRange})`)
+                  ) : (
+                    "Pilih Waktu Sesi"
+                  )}
+                </SelectValue>
               </div>
             </SelectTrigger>
             <SelectContent>

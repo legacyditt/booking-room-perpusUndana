@@ -21,8 +21,7 @@ model Room {
   id           Int           @id @default(autoincrement())
   name         String
   capacity     Int
-  isAvailable  Boolean       @default(true)
-  isPerSeat    Boolean       @default(false)
+  imageUrl     String
   bookings     Booking[]
   bookingPrice BookingPrice?
 }

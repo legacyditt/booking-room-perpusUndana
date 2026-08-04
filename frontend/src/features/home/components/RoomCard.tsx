@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Users, CheckCircle } from "@phosphor-icons/react/dist/ssr";
 import {
   Card,
@@ -6,7 +7,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Room } from "@/types/room";
 
@@ -64,13 +65,21 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">
-        <Button
-          variant="outline-primary"
-          disabled={!isAvailableMock}
-          className="px-6 w-full"
-        >
-          Pesan Ruangan
-        </Button>
+        {room.isAvailable ? (
+          <Link
+            href={`/room/${room.id}`}
+            className={buttonVariants({
+              variant: "outlinePrimary",
+              className: "px-6",
+            })}
+          >
+            Pesan Ruangan
+          </Link>
+        ) : (
+          <Button variant="outlinePrimary" disabled className="px-6">
+            Pesan Ruangan
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

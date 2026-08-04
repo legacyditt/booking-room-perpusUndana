@@ -59,9 +59,9 @@ export function RoomCard({ room }: RoomCardProps) {
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">
         <Button
-          variant="outline"
+          variant="outline-primary"
           disabled={!room.isAvailable}
-          className="border-primary text-primary hover:bg-primary hover:text-white px-6"
+          className="px-6"
         >
           Pesan Ruangan
         </Button>

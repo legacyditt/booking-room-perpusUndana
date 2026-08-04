@@ -40,20 +40,16 @@ export function BookingDetailsForm({
   const [selectedSession, setSelectedSession] = useState<string>("");
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
+    <div className="flex flex-col gap-4 p-5 bg-white border border-border/50 rounded-xl shadow-sm h-full">
       {/* Header Info */}
-      <div className="border-b border-border pb-6">
-        <h1 className="text-3xl font-serif font-bold text-primary mb-2">
+      <div className="border-b border-border pb-4">
+        <h1 className="text-3xl font-serif font-bold text-primary">
           {room.name}
         </h1>
-        <div className="flex items-center gap-2 text-neutral">
-          <Users className="w-5 h-5" />
-          <span>Kapasitas: Hingga {room.capacity} orang</span>
-        </div>
       </div>
 
       {/* Booking Form Area */}
-      <div className="flex flex-col gap-6 pt-2 flex-1">
+      <div className="flex flex-col gap-4 flex-1">
         <h3 className="font-bold text-lg text-primary">Booking Details</h3>
 
         {/* Input Tanggal  */}
@@ -65,7 +61,7 @@ export function BookingDetailsForm({
             <PopoverTrigger
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "w-full justify-start text-left font-normal px-4 py-6 bg-background shadow-sm",
+                "w-full justify-start text-left font-normal px-4 py-4 bg-background shadow-sm",
                 !date && "text-muted-foreground",
               )}
             >
@@ -96,17 +92,15 @@ export function BookingDetailsForm({
             value={selectedSession}
             onValueChange={(val) => setSelectedSession(val || "")}
           >
-            <SelectTrigger className="w-full px-4 py-6 border-border bg-background shadow-sm">
+            <SelectTrigger className="w-full px-4 py-4 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
                 <SelectValue placeholder="Pilih Waktu Sesi">
-                  {selectedSession ? (
-                    sessions
-                      .filter((s) => s.id === selectedSession)
-                      .map((s) => `${s.name} (${s.timeRange})`)
-                  ) : (
-                    "Pilih Waktu Sesi"
-                  )}
+                  {selectedSession
+                    ? sessions
+                        .filter((s) => s.id === selectedSession)
+                        .map((s) => `${s.name} (${s.timeRange})`)
+                    : "Pilih Waktu Sesi"}
                 </SelectValue>
               </div>
             </SelectTrigger>
@@ -131,7 +125,7 @@ export function BookingDetailsForm({
         </div>
 
         {/* Action Button */}
-        <Button className="w-full py-6 text-base font-bold shadow-md">
+        <Button className="w-full py-5 text-base font-bold shadow-md mt-2">
           <CalendarIcon className="w-5 h-5 mr-2" weight="bold" />
           Pesan Sekarang
         </Button>

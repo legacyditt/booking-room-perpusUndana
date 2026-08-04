@@ -23,13 +23,12 @@ export const getRoomById = async (req: Request, res: Response) => {
 
 export const createRoom = async (req: Request, res: Response) => {
     try {
-        const { name, capacity, isAvailable, isPerSeat } = req.body
+        const { name, capacity, imageUrl } = req.body
         const room = await prisma.room.create({
             data: {
                 name,
                 capacity,
-                isAvailable: isAvailable ?? true,
-                isPerSeat: isPerSeat ?? false,
+                imageUrl,
             }
         })
         return res.status(201).json({ messsage: "Room Created Successfully", data: room })
@@ -42,7 +41,7 @@ export const createRoom = async (req: Request, res: Response) => {
 export const updateRooms = async (req: Request, res: Response) => {
     try {
         const { id } = req.params
-        const { name, capacity, isAvailable, isPerSeat } = req.body
+        const { name, capacity, imageUrl } = req.body
 
         const existingRoom = await prisma.room.findUnique({
             where: { id: Number(id) }
@@ -54,8 +53,7 @@ export const updateRooms = async (req: Request, res: Response) => {
             data: {
                 name,
                 capacity,
-                isAvailable,
-                isPerSeat
+                imageUrl
             }
         })
         return res.status(200).json({ message: "Room Updated Successfully", data: room })

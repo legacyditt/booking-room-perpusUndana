@@ -9,10 +9,10 @@ import {
 
 const router = Router();
 
-router.get('/room', getAllRooms);
-router.get('/room/:id', getRoomById);
-router.post('/room', createRoom);
-router.put('/room/:id', updateRooms);
-router.delete('/room/:id', deleteRoom);
+router.get('/', getAllRooms);
+router.get('/:id', getRoomById);
+router.post('/', createRoom);
+router.put('/:id', updateRooms);
+router.delete('/:id', deleteRoom);
 
 export default router;

@@ -1,0 +1,39 @@
+info:
+  name: Get Room By Id
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rooms/1"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengambil detail satu ruangan berdasarkan ID.
+
+  **Path Parameters:**
+  - `id` (number, required) — ID ruangan.
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "id": 1,
+      "name": "Ruang Archibald",
+      "capacity": 2,
+      "imageUrl": "/rooms/archibald.jpg",
+      "bookingPrice": { "roomId": 1, "price": "15" }
+    }
+  }
+  ```
+
+  **Response 404:**
+  ```json
+  { "message": "Room not found" }
+  ```

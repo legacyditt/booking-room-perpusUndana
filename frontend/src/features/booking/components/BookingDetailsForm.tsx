@@ -7,6 +7,8 @@ import {
   Calendar as CalendarIcon,
   Clock,
   Users,
+  CheckCircle,
+  Tag
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -35,33 +37,62 @@ export function BookingDetailsForm({
   room,
   sessions,
 }: BookingDetailsFormProps) {
-  // State tanggal menggunakan objek Date (bukan string lagi) agar kompatibel dengan Shadcn Calendar
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+const rupiahFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 0,
+});
+const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
+
+  const isPremium = room.type === "premium";
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-white border border-border/50 rounded-xl shadow-sm h-full">
-      {/* Header Info */}
-      <div className="border-b border-border pb-4">
+    <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
+      
+      {/* Header Info & Capacity/Price */}
+      <div className="border-b border-border pb-5 flex flex-col gap-3">
         <h1 className="text-3xl font-serif font-bold text-primary">
           {room.name}
         </h1>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-neutral/80">
+            <Users className="w-5 h-5 text-primary shrink-0" />
+            <span className="text-sm font-medium">
+              Maksimal {room.capacity} Orang
+            </span>
+          </div>
+
+          {/* Price Tag (Hanya untuk Premium) */}
+          {isPremium && (
+            <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-md w-fit">
+              <Tag className="w-4 h-4" weight="bold" />
+              <span className="text-sm font-bold tracking-wide">
+                {formatRupiah(room.pricePerSession)} / sesi
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Booking Form Area */}
+      {/* Booking Form Fields */}
       <div className="flex flex-col gap-4 flex-1">
         <h3 className="font-bold text-lg text-primary">Booking Details</h3>
 
-        {/* Input Tanggal  */}
+        {/* Input Tanggal */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold text-neutral uppercase tracking-wider">
             Pilih Tanggal
           </label>
-          <Popover>
+          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger
               className={cn(
                 buttonVariants({ variant: "outline" }),
-                "w-full justify-start text-left font-normal px-4 py-4 bg-background shadow-sm",
+                "w-full justify-start text-left font-normal px-4 py-3.5 bg-background shadow-sm",
                 !date && "text-muted-foreground",
               )}
             >
@@ -76,7 +107,10 @@ export function BookingDetailsForm({
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={setDate}
+                onSelect={(selectedDate) => {
+                  setDate(selectedDate);
+                  setIsCalendarOpen(false); 
+                }}
                 locale={id}
               />
             </PopoverContent>
@@ -92,7 +126,7 @@ export function BookingDetailsForm({
             value={selectedSession}
             onValueChange={(val) => setSelectedSession(val || "")}
           >
-            <SelectTrigger className="w-full px-4 py-4 border-border bg-background shadow-sm">
+            <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
                 <SelectValue placeholder="Pilih Waktu Sesi">
@@ -113,23 +147,24 @@ export function BookingDetailsForm({
             </SelectContent>
           </Select>
         </div>
+      </div>
 
-        {/* Info Kapasitas ) */}
-        <div className="flex items-center gap-3 py-3 px-4 bg-muted/50 rounded-md border border-border mt-auto">
-          <Users className="w-5 h-5 text-primary" />
-          <span className="text-sm font-medium text-neutral">
-            Kapasitas Saat Ini :{" "}
-            <span className="text-primary font-bold">0 / {room.capacity}</span>{" "}
-            Orang
-          </span>
-        </div>
-
-        {/* Action Button */}
-        <Button className="w-full py-5 text-base font-bold shadow-md mt-2">
-          <CalendarIcon className="w-5 h-5 mr-2" weight="bold" />
-          Pesan Sekarang
+      {/* Action Area */}
+      <div className="mt-2 flex flex-col gap-3">
+        {isPremium && (
+          <p className="text-xs text-neutral/70 text-center">
+            *Diskon khusus tersedia untuk dosen & mahasiswa pascasarjana.
+          </p>
+        )}
+        <Button 
+          className="w-full py-6 text-base font-bold shadow-md transition-all hover:-translate-y-1"
+          disabled={!date || !selectedSession}
+        >
+          <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
+          {isPremium ? "Book Now" : "Reservasi Sekarang"}
         </Button>
       </div>
+
     </div>
   );
 }

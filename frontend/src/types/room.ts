@@ -11,4 +11,5 @@ export interface Room {
   pricePerSession: number;
   imageUrl: string;
   isAvailable: boolean;
+  type: "reguler" | "premium";
 }

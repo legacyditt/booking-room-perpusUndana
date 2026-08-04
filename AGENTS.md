@@ -13,14 +13,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **Mode:** Mentorship. Jelaskan keputusan teknis, ajarkan clean architecture, dan pandu implementasi.
 - **Agent Skills (MANDATORY):**
   - **Caveman:** Terse, padat, langsung pada intinya teknis. Tanpa basa-basi atau kata pengisi (fluff).
-  - **Superpowers:** Gunakan metodologi Superpowers (Brainstorm, Plan, TDD, Systematic Debug, Verify). Selalu pecah tugas menjadi 2-5 menit.
+  - **Superpowers:** Gunakan metodologi Superpowers (Brainstorm, Plan, TDD, Systematic Debug, Verify). Selalu pecah tugas.
 - **Architecture:** Clean Architecture & Separation of Concerns (UI Components, Features, Data Layer, Pages).
-- **Workflow:**
+- - **Workflow:**
   1. **SELALU BUAT BRANCH BARU** sebelum memulai task/fitur baru (contoh: `git checkout -b feat/home-header`).
   2. Break down tasks lapis demi lapis.
   3. Berikan source code lengkap dan penjelasan teknis. User yang akan eksekusi.
   4. Tawarkan command commit setiap 1 task selesai.
   5. Gunakan standar _Conventional Commits_ (feat, fix, chore, dll).
   6. Selalu tambahkan setiap file roadmap (contoh: `roadmap-*.md`) ke dalam `.gitignore` agar file manajemen proyek tidak ikut ter-push ke repository.
+  7. **Audit Pekerjaan User:** Saat user meminta untuk lanjut ke task berikutnya, SELALU lakukan audit/pengecekan terhadap kode yang baru saja dikerjakan/diubah oleh user. Beritahukan secara proaktif jika ada kesalahan, ketidaksesuaian dengan arsitektur, atau potensi bug sebelum beralih ke task baru.
 
-- **UI/UX:** Wajib merujuk pada `ui-ux-pro-max` untuk standar desain dan interaksi.
+- **UI/UX:** Wajib merujuk pada `ui-ux-pro-max` dan `design-taste-frontend` (beserta paket `taste-skill` lainnya) untuk standar desain premium, interaksi, dan menghindari antarmuka generik (anti-slop).

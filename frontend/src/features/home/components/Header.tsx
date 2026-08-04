@@ -29,10 +29,10 @@ export function Header() {
             <Input
               type="search"
               placeholder="Cari..."
-              className="w-56 pl-9 rounded-full bg-white border-border focus-visible:ring-primary shadow-sm"
+              className="w-56 pl-9 bg-white border-border focus-visible:ring-primary shadow-sm"
             />
           </div>
-          <Button className="rounded-full px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">
+          <Button className="px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm">
             Masuk
           </Button>
         </div>

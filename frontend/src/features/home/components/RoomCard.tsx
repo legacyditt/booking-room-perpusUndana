@@ -61,7 +61,7 @@ export function RoomCard({ room }: RoomCardProps) {
         <Button
           variant="outline"
           disabled={!room.isAvailable}
-          className="border-primary text-primary hover:bg-primary hover:text-white rounded-md px-6"
+          className="border-primary text-primary hover:bg-primary hover:text-white px-6"
         >
           Pesan Ruangan
         </Button>

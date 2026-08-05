@@ -7,13 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id       Int      @id @default(autoincrement())
-  name     String   @map("name")
-  email    String   @unique @map("email")
-  password String   @map("password")
-  role     Role     @default(USER) @map("role")
+  id       Int       @id @default(autoincrement())
+  name     String
+  email    String    @unique
+  password String
+  role     Role      @default(USER)
   bookings Booking[]
 
   @@map("users")
@@ -21,8 +20,8 @@ model User {
 
 model Room {
   id           Int           @id @default(autoincrement())
-  name         String        @map("name")
-  capacity     Int           @map("capacity")
+  name         String
+  capacity     Int
   imageUrl     String        @map("image_url")
   bookings     Booking[]
   bookingPrice BookingPrice?
@@ -32,7 +31,7 @@ model Room {
 
 model Session {
   id         Int       @id @default(autoincrement())
-  name       String    @map("name")
+  name       String
   startTime  String    @map("start_time")
   finishTime String    @map("finish_time")
   bookings   Booking[]
@@ -45,8 +44,8 @@ model Booking {
   roomId    Int           @map("room_id")
   sessionId Int           @map("session_id")
   userId    Int           @map("user_id")
-  date      DateTime      @map("date")
-  status    BookingStatus @default(PENDING) @map("status")
+  date      DateTime
+  status    BookingStatus @default(PENDING)
   createdAt DateTime      @default(now()) @map("created_at")
 
   room    Room    @relation(fields: [roomId], references: [id])
@@ -58,7 +57,8 @@ model Booking {
 
 model BookingPrice {
   roomId Int     @id @map("room_id")
-  price  Decimal @map("price")
+  price  Decimal
+
   room   Room    @relation(fields: [roomId], references: [id])
 
   @@map("booking_prices")

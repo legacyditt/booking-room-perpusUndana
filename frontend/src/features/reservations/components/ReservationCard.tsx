@@ -4,6 +4,16 @@ import { format, formatDistanceToNow, isToday } from "date-fns";
 import { id as idLocale } from "date-fns/locale"; // Menggunakan locale Bahasa Indonesia
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
@@ -77,15 +87,75 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
             <Button variant="outline" className="w-full font-bold border-border/80 text-primary">
               Ubah
             </Button>
-            <Button variant="outline" className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
-              Batalkan
-            </Button>
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <Button variant="outline" className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                    Batalkan
+                  </Button>
+                }
+              />
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-base text-primary font-bold">Batalkan Peminjaman?</DialogTitle>
+                  <DialogDescription className="text-sm">
+                    Tindakan ini tidak dapat dikembalikan. Peminjaman Anda untuk <span className="font-semibold">{room.name}</span> akan dibatalkan secara permanen.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="mt-4 gap-2">
+                  <DialogClose
+                    render={
+                      <Button variant="outline" className="flex-1 sm:flex-none font-medium">
+                        Kembali
+                      </Button>
+                    }
+                  />
+                  <DialogClose
+                    render={
+                      <Button variant="destructive" className="flex-1 sm:flex-none font-bold shadow-sm">
+                        Ya, Batalkan
+                      </Button>
+                    }
+                  />
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </>
         )}
         {booking.status === "PENDING" && (
-          <Button variant="outline" className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
-            Batalkan Permintaan
-          </Button>
+          <Dialog>
+            <DialogTrigger
+              render={
+                <Button variant="outline" className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                  Batalkan Permintaan
+                </Button>
+              }
+            />
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-base text-primary font-bold">Batalkan Permintaan?</DialogTitle>
+                <DialogDescription className="text-sm">
+                  Tindakan ini tidak dapat dikembalikan. Permintaan peminjaman Anda untuk <span className="font-semibold">{room.name}</span> akan dibatalkan.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="mt-4 gap-2">
+                <DialogClose
+                  render={
+                    <Button variant="outline" className="flex-1 sm:flex-none font-medium">
+                      Kembali
+                    </Button>
+                  }
+                />
+                <DialogClose
+                  render={
+                    <Button variant="destructive" className="flex-1 sm:flex-none font-bold shadow-sm">
+                      Ya, Batalkan
+                    </Button>
+                  }
+                />
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
       </div>
 

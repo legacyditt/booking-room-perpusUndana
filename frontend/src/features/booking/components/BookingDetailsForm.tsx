@@ -133,13 +133,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <SelectValue placeholder="Pilih Waktu Sesi">
-                  {selectedSession
-                    ? sessions
-                        .filter((s) => s.id === Number(selectedSession))
-                        .map((s) => `${s.name} (${s.timeRange})`)
-                    : "Pilih Waktu Sesi"}
-                </SelectValue>
+                <SelectValue placeholder="Pilih Waktu Sesi" />
               </div>
             </SelectTrigger>
             <SelectContent>

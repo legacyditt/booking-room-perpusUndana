@@ -4,6 +4,7 @@ import { format, formatDistanceToNow, isToday } from "date-fns";
 import { id as idLocale } from "date-fns/locale"; // Menggunakan locale Bahasa Indonesia
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 
@@ -25,21 +26,21 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
   const formattedDate = format(bookingDate, "dd MMM yyyy", { locale: idLocale });
 
   // Styling logika status
-  const statusMap: Record<Booking["status"], string> = {
-    PENDING: "MENUNGGU PERSETUJUAN",
-    APPROVED: "DIKONFIRMASI",
-    REJECTED: "DITOLAK",
-    CANCELLED: "DIBATALKAN",
+  const statusConfig: Record<Booking["status"], { text: string, className: string }> = {
+    PENDING: { text: "MENUNGGU PERSETUJUAN", className: "bg-yellow-100 text-yellow-800" },
+    APPROVED: { text: "DIKONFIRMASI", className: "bg-green-100 text-green-800" },
+    REJECTED: { text: "DITOLAK", className: "bg-red-100 text-red-800" },
+    CANCELLED: { text: "DIBATALKAN", className: "bg-gray-100 text-gray-800" },
   };
-  const badgeText = statusMap[booking.status];
+  const currentStatus = statusConfig[booking.status];
   
   return (
     <div className="bg-white border border-border/80 rounded-xl p-6 shadow-sm flex flex-col gap-6 text-left hover:shadow-md transition-shadow h-full">
       
       {/* Top Header Row (Badge & Waktu Dibuat) */}
       <div className="flex justify-between items-start gap-4">
-        <span className="bg-neutral/10 text-neutral font-bold text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full">
-          {badgeText}
+        <span className={cn("font-bold text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full", currentStatus.className)}>
+          {currentStatus.text}
         </span>
         
         <span className="text-xs font-medium text-neutral/70">

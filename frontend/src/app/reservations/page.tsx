@@ -50,13 +50,13 @@ export default function MyReservationsPage() {
                 value="upcoming"
                 className="text-sm font-bold uppercase tracking-wider pb-3 px-1"
               >
-                Upcoming
+                Mendatang
               </TabsTrigger>
               <TabsTrigger
                 value="past"
                 className="text-sm font-bold uppercase tracking-wider pb-3 px-1"
               >
-                Past
+                Riwayat
               </TabsTrigger>
             </TabsList>
 

@@ -25,8 +25,13 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
   const formattedDate = format(bookingDate, "dd MMM yyyy", { locale: idLocale });
 
   // Styling logika status
-  const isConfirmed = booking.status === "APPROVED";
-  const badgeText = isConfirmed ? "DIKONFIRMASI" : "MENUNGGU PERSETUJUAN";
+  const statusMap: Record<Booking["status"], string> = {
+    PENDING: "MENUNGGU PERSETUJUAN",
+    APPROVED: "DIKONFIRMASI",
+    REJECTED: "DITOLAK",
+    CANCELLED: "DIBATALKAN",
+  };
+  const badgeText = statusMap[booking.status];
   
   return (
     <div className="bg-white border border-border/80 rounded-xl p-6 shadow-sm flex flex-col gap-6 text-left hover:shadow-md transition-shadow h-full">
@@ -67,7 +72,7 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
 
       {/* Action Buttons */}
       <div className="mt-2 grid grid-cols-2 gap-3">
-        {isConfirmed ? (
+        {booking.status === "APPROVED" && (
           <>
             <Button variant="outline" className="w-full font-bold border-border/80 text-primary">
               Ubah
@@ -76,7 +81,8 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
               Batalkan
             </Button>
           </>
-        ) : (
+        )}
+        {booking.status === "PENDING" && (
           <Button variant="outline" className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
             Batalkan Permintaan
           </Button>

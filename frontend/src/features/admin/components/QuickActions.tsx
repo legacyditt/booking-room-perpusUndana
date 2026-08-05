@@ -16,7 +16,8 @@ export function QuickActions() {
         <Button
           variant="default"
           size="lg"
-          className="w-full justify-center gap-2 rounded-lg"
+          nativeButton={false}
+          className="w-full justify-center gap-2"
           render={<Link href="/admin/rooms/new" />}
         >
           <PlusCircle size={18} />
@@ -27,7 +28,8 @@ export function QuickActions() {
         <Button
           variant="outlinePrimary"
           size="lg"
-          className="w-full justify-center gap-2 rounded-lg"
+          nativeButton={false}
+          className="w-full justify-center gap-2"
           render={<Link href="/admin/reports" />}
         >
           <ChartBar size={18} />

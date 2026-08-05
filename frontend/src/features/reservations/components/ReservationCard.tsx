@@ -39,15 +39,17 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
       
       {/* Main Room Info */}
       <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider">
-          {createdText}
-        </span>
-        <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
-          {room.name}
-        </h3>
+        <div className="flex justify-between items-start gap-4">
+          <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
+            {room.name}
+          </h3>
+          <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider shrink-0 mt-1.5">
+            {createdText}
+          </span>
+        </div>
         
-        <div className="flex items-center gap-3 mt-1">
-          <span className={cn("font-bold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full", currentStatus.className)}>
+        <div className="flex flex-wrap items-center gap-3 mt-1">
+          <span className={cn("inline-flex font-bold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full w-fit", currentStatus.className)}>
             {currentStatus.text}
           </span>
           <div className="flex items-center gap-1.5 text-neutral/80 text-sm font-medium">

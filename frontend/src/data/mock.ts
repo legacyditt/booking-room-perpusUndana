@@ -1,7 +1,12 @@
 import { User, Role } from "@/types/user";
 import { Room } from "@/types/room";
 import { Booking, Session } from "@/types/booking";
-import { AdminStat, RecentBookingRow, AdminRoomRow } from "@/types/admin";
+import {
+  AdminStat,
+  RecentBookingRow,
+  AdminRoomRow,
+  AdminSessionRow,
+} from "@/types/admin";
 
 // ── Enum & Interface lokal ──────────────────────────────────────────────────
 export enum BookingStatus {
@@ -239,5 +244,48 @@ export const mockAdminRooms: AdminRoomRow[] = [
     capacity: "24 people",
     price: "Rp 100.000",
     status: "OFFLINE",
+  },
+];
+
+export const mockAdminSessions: AdminSessionRow[] = [
+  {
+    id: 1,
+    name: "Sesi Pagi A",
+    startTime: "08:00",
+    endTime: "10:00",
+    duration: "2 Jam",
+    isActive: true,
+  },
+  {
+    id: 2,
+    name: "Sesi Pagi B",
+    startTime: "10:30",
+    endTime: "12:30",
+    duration: "2 Jam",
+    isActive: true,
+  },
+  {
+    id: 3,
+    name: "Sesi Siang",
+    startTime: "13:00",
+    endTime: "16:00",
+    duration: "3 Jam",
+    isActive: true,
+  },
+  {
+    id: 4,
+    name: "Sesi Sore",
+    startTime: "16:30",
+    endTime: "18:30",
+    duration: "2 Jam",
+    isActive: false,
+  },
+  {
+    id: 5,
+    name: "Sesi Malam",
+    startTime: "19:00",
+    endTime: "21:00",
+    duration: "2 Jam",
+    isActive: false,
   },
 ];

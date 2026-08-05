@@ -1,4 +1,5 @@
-// Tipe data untuk satu kartu statistik di halaman overview
+// Tipe data 
+
 export interface AdminStat {
   id: string;
   label: string;
@@ -27,4 +28,13 @@ export interface AdminRoomRow {
   capacity: string;
   price: string;
   status: "AVAILABLE" | "MAINTENANCE" | "OFFLINE";
+}
+
+export interface AdminSessionRow {
+  id: number;
+  name: string;
+  startTime: string;  // format "08:00"
+  endTime: string;    // format "10:00"
+  duration: string;   // format "2 Jam"
+  isActive: boolean;
 }

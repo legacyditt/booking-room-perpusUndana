@@ -37,25 +37,23 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
   return (
     <div className="bg-white border border-border/80 rounded-xl p-6 shadow-sm flex flex-col gap-6 text-left hover:shadow-md transition-shadow h-full">
       
-      {/* Top Header Row (Badge & Waktu Dibuat) */}
-      <div className="flex justify-between items-start gap-4">
-        <span className={cn("font-bold text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full", currentStatus.className)}>
-          {currentStatus.text}
-        </span>
-        
-        <span className="text-xs font-medium text-neutral/70">
+      {/* Main Room Info */}
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider">
           {createdText}
         </span>
-      </div>
-
-      {/* Main Room Info */}
-      <div className="flex flex-col gap-1">
-        <h3 className="text-2xl font-serif font-bold text-primary">
+        <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
           {room.name}
         </h3>
-        <div className="flex items-center gap-2 text-neutral/80 text-sm">
-          <Users className="w-4 h-4" />
-          <span>Kapasitas: Maksimal {room.capacity} Orang</span>
+        
+        <div className="flex items-center gap-3 mt-1">
+          <span className={cn("font-bold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full", currentStatus.className)}>
+            {currentStatus.text}
+          </span>
+          <div className="flex items-center gap-1.5 text-neutral/80 text-sm font-medium">
+            <Users className="w-4 h-4" />
+            <span>Maksimal {room.capacity} Orang</span>
+          </div>
         </div>
       </div>
 

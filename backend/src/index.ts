@@ -1,9 +1,12 @@
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import roomRoute from './routes/room.routes';
+import sessionRoute from './routes/sessions.routes';
+import bookingsRoute from './routes/bookings.routes';
+import bookingPriceRoute from './routes/bookingPrice.routes';
 
 const app = express();
-const port = process.env.PORT || 3001; // Kita gunakan 3001 karena frontend biasanya berjalan di 3000
+const port = process.env.PORT || 3001;
 
 app.use(express.json());
 
@@ -12,6 +15,9 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/rooms', roomRoute)
+app.use('/sessions', sessionRoute)
+app.use('/bookings', bookingsRoute)
+app.use('/booking-prices', bookingPriceRoute)
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

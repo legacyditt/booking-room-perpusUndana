@@ -16,10 +16,10 @@ export function ReservationFilters() {
   return (
     <div className="p-5 border-b border-[#E2E8F0] bg-white">
       <div className="flex flex-col xl:flex-row gap-4 items-end">
-        {/* Grup Form Filter (Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 w-full">
+        {/* Grup Form Filter (Flex) */}
+        <div className="flex flex-col md:flex-row gap-4 flex-1 w-full">
           {/* Pencarian */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 flex-1">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Cari Pemesanan
             </label>
@@ -34,45 +34,45 @@ export function ReservationFilters() {
           </div>
 
           {/* Status Dropdown */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Status
             </label>
             <Select defaultValue="Semua">
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pilih Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Status</SelectItem>
-                <SelectItem value="pending">Menunggu</SelectItem>
-                <SelectItem value="approved">Disetujui</SelectItem>
-                <SelectItem value="completed">Selesai</SelectItem>
-                <SelectItem value="cancelled">Dibatalkan</SelectItem>
+                <SelectItem value="Menunggu">Menunggu</SelectItem>
+                <SelectItem value="Disetujui">Disetujui</SelectItem>
+                <SelectItem value="Selesai">Selesai</SelectItem>
+                <SelectItem value="Dibatalkan">Dibatalkan</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Tanggal */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Rentang Tanggal
             </label>
-            <Input type="date" />
+            <Input type="date" className="w-full" />
           </div>
 
-          {/* Tipe Ruangan */}
-          <div className="flex flex-col gap-1.5">
+          {/* Tipe Ruangan Dropdown */}
+          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Tipe Ruangan
             </label>
             <Select defaultValue="Semua">
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pilih Tipe Ruangan" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Semua Ruangan</SelectItem>
-                <SelectItem value="regular">Reguler</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="Reguler">Reguler</SelectItem>
+                <SelectItem value="Premium">Premium</SelectItem>
               </SelectContent>
             </Select>
           </div>

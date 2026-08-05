@@ -16,10 +16,10 @@ export function RoomFilters() {
   return (
     <div className="p-5 border-b border-[#E2E8F0] bg-white">
       <div className="flex flex-col xl:flex-row gap-4 items-end">
-        {/* Grup Form Filter (Grid) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1 w-full">
+        {/* Grup Form Filter */}
+        <div className="flex flex-col md:flex-row gap-4 flex-1 w-full">
           {/* Pencarian */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 flex-1">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Cari Ruangan
             </label>
@@ -34,12 +34,12 @@ export function RoomFilters() {
           </div>
 
           {/* Status Dropdown */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Status
             </label>
             <Select defaultValue="Semua">
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pilih Status" />
               </SelectTrigger>
               <SelectContent>
@@ -52,12 +52,12 @@ export function RoomFilters() {
           </div>
 
           {/* Tipe Ruangan Dropdown */}
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Tipe Ruangan
             </label>
             <Select defaultValue="Semua">
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Pilih Tipe Ruangan" />
               </SelectTrigger>
               <SelectContent>

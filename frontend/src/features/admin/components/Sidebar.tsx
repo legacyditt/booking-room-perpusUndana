@@ -10,6 +10,7 @@ import {
   Clock,
   Users,
   Gear,
+  SignOut,
 } from "@phosphor-icons/react";
 
 const navItems = [
@@ -61,7 +62,8 @@ export function Sidebar() {
 
       {/* User Profile Section */}
       <div className="p-4 border-t border-neutral-200">
-        <div className="flex items-center gap-3 px-4 py-2">
+        <div className="flex items-center gap-3 px-3 py-2">
+          {/* Avatar */}
           <div className="w-10 h-10 rounded-full bg-neutral-200 overflow-hidden relative shrink-0">
             <Image
               src="https://placehold.co/100x100/png"
@@ -70,11 +72,16 @@ export function Sidebar() {
               className="object-cover"
             />
           </div>
+
+          {/* Nama & Tombol Keluar */}
           <div className="flex-1 overflow-hidden">
             <p className="text-sm font-semibold text-primary truncate">
               Admin User
             </p>
-            <button className="text-xs text-neutral-500 hover:text-destructive flex items-center gap-1 mt-0.5 transition-colors">
+            <button
+              className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-neutral-200 text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
+            >
+              <SignOut size={13} weight="bold" />
               Keluar
             </button>
           </div>

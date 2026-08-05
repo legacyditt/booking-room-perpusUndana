@@ -65,7 +65,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">
-        {room.isAvailable ? (
+        {isAvailableMock ? (
           <Link
             href={`/room/${room.id}`}
             className={buttonVariants({

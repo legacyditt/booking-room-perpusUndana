@@ -48,7 +48,9 @@ const rupiahFormatter = new Intl.NumberFormat("id-ID", {
 });
 const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
-  const isPremium = room.type === "premium";
+  // Mocking properties removed from Room type
+  const isPremium = room.id === "2" || room.id === "4";
+  const pricePerSessionMock = 50000;
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
@@ -72,7 +74,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-md w-fit">
               <Tag className="w-4 h-4" weight="bold" />
               <span className="text-sm font-bold tracking-wide">
-                {formatRupiah(room.pricePerSession)} / sesi
+                {formatRupiah(pricePerSessionMock)} / sesi
               </span>
             </div>
           )}

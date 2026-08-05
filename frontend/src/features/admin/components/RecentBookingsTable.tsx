@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { RecentBookingRow } from "@/types/admin";
 
 // ── Pemetaan status booking ke variant Badge & label ─────────────────────────
@@ -22,14 +30,14 @@ interface RecentBookingsTableProps {
 
 export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
   return (
-    <div className="bg-white rounded-xl border border-neutral-200 flex flex-col">
+    <div className="bg-white rounded-xl border border-neutral-200 flex flex-col overflow-hidden">
       {/* Header tabel */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
         <h2 className="text-lg font-serif font-semibold text-primary">
           Peminjaman Terbaru
         </h2>
         <Link
-          href="/admin/bookings"
+          href="/admin/reservations" 
           className="flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-primary transition-colors"
         >
           Lihat Semua
@@ -37,56 +45,55 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
         </Link>
       </div>
 
-      {/* Tabel */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          {/* Header kolom */}
-          <thead>
-            <tr className="border-b border-neutral-100 bg-neutral-50/50">
-              <th className="text-left px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                Nama Peminjam
-              </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                Ruangan
-              </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                Sesi
-              </th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                Status
-              </th>
-            </tr>
-          </thead>
+      <Table>
+        <TableHeader className="bg-neutral-50/50">
+          <TableRow className="hover:bg-transparent border-neutral-100">
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+              Nama Peminjam
+            </TableHead>
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+              Ruangan
+            </TableHead>
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+              Sesi
+            </TableHead>
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+              Status
+            </TableHead>
+          </TableRow>
+        </TableHeader>
 
-          {/* Isi tabel */}
-          <tbody className="divide-y divide-neutral-100">
-            {bookings.map((booking) => {
-              // Ambil konfigurasi badge berdasarkan status booking
-              const { label, variant } = statusConfig[booking.status];
+        <TableBody>
+          {bookings.map((booking) => {
+            const { label, variant } = statusConfig[booking.status];
 
-              return (
-                <tr
-                  key={booking.id}
-                  className="hover:bg-neutral-50/60 transition-colors"
-                >
-                  <td className="px-6 py-4 font-medium text-primary">
-                    {booking.userName}
-                  </td>
-                  <td className="px-6 py-4 text-neutral-600">
-                    {booking.roomName}
-                  </td>
-                  <td className="px-6 py-4 text-neutral-600 tabular-nums">
-                    {booking.sessionTimeRange}
-                  </td>
-                  <td className="px-6 py-4">
-                    <Badge variant={variant} className="min-w-[90px] justify-center">{label}</Badge>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+            return (
+              <TableRow
+                key={booking.id}
+                className="hover:bg-neutral-50/60 transition-colors border-neutral-100"
+              >
+                <TableCell className="px-6 py-4 font-medium text-primary">
+                  {booking.userName}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-neutral-600">
+                  {booking.roomName}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-neutral-600 tabular-nums">
+                  {booking.sessionTimeRange}
+                </TableCell>
+                <TableCell className="px-6 py-4">
+                  <Badge
+                    variant={variant}
+                    className="min-w-[90px] justify-center rounded-md"
+                  >
+                    {label}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }

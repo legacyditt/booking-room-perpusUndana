@@ -10,48 +10,58 @@ datasource db {
 
 model User {
   id       Int      @id @default(autoincrement())
-  name     String
-  email    String   @unique
-  password String
-  role     Role     @default(USER)
+  name     String   @map("name")
+  email    String   @unique @map("email")
+  password String   @map("password")
+  role     Role     @default(USER) @map("role")
   bookings Booking[]
+
+  @@map("users")
 }
 
 model Room {
   id           Int           @id @default(autoincrement())
-  name         String
-  capacity     Int
+  name         String        @map("name")
+  capacity     Int           @map("capacity")
   imageUrl     String        @map("image_url")
   bookings     Booking[]
   bookingPrice BookingPrice?
+
+  @@map("rooms")
 }
 
 model Session {
   id         Int       @id @default(autoincrement())
-  name       String
-  startTime  String
-  finishTime String
+  name       String    @map("name")
+  startTime  String    @map("start_time")
+  finishTime String    @map("finish_time")
   bookings   Booking[]
+
+  @@map("sessions")
 }
 
 model Booking {
   id        Int           @id @default(autoincrement())
-  roomId    Int
-  sessionId Int
-  userId    Int
-  date      DateTime
-  status    BookingStatus @default(PENDING)
-  createdAt DateTime      @default(now()) @map("Created_At")
+  roomId    Int           @map("room_id")
+  sessionId Int           @map("session_id")
+  userId    Int           @map("user_id")
+  date      DateTime      @map("date")
+  status    BookingStatus @default(PENDING) @map("status")
+  createdAt DateTime      @default(now()) @map("created_at")
 
   room    Room    @relation(fields: [roomId], references: [id])
   session Session @relation(fields: [sessionId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
+
+  @@map("bookings")
 }
 
 model BookingPrice {
-  roomId Int     @id
-  price  Decimal
+  roomId Int     @id @map("room_id")
+  price  Decimal @map("price")
   room   Room    @relation(fields: [roomId], references: [id])
+
+  @@map("booking_prices")
 }
 
 enum Role {

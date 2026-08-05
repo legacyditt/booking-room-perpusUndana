@@ -60,7 +60,6 @@ export function ReservationFilters() {
               <option value="all">Semua Ruangan</option>
               <option value="regular">Reguler</option>
               <option value="premium">Premium</option>
-              <option value="discussion">Ruang Diskusi</option>
             </select>
           </div>
           

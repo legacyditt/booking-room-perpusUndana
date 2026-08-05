@@ -3,6 +3,7 @@
 import React from "react";
 import { DownloadIcon } from "@phosphor-icons/react";
 import { ReservationFilters } from "@/features/admin/components/ReservationFilters";
+import { ReservationTable } from "@/features/admin/components/ReservationTable";
 
 export default function AdminReservationsPage() {
   return (
@@ -25,15 +26,12 @@ export default function AdminReservationsPage() {
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
-        
         {/* Filter Bar */}
         <ReservationFilters />
 
-        {/* Placeholder: Tabel Data */}
-        <div className="flex-1 p-5 min-h-[400px]">
-          <p className="text-sm text-neutral-400 italic">
-            -- Area Tabel Data --
-          </p>
+        {/* Area Tabel Data */}
+        <div className="flex-1 min-h-[400px]">
+          <ReservationTable />
         </div>
 
         {/* Placeholder: Pagination */}

@@ -43,7 +43,7 @@ export function RoomFilters() {
                 <SelectValue placeholder="Pilih Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="Semua">Semua Status</SelectItem>
                 <SelectItem value="available">Tersedia</SelectItem>
                 <SelectItem value="maintenance">Perawatan</SelectItem>
                 <SelectItem value="offline">Tidak Aktif</SelectItem>
@@ -61,7 +61,7 @@ export function RoomFilters() {
                 <SelectValue placeholder="Pilih Tipe Ruangan" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Semua Tipe</SelectItem>
+                <SelectItem value="Semua">Semua Tipe</SelectItem>
                 <SelectItem value="reguler">Reguler</SelectItem>
                 <SelectItem value="premium">Premium</SelectItem>
               </SelectContent>

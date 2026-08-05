@@ -43,7 +43,7 @@ export function ReservationFilters() {
                 <SelectValue placeholder="Pilih Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Semua Status</SelectItem>
+                <SelectItem value="Semua">Semua Status</SelectItem>
                 <SelectItem value="Menunggu">Menunggu</SelectItem>
                 <SelectItem value="Disetujui">Disetujui</SelectItem>
                 <SelectItem value="Selesai">Selesai</SelectItem>
@@ -70,7 +70,7 @@ export function ReservationFilters() {
                 <SelectValue placeholder="Pilih Tipe Ruangan" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Semua Ruangan</SelectItem>
+                <SelectItem value="Semua">Semua Ruangan</SelectItem>
                 <SelectItem value="Reguler">Reguler</SelectItem>
                 <SelectItem value="Premium">Premium</SelectItem>
               </SelectContent>

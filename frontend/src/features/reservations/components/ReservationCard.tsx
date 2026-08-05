@@ -1,6 +1,6 @@
 "use client";
 
-import { format, formatDistanceToNow, isToday, parseISO } from "date-fns";
+import { format, formatDistanceToNow, isToday } from "date-fns";
 import { id as idLocale } from "date-fns/locale"; // Menggunakan locale Bahasa Indonesia
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
@@ -15,17 +15,17 @@ interface ReservationCardProps {
 
 export function ReservationCard({ booking, room, session }: ReservationCardProps) {
   // Format tanggal pembuatan
-  const createdDate = parseISO(booking.createdAt);
+  const createdDate = booking.createdAt;
   const createdText = isToday(createdDate) 
     ? "Dibuat hari ini" 
     : `Dibuat ${formatDistanceToNow(createdDate, { addSuffix: true, locale: idLocale })}`;
 
   // Format tanggal pemesanan (contoh: "24 Okt 2024")
-  const bookingDate = parseISO(booking.date);
+  const bookingDate = booking.date;
   const formattedDate = format(bookingDate, "dd MMM yyyy", { locale: idLocale });
 
   // Styling logika status
-  const isConfirmed = booking.status === "Confirmed";
+  const isConfirmed = booking.status === "APPROVED";
   const badgeText = isConfirmed ? "DIKONFIRMASI" : "MENUNGGU PERSETUJUAN";
   
   return (

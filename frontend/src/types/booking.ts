@@ -1,15 +1,15 @@
 export interface Session {
-  id: string;
+  id: number;
   name: string;
   timeRange: string;
 }
 
 export interface Booking {
-  id: string;
-  roomId: string;
-  sessionId: string;
-  userId: string;
-  date: string; // Format: YYYY-MM-DD
-  status: "Pending" | "Confirmed" | "Cancelled";
-  createdAt: string; 
+  id: number;
+  roomId: number;
+  sessionId: number;
+  userId: number;
+  date: Date;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+  createdAt: Date; 
 }

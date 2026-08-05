@@ -49,7 +49,7 @@ const rupiahFormatter = new Intl.NumberFormat("id-ID", {
 const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
   // Mocking properties removed from Room type
-  const isPremium = room.id === "2" || room.id === "4";
+  const isPremium = room.id === 2 || room.id === 4;
   const pricePerSessionMock = 50000;
 
   return (
@@ -134,7 +134,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
                 <SelectValue placeholder="Pilih Waktu Sesi">
                   {selectedSession
                     ? sessions
-                        .filter((s) => s.id === selectedSession)
+                        .filter((s) => s.id === Number(selectedSession))
                         .map((s) => `${s.name} (${s.timeRange})`)
                     : "Pilih Waktu Sesi"}
                 </SelectValue>
@@ -142,7 +142,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             </SelectTrigger>
             <SelectContent>
               {sessions.map((s) => (
-                <SelectItem key={s.id} value={s.id} className="py-3">
+                <SelectItem key={s.id} value={s.id.toString()} className="py-3">
                   {s.name} ({s.timeRange})
                 </SelectItem>
               ))}

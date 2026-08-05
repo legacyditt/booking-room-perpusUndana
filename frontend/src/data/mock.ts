@@ -1,45 +1,12 @@
-export enum Role {
-  ADMIN = "ADMIN",
-  USER = "USER",
-}
+import { User, Role } from "@/types/user";
+import { Room } from "@/types/room";
+import { Booking, Session } from "@/types/booking";
 
 export enum BookingStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
   CANCELLED = "CANCELLED",
-}
-
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-  password?: string;
-  role: Role;
-}
-
-export interface Room {
-  id: number;
-  name: string;
-  capacity: number;
-  imageUrl: string;
-}
-
-export interface Session {
-  id: number;
-  name: string;
-  startTime: string;
-  finishTime: string;
-}
-
-export interface Booking {
-  id: number;
-  roomId: number;
-  sessionId: number;
-  userId: number;
-  date: Date;
-  status: BookingStatus;
-  createdAt: Date;
 }
 
 export interface BookingPrice {
@@ -61,10 +28,10 @@ export const mockRooms: Room[] = [
 ];
 
 export const mockSessions: Session[] = [
-  { id: 1, name: "Sesi Pagi 1", startTime: "08:00", finishTime: "10:00" },
-  { id: 2, name: "Sesi Pagi 2", startTime: "10:00", finishTime: "12:00" },
-  { id: 3, name: "Sesi Siang 1", startTime: "13:00", finishTime: "15:00" },
-  { id: 4, name: "Sesi Siang 2", startTime: "15:00", finishTime: "17:00" },
+  { id: 1, name: "Sesi Pagi 1", timeRange: "08:00 - 10:00" },
+  { id: 2, name: "Sesi Pagi 2", timeRange: "10:00 - 12:00" },
+  { id: 3, name: "Sesi Siang 1", timeRange: "13:00 - 15:00" },
+  { id: 4, name: "Sesi Siang 2", timeRange: "15:00 - 17:00" },
 ];
 
 export const mockBookingPrices: BookingPrice[] = [

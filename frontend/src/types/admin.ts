@@ -38,3 +38,12 @@ export interface AdminSessionRow {
   duration: string;   // format "2 Jam"
   isActive: boolean;
 }
+
+export interface AdminUserRow {
+  id: number;
+  name: string;
+  email: string;
+  role: "ADMIN" | "USER" | "LIBRARIAN";
+  joinDate: string;    // format "5 Agu 2026"
+  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+}

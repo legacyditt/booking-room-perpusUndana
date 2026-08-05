@@ -38,7 +38,7 @@ export function ReservationFilters() {
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Status
             </label>
-            <Select defaultValue="all">
+            <Select defaultValue="Semua">
               <SelectTrigger>
                 <SelectValue placeholder="Pilih Status" />
               </SelectTrigger>
@@ -65,7 +65,7 @@ export function ReservationFilters() {
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Tipe Ruangan
             </label>
-            <Select defaultValue="all">
+            <Select defaultValue="Semua">
               <SelectTrigger>
                 <SelectValue placeholder="Pilih Tipe Ruangan" />
               </SelectTrigger>

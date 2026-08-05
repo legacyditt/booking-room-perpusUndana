@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass} from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +35,7 @@ export function UserFilters() {
               <SelectValue placeholder="Pilih Peran" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua Peran</SelectItem>
+              <SelectItem value="Semua">Semua Peran</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="librarian">Pustakawan</SelectItem>
               <SelectItem value="user">Pengguna</SelectItem>
@@ -49,7 +49,7 @@ export function UserFilters() {
               <SelectValue placeholder="Pilih Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua Status</SelectItem>
+              <SelectItem value="Semua">Semua Status</SelectItem>
               <SelectItem value="active">Aktif</SelectItem>
               <SelectItem value="inactive">Nonaktif</SelectItem>
               <SelectItem value="suspended">Ditangguhkan</SelectItem>

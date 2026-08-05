@@ -6,6 +6,7 @@ import {
   RecentBookingRow,
   AdminRoomRow,
   AdminSessionRow,
+  AdminUserRow,
 } from "@/types/admin";
 
 // ── Enum & Interface lokal ──────────────────────────────────────────────────
@@ -287,5 +288,48 @@ export const mockAdminSessions: AdminSessionRow[] = [
     endTime: "21:00",
     duration: "2 Jam",
     isActive: false,
+  },
+];
+
+export const mockAdminUsers: AdminUserRow[] = [
+  {
+    id: 1,
+    name: "Admin Utama",
+    email: "admin@undana.ac.id",
+    role: "ADMIN",
+    joinDate: "1 Jan 2024",
+    status: "ACTIVE",
+  },
+  {
+    id: 2,
+    name: "Budi Mahasiswa",
+    email: "budi@student.undana.ac.id",
+    role: "USER",
+    joinDate: "10 Mar 2024",
+    status: "ACTIVE",
+  },
+  {
+    id: 3,
+    name: "Siti Mahasiswa",
+    email: "siti@student.undana.ac.id",
+    role: "USER",
+    joinDate: "15 Apr 2024",
+    status: "INACTIVE",
+  },
+  {
+    id: 4,
+    name: "Dewi Pustakawan",
+    email: "dewi@undana.ac.id",
+    role: "LIBRARIAN",
+    joinDate: "5 Feb 2024",
+    status: "ACTIVE",
+  },
+  {
+    id: 5,
+    name: "Reza Mahasiswa",
+    email: "reza@student.undana.ac.id",
+    role: "USER",
+    joinDate: "20 Jun 2024",
+    status: "SUSPENDED",
   },
 ];

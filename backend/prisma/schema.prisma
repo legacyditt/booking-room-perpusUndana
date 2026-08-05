@@ -21,7 +21,7 @@ model Room {
   id           Int           @id @default(autoincrement())
   name         String
   capacity     Int
-  imageUrl     String
+  imageUrl     String        @map("image_url")
   bookings     Booking[]
   bookingPrice BookingPrice?
 }
@@ -41,7 +41,7 @@ model Booking {
   userId    Int
   date      DateTime
   status    BookingStatus @default(PENDING)
-  createdAt DateTime      @default(now())
+  createdAt DateTime      @default(now()) @map("Created_At")
 
   room    Room    @relation(fields: [roomId], references: [id])
   session Session @relation(fields: [sessionId], references: [id])

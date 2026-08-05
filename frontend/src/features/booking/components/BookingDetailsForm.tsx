@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
+import { mockBookingPrices } from "@/data/mock";
 
 interface BookingDetailsFormProps {
   room: Room;
@@ -48,9 +49,10 @@ const rupiahFormatter = new Intl.NumberFormat("id-ID", {
 });
 const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
-  // Mocking properties removed from Room type
-  const isPremium = room.id === 2 || room.id === 4;
-  const pricePerSessionMock = 50000;
+  // Determine premium status and price from mockBookingPrices
+  const bookingPrice = mockBookingPrices.find((p) => p.roomId === room.id);
+  const isPremium = !!bookingPrice;
+  const pricePerSessionMock = bookingPrice ? bookingPrice.price : 0;
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">

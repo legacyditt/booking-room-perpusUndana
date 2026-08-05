@@ -35,7 +35,7 @@ export const mockSessions: Session[] = [
 ];
 
 export const mockBookingPrices: BookingPrice[] = [
-  { roomId: 2, price: 25000 },
+  { roomId: 3, price: 50000 },
   { roomId: 4, price: 100000 },
 ];
 

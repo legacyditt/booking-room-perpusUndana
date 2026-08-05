@@ -48,16 +48,16 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
       <Table>
         <TableHeader className="bg-neutral-50/50">
           <TableRow className="hover:bg-transparent border-neutral-100">
-            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto text-center">
               Nama Peminjam
             </TableHead>
-            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto text-center">
               Ruangan
             </TableHead>
-            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto text-center">
               Sesi
             </TableHead>
-            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto">
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto text-center">
               Status
             </TableHead>
           </TableRow>
@@ -70,7 +70,7 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
             return (
               <TableRow
                 key={booking.id}
-                className="hover:bg-neutral-50/60 transition-colors border-neutral-100"
+                className="hover:bg-neutral-50/60 transition-colors border-neutral-100 text-center"
               >
                 <TableCell className="px-6 py-4 font-medium text-primary">
                   {booking.userName}
@@ -84,7 +84,7 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
                 <TableCell className="px-6 py-4">
                   <Badge
                     variant={variant}
-                    className="min-w-[90px] justify-center rounded-md"
+                    className="min-w-[90px] justify-center"
                   >
                     {label}
                   </Badge>

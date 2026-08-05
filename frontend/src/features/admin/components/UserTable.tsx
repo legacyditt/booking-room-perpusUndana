@@ -76,7 +76,7 @@ export function UserTable() {
 
                 {/* Kolom Role */}
                 <TableCell className="px-5 py-4 text-center">
-                  <Badge variant={role.variant} className="justify-center">
+                  <Badge variant={role.variant} className="min-w-[100px] justify-center">
                     {role.label}
                   </Badge>
                 </TableCell>

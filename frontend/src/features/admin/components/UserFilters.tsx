@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass, FunnelSimple } from "@phosphor-icons/react";
+import { MagnifyingGlass} from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,7 @@ export function UserFilters() {
       {/* ── Kanan: Filter Dropdowns & Sort ── */}
       <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
         <div className="flex items-center gap-2">
-          <Select defaultValue="all">
+          <Select defaultValue="Semua">
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
               <SelectValue placeholder="Pilih Peran" />
             </SelectTrigger>
@@ -44,7 +44,7 @@ export function UserFilters() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Select defaultValue="all">
+          <Select defaultValue="Semua">
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
               <SelectValue placeholder="Pilih Status" />
             </SelectTrigger>
@@ -56,15 +56,6 @@ export function UserFilters() {
             </SelectContent>
           </Select>
         </div>
-
-        <Button
-          variant="outline"
-          size="icon"
-          className="h-10 w-10 shrink-0 border-neutral-200 text-neutral-500 hover:text-primary hover:border-primary transition-colors rounded-lg"
-          title="Filter Lanjutan"
-        >
-          <FunnelSimple size={18} />
-        </Button>
       </div>
     </div>
   );

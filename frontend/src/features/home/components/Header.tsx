@@ -1,9 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MagnifyingGlass } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function Header() {
+  const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto max-w-7xl flex h-20 items-center justify-between px-4 md:px-8">
@@ -16,13 +21,21 @@ export function Header() {
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
           <Link
             href="/"
-            className="text-primary border-b-2 border-primary font-bold pb-1"
+            className={
+              pathname === "/"
+                ? "text-primary border-b-2 border-primary font-bold pb-1"
+                : "text-neutral hover:text-primary transition-colors"
+            }
           >
             Cari Ruangan
           </Link>
           <Link
             href="/reservations"
-            className="text-neutral hover:text-primary transition-colors"
+            className={
+              pathname?.startsWith("/reservations")
+                ? "text-primary border-b-2 border-primary font-bold pb-1"
+                : "text-neutral hover:text-primary transition-colors"
+            }
           >
             Pemesanan Saya
           </Link>

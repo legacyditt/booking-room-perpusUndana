@@ -2,8 +2,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
 import { RoomImageGallery } from "@/features/booking/components/RoomImageGallery";
 import { BookingDetailsForm } from "@/features/booking/components/BookingDetailsForm";
-import { mockRooms } from "@/data/mockRooms";
-import { librarySessions } from "@/data/mockBookings";
+import { mockRooms, mockSessions as librarySessions } from "@/data/mock";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
@@ -17,7 +16,7 @@ export default async function BookingPage({ params }: PageProps) {
   const { id } = resolvedParams;
 
   // Cari data ruangan berdasarkan ID
-  const room = mockRooms.find((r) => r.id === id);
+  const room = mockRooms.find((r) => r.id === Number(id));
 
   if (!room) {
     notFound(); // Otomatis render halaman jika ID tidak ada

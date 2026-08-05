@@ -17,9 +17,9 @@ interface RoomCardProps {
 
 export function RoomCard({ room }: RoomCardProps) {
   // Simulasi nilai yang dihapus dari Room type
-  const isAvailableMock = room.id !== "4";
-  const descriptionMock = room.id === "1" ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi." : 
-                          room.id === "4" ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik." :
+  const isAvailableMock = room.id !== 4;
+  const descriptionMock = room.id === 1 ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi." : 
+                          room.id === 4 ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik." :
                           "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
 
   return (
@@ -65,7 +65,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">
-        {room.isAvailable ? (
+        {isAvailableMock ? (
           <Link
             href={`/room/${room.id}`}
             className={buttonVariants({

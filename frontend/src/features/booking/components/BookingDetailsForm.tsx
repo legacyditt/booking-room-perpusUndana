@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
+import { mockBookingPrices } from "@/data/mock";
 
 interface BookingDetailsFormProps {
   room: Room;
@@ -48,7 +49,10 @@ const rupiahFormatter = new Intl.NumberFormat("id-ID", {
 });
 const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
-  const isPremium = room.type === "premium";
+  // Determine premium status and price from mockBookingPrices
+  const bookingPrice = mockBookingPrices.find((p) => p.roomId === room.id);
+  const isPremium = !!bookingPrice;
+  const pricePerSessionMock = bookingPrice ? bookingPrice.price : 0;
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
@@ -72,7 +76,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-md w-fit">
               <Tag className="w-4 h-4" weight="bold" />
               <span className="text-sm font-bold tracking-wide">
-                {formatRupiah(room.pricePerSession)} / sesi
+                {formatRupiah(pricePerSessionMock)} / sesi
               </span>
             </div>
           )}
@@ -129,18 +133,12 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <SelectValue placeholder="Pilih Waktu Sesi">
-                  {selectedSession
-                    ? sessions
-                        .filter((s) => s.id === selectedSession)
-                        .map((s) => `${s.name} (${s.timeRange})`)
-                    : "Pilih Waktu Sesi"}
-                </SelectValue>
+                <SelectValue placeholder="Pilih Waktu Sesi" />
               </div>
             </SelectTrigger>
             <SelectContent>
               {sessions.map((s) => (
-                <SelectItem key={s.id} value={s.id} className="py-3">
+                <SelectItem key={s.id} value={s.id.toString()} className="py-3">
                   {s.name} ({s.timeRange})
                 </SelectItem>
               ))}

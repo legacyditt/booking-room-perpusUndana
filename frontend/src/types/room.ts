@@ -4,8 +4,8 @@ export interface RoomFeature {
 }
 
 export interface Room {
-  id: string;
+  id: number;
   name: string;
-  capacity: string;
+  capacity: number;
   imageUrl: string;
 }

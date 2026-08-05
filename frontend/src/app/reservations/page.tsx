@@ -2,8 +2,7 @@ import { Metadata } from "next";
 import { isBefore, parseISO, startOfDay } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReservationCard } from "@/features/reservations/components/ReservationCard";
-import { mockBookings, librarySessions } from "@/data/mockBookings";
-import { mockRooms } from "@/data/mockRooms";
+import { mockBookings, mockSessions as librarySessions, mockRooms } from "@/data/mock";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 
@@ -16,11 +15,11 @@ export default function MyReservationsPage() {
   const today = startOfDay(new Date());
 
   const upcomingBookings = mockBookings.filter((booking) => {
-    return !isBefore(parseISO(booking.date), today); // Hari ini dan masa depan
+    return !isBefore(booking.date, today); // Hari ini dan masa depan
   });
 
   const pastBookings = mockBookings.filter((booking) => {
-    return isBefore(parseISO(booking.date), today); // Kemarin dan masa lalu
+    return isBefore(booking.date, today); // Kemarin dan masa lalu
   });
 
   return (
@@ -51,13 +50,13 @@ export default function MyReservationsPage() {
                 value="upcoming"
                 className="text-sm font-bold uppercase tracking-wider pb-3 px-1"
               >
-                Upcoming
+                Mendatang
               </TabsTrigger>
               <TabsTrigger
                 value="past"
                 className="text-sm font-bold uppercase tracking-wider pb-3 px-1"
               >
-                Past
+                Riwayat
               </TabsTrigger>
             </TabsList>
 

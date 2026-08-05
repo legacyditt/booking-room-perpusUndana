@@ -34,22 +34,22 @@ export function ReservationTable() {
       <Table className="whitespace-nowrap">
         <TableHeader className="bg-[#FAFAFA] border-b border-[#E2E8F0]">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               ID Pemesanan
             </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Nama Pemesan
             </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Ruangan
             </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Tanggal
             </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Sesi (Waktu)
             </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Status
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
@@ -65,7 +65,7 @@ export function ReservationTable() {
             return (
               <TableRow
                 key={booking.id}
-                className="hover:bg-neutral-50/50 transition-colors group border-[#E2E8F0]"
+                className="hover:bg-neutral-50/50 transition-colors group border-[#E2E8F0] text-center"
               >
                 <TableCell className="px-5 py-4 font-medium text-neutral-700">
                   #BKG-889{booking.id}
@@ -85,7 +85,7 @@ export function ReservationTable() {
                 <TableCell className="px-5 py-4">
                   <Badge
                     variant={variant}
-                    className="min-w-[90px] justify-center rounded-md"
+                    className="min-w-[90px] justify-center"
                   >
                     {label}
                   </Badge>

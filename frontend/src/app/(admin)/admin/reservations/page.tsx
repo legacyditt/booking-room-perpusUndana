@@ -4,6 +4,7 @@ import React from "react";
 import { DownloadIcon } from "@phosphor-icons/react";
 import { ReservationFilters } from "@/features/admin/components/ReservationFilters";
 import { ReservationTable } from "@/features/admin/components/ReservationTable";
+import { TablePagination } from '@/features/admin/components/TablePagination';
 
 export default function AdminReservationsPage() {
   return (
@@ -33,12 +34,9 @@ export default function AdminReservationsPage() {
         <div className="flex-1 min-h-[400px]">
           <ReservationTable />
         </div>
-
-        {/* Placeholder: Pagination */}
-        <div className="p-5 border-t border-[#E2E8F0] bg-white flex justify-between items-center">
-          <p className="text-sm text-neutral-400 italic">
-            -- Area Pagination --
-          </p>
+        {/* Area Pagination */}
+        <div className="p-5 border-t border-[#E2E8F0] bg-white">
+          <TablePagination />
         </div>
       </div>
     </div>

@@ -1,20 +1,26 @@
 "use client";
 
 import { format, formatDistanceToNow, isToday } from "date-fns";
-import { id as idLocale } from "date-fns/locale"; // Menggunakan locale Bahasa Indonesia
+import { id as idLocale } from "date-fns/locale";
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
+  DialogHeader as ShadcnDialogHeader,
+  DialogTitle as ShadcnDialogTitle,
   DialogDescription,
-  DialogFooter,
+  DialogFooter as ShadcnDialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 
@@ -24,100 +30,137 @@ interface ReservationCardProps {
   session: Session;
 }
 
-export function ReservationCard({ booking, room, session }: ReservationCardProps) {
+// ── Pemetaan status booking ke variant Badge (Konsisten dengan Admin) ──
+type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
+
+const statusConfig: Record<
+  Booking["status"],
+  { label: string; variant: BadgeVariant }
+> = {
+  APPROVED: { label: "DIKONFIRMASI", variant: "default" },
+  PENDING: { label: "MENUNGGU PERSETUJUAN", variant: "outline" },
+  REJECTED: { label: "DITOLAK", variant: "destructive" },
+  CANCELLED: { label: "DIBATALKAN", variant: "secondary" },
+};
+
+export function ReservationCard({
+  booking,
+  room,
+  session,
+}: ReservationCardProps) {
   // Format tanggal pembuatan
   const createdDate = booking.createdAt;
-  const createdText = isToday(createdDate) 
-    ? "Dibuat hari ini" 
+  const createdText = isToday(createdDate)
+    ? "Dibuat hari ini"
     : `Dibuat ${formatDistanceToNow(createdDate, { addSuffix: true, locale: idLocale })}`;
 
-  // Format tanggal pemesanan (contoh: "24 Okt 2024")
+  // Format tanggal pemesanan
   const bookingDate = booking.date;
-  const formattedDate = format(bookingDate, "dd MMM yyyy", { locale: idLocale });
+  const formattedDate = format(bookingDate, "dd MMM yyyy", {
+    locale: idLocale,
+  });
 
-  // Styling logika status
-  const statusConfig: Record<Booking["status"], { text: string, className: string }> = {
-    PENDING: { text: "MENUNGGU PERSETUJUAN", className: "bg-yellow-100 text-yellow-800" },
-    APPROVED: { text: "DIKONFIRMASI", className: "bg-green-100 text-green-800" },
-    REJECTED: { text: "DITOLAK", className: "bg-red-100 text-red-800" },
-    CANCELLED: { text: "DIBATALKAN", className: "bg-gray-100 text-gray-800" },
+  const currentStatus = statusConfig[booking.status] || {
+    label: booking.status || "UNKNOWN",
+    variant: "secondary",
   };
-  const currentStatus = statusConfig[booking.status] || { text: booking.status || "UNKNOWN", className: "bg-gray-100 text-gray-800" };
-  
+
   return (
-    <div className="bg-white border border-border/80 rounded-xl p-6 shadow-sm flex flex-col gap-6 text-left hover:shadow-md transition-shadow h-full">
-      
-      {/* Top Header Row (Judul & Waktu Dibuat) */}
-      <div className="flex justify-between items-start gap-4">
-        <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
-          {room.name}
-        </h3>
-        <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider text-right shrink-0 mt-1.5">
-          {createdText}
-        </span>
-      </div>
+    <Card className="flex flex-col h-full hover:shadow-md transition-shadow border-border/80 shadow-sm rounded-xl overflow-hidden">
+      <CardHeader className="p-6 pb-4 flex flex-col gap-6">
+        {/* Top Header Row (Judul & Waktu Dibuat) */}
+        <div className="flex justify-between items-start gap-4">
+          <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
+            {room.name}
+          </h3>
+          <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider text-right shrink-0 mt-1.5">
+            {createdText}
+          </span>
+        </div>
 
-      {/* Capacity & Status */}
-      <div className="flex flex-col gap-2.5 items-start">
-        <div className="flex items-center gap-1.5 text-neutral/80 text-sm font-medium">
-          <Users className="w-4 h-4" />
-          <span>Maksimal {room.capacity} Orang</span>
+        {/* Capacity & Status */}
+        <div className="flex flex-col gap-3 items-start">
+          <div className="flex items-center gap-1.5 text-neutral/80 text-sm font-medium">
+            <Users className="w-4 h-4" />
+            <span>Maksimal {room.capacity} Orang</span>
+          </div>
+          <Badge
+            variant={currentStatus.variant}
+            className="font-bold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full"
+          >
+            {currentStatus.label}
+          </Badge>
         </div>
-        <span className={cn("font-bold text-[10px] tracking-wider uppercase px-3 py-1.5 rounded-full", currentStatus.className)}>
-          {currentStatus.text}
-        </span>
-      </div>
+      </CardHeader>
 
-      {/* Date & Time Box */}
-      <div className="bg-neutral/5 rounded-lg p-4 flex flex-col gap-3 border border-border/40 mt-auto">
-        <div className="flex items-center gap-3 text-primary font-bold text-sm">
-          <CalendarBlank className="w-4 h-4 text-neutral" />
-          <span>{formattedDate}</span>
+      <CardContent className="p-6 pt-0 flex-1 flex flex-col justify-end">
+        {/* Date & Time Box */}
+        <div className="bg-neutral/5 rounded-lg p-4 flex flex-col gap-3 border border-border/40">
+          <div className="flex items-center gap-3 text-primary font-bold text-sm">
+            <CalendarBlank className="w-4 h-4 text-neutral" />
+            <span>{formattedDate}</span>
+          </div>
+          <div className="flex items-center gap-3 text-neutral text-sm font-medium">
+            <Clock className="w-4 h-4 text-neutral" />
+            <span>{session.timeRange}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-neutral text-sm font-medium">
-          <Clock className="w-4 h-4 text-neutral" />
-          <span>{session.timeRange}</span>
-        </div>
-      </div>
+      </CardContent>
 
       {/* Action Buttons */}
-      <div className="mt-2 grid grid-cols-2 gap-3">
+      <CardFooter className="p-6 pt-2 grid grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
         {booking.status === "APPROVED" && (
           <>
-            <Button variant="outline" className="w-full font-bold border-border/80 text-primary">
+            <Button
+              variant="outline"
+              className="w-full font-bold border-border/80 text-primary"
+            >
               Ubah
             </Button>
             <Dialog>
               <DialogTrigger
                 render={
-                  <Button variant="outline" className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                  <Button
+                    variant="outline"
+                    className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  >
                     Batalkan
                   </Button>
                 }
               />
               <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-base text-primary font-bold">Batalkan Peminjaman?</DialogTitle>
+                <ShadcnDialogHeader>
+                  <ShadcnDialogTitle className="text-base text-primary font-bold">
+                    Batalkan Peminjaman?
+                  </ShadcnDialogTitle>
                   <DialogDescription className="text-sm">
-                    Tindakan ini tidak dapat dikembalikan. Peminjaman Anda untuk <span className="font-semibold">{room.name}</span> akan dibatalkan secara permanen.
+                    Tindakan ini tidak dapat dikembalikan. Peminjaman Anda untuk{" "}
+                    <span className="font-semibold">{room.name}</span> akan
+                    dibatalkan secara permanen.
                   </DialogDescription>
-                </DialogHeader>
-                <DialogFooter className="mt-4 gap-2">
+                </ShadcnDialogHeader>
+                <ShadcnDialogFooter className="mt-4 gap-2">
                   <DialogClose
                     render={
-                      <Button variant="outline" className="flex-1 sm:flex-none font-medium">
+                      <Button
+                        variant="outline"
+                        className="flex-1 sm:flex-none font-medium"
+                      >
                         Kembali
                       </Button>
                     }
                   />
                   <DialogClose
                     render={
-                      <Button variant="destructive" className="flex-1 sm:flex-none font-bold shadow-sm">
+                      <Button
+                        variant="destructive"
+                        className="flex-1 sm:flex-none font-bold shadow-sm"
+                      >
                         Ya, Batalkan
                       </Button>
                     }
                   />
-                </DialogFooter>
+                </ShadcnDialogFooter>
               </DialogContent>
             </Dialog>
           </>
@@ -126,39 +169,51 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
           <Dialog>
             <DialogTrigger
               render={
-                <Button variant="outline" className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700">
+                <Button
+                  variant="outline"
+                  className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                >
                   Batalkan Permintaan
                 </Button>
               }
             />
             <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle className="text-base text-primary font-bold">Batalkan Permintaan?</DialogTitle>
+              <ShadcnDialogHeader>
+                <ShadcnDialogTitle className="text-base text-primary font-bold">
+                  Batalkan Permintaan?
+                </ShadcnDialogTitle>
                 <DialogDescription className="text-sm">
-                  Tindakan ini tidak dapat dikembalikan. Permintaan peminjaman Anda untuk <span className="font-semibold">{room.name}</span> akan dibatalkan.
+                  Tindakan ini tidak dapat dikembalikan. Permintaan peminjaman
+                  Anda untuk <span className="font-semibold">{room.name}</span>{" "}
+                  akan dibatalkan.
                 </DialogDescription>
-              </DialogHeader>
-              <DialogFooter className="mt-4 gap-2">
+              </ShadcnDialogHeader>
+              <ShadcnDialogFooter className="mt-4 gap-2">
                 <DialogClose
                   render={
-                    <Button variant="outline" className="flex-1 sm:flex-none font-medium">
+                    <Button
+                      variant="outline"
+                      className="flex-1 sm:flex-none font-medium"
+                    >
                       Kembali
                     </Button>
                   }
                 />
                 <DialogClose
                   render={
-                    <Button variant="destructive" className="flex-1 sm:flex-none font-bold shadow-sm">
+                    <Button
+                      variant="destructive"
+                      className="flex-1 sm:flex-none font-bold shadow-sm"
+                    >
                       Ya, Batalkan
                     </Button>
                   }
                 />
-              </DialogFooter>
+              </ShadcnDialogFooter>
             </DialogContent>
           </Dialog>
         )}
-      </div>
-
-    </div>
+      </CardFooter>
+    </Card>
   );
 }

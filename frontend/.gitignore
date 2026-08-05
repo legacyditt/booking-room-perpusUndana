@@ -40,8 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# AI Agent configs & Project Management
-AGENTS.md
-CLAUDE.md
+#Project Management
 roadmap*.md
 

@@ -4,11 +4,8 @@ export interface RoomFeature {
 }
 
 export interface Room {
-  id: string;
+  id: number;
   name: string;
-  capacity: string;
-  description: string;
-  pricePerSession: number;
+  capacity: number;
   imageUrl: string;
-  isAvailable: boolean;
 }

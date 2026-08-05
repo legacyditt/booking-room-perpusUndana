@@ -79,7 +79,7 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
                     {booking.sessionTimeRange}
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant={variant}>{label}</Badge>
+                    <Badge variant={variant} className="min-w-[90px] justify-center">{label}</Badge>
                   </td>
                 </tr>
               );

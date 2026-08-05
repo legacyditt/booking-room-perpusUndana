@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import {
   Eye,
   PencilSimple,
@@ -50,7 +49,7 @@ export function RoomTable() {
       <Table className="whitespace-nowrap">
         <TableHeader className="bg-[#FAFAFA] border-b border-[#E2E8F0]">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto w-[300px]">
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               NAMA RUANGAN
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
@@ -80,25 +79,15 @@ export function RoomTable() {
                 key={room.id}
                 className="hover:bg-neutral-50/50 transition-colors group border-[#E2E8F0]"
               >
-                {/* Kolom Nama & Gambar (Rata Kiri) */}
+                {/* Kolom Nama Ruangan */}
                 <TableCell className="px-5 py-4">
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-12 h-12 rounded-md overflow-hidden bg-neutral-100 border border-neutral-200 shrink-0">
-                      <Image
-                        src={room.imageUrl}
-                        alt={room.roomName}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-primary">
-                        {room.roomName}
-                      </span>
-                      <span className="text-xs text-neutral-500">
-                        {room.location}
-                      </span>
-                    </div>
+                  <div className="flex flex-col gap-0.5 items-center text-center">
+                    <span className="font-semibold text-primary">
+                      {room.roomName}
+                    </span>
+                    <span className="text-xs text-neutral-500">
+                      {room.location}
+                    </span>
                   </div>
                 </TableCell>
 

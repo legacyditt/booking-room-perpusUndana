@@ -4,7 +4,8 @@ import React from "react";
 import { DownloadIcon } from "@phosphor-icons/react";
 import { ReservationFilters } from "@/features/admin/components/ReservationFilters";
 import { ReservationTable } from "@/features/admin/components/ReservationTable";
-import { TablePagination } from '@/features/admin/components/TablePagination';
+import { TablePagination } from "@/features/admin/components/TablePagination";
+import { Button } from "@/components/ui/button";
 
 export default function AdminReservationsPage() {
   return (
@@ -19,10 +20,10 @@ export default function AdminReservationsPage() {
             Tinjau dan kelola jadwal pemesanan ruangan perpustakaan.
           </p>
         </div>
-        <button className="flex items-center gap-2 bg-[#0F2018] text-white px-4 py-2.5 rounded-md text-sm font-medium hover:bg-[#0F2018]/90 transition-colors">
+        <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
           <DownloadIcon className="w-4 h-4" />
           Ekspor Laporan
-        </button>
+        </Button>
       </div>
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}

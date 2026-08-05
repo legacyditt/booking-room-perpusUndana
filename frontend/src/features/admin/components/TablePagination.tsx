@@ -1,44 +1,65 @@
 import React from "react";
 import { CaretLeft, CaretRight, DotsThree } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 
 export function TablePagination() {
   return (
     <div className="flex flex-col sm:flex-row justify-between items-center w-full gap-4">
       {/* Teks Informasi */}
       <div className="text-sm text-neutral-500">
-        Menampilkan <span className="font-medium text-neutral-900">1</span> hingga <span className="font-medium text-neutral-900">4</span> dari <span className="font-medium text-neutral-900">45</span> hasil
+        Menampilkan <span className="font-medium text-neutral-900">1</span>{" "}
+        hingga <span className="font-medium text-neutral-900">4</span> dari{" "}
+        <span className="font-medium text-neutral-900">45</span> hasil
       </div>
 
       {/* Kontrol Navigasi */}
       <div className="flex items-center gap-1">
         {/* Tombol Previous */}
-        <button className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-neutral-500 border border-neutral-200 rounded-md hover:bg-neutral-50 hover:text-primary transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled
+          className="gap-1 text-neutral-500"
+        >
           <CaretLeft weight="bold" />
-          Sebelumnya
-        </button>
+          <span className="hidden sm:inline">Sebelumnya</span>
+        </Button>
 
-        {/* Halaman Aktif ) */}
-        <button className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-[#0F2018] rounded-md transition-colors">
+        {/* Halaman Aktif */}
+        <Button
+          variant="default"
+          size="sm"
+          className="w-8 h-8 p-0 bg-[#0F2018] hover:bg-[#0F2018]/90"
+        >
           1
-        </button>
+        </Button>
 
         {/* Halaman tidak aktif */}
-        <button className="w-8 h-8 flex items-center justify-center text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-8 h-8 p-0 text-neutral-600"
+        >
           2
-        </button>
-        
-        <button className="w-8 h-8 flex items-center justify-center text-sm font-medium text-neutral-600 hover:bg-neutral-100 rounded-md transition-colors">
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="w-8 h-8 p-0 text-neutral-600"
+        >
           3
-        </button>
+        </Button>
+
+        {/* Ellipsis */}
         <div className="w-8 h-8 flex items-center justify-center text-neutral-400">
           <DotsThree weight="bold" />
         </div>
 
         {/* Tombol Next */}
-        <button className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-neutral-500 border border-neutral-200 rounded-md hover:bg-neutral-50 hover:text-primary transition-colors">
-          Selanjutnya
+        <Button variant="outline" size="sm" className="gap-1 text-neutral-500">
+          <span className="hidden sm:inline">Selanjutnya</span>
           <CaretRight weight="bold" />
-        </button>
+        </Button>
       </div>
     </div>
   );

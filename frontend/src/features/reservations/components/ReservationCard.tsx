@@ -32,7 +32,7 @@ export function ReservationCard({ booking, room, session }: ReservationCardProps
     REJECTED: { text: "DITOLAK", className: "bg-red-100 text-red-800" },
     CANCELLED: { text: "DIBATALKAN", className: "bg-gray-100 text-gray-800" },
   };
-  const currentStatus = statusConfig[booking.status];
+  const currentStatus = statusConfig[booking.status] || { text: booking.status || "UNKNOWN", className: "bg-gray-100 text-gray-800" };
   
   return (
     <div className="bg-white border border-border/80 rounded-xl p-6 shadow-sm flex flex-col gap-6 text-left hover:shadow-md transition-shadow h-full">

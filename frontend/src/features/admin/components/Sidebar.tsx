@@ -15,7 +15,11 @@ import {
 
 const navItems = [
   { name: "Ringkasan", href: "/admin/overview", icon: SquaresFour },
-  { name: "Kelola Peminjaman", href: "/admin/bookings", icon: CalendarBlank },
+  {
+    name: "Kelola Pemesanan",
+    href: "/admin/reservations",
+    icon: CalendarBlank,
+  },
   { name: "Kelola Ruangan", href: "/admin/rooms", icon: Door },
   { name: "Kelola Sesi", href: "/admin/sessions", icon: Clock },
   { name: "Kelola Pengguna", href: "/admin/users", icon: Users },
@@ -34,13 +38,16 @@ export function Sidebar() {
           <br />
           Admin
         </h1>
-        <p className="text-sm text-neutral-500 mt-2">Booking Ruangan Perpustakaan Undana</p>
+        <p className="text-sm text-neutral-500 mt-2">
+          Booking Ruangan Perpustakaan Undana
+        </p>
       </div>
 
       {/* Navigation Section */}
       <nav className="flex-1 px-4 py-4 space-y-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
+          const isActive =
+            pathname === item.href || pathname?.startsWith(`${item.href}/`);
           const Icon = item.icon;
 
           return (
@@ -78,9 +85,7 @@ export function Sidebar() {
             <p className="text-sm font-semibold text-primary truncate">
               Admin User
             </p>
-            <button
-              className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-neutral-200 text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200"
-            >
+            <button className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-neutral-200 text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200">
               <SignOut size={13} weight="bold" />
               Keluar
             </button>

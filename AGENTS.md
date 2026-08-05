@@ -26,3 +26,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
   8. **Review Sebelum Commit:** JANGAN PERNAH langsung menjalankan aksi `git commit` dan `git push` tanpa persetujuan eksplisit. Selalu tawarkan _command_ tersebut untuk di-_review_ dan dieksekusi sendiri oleh user.
 
 - **UI/UX:** Wajib merujuk pada `ui-ux-pro-max` dan `design-taste-frontend` (beserta paket `taste-skill` lainnya) untuk standar desain premium, interaksi, dan menghindari antarmuka generik (anti-slop).
+- **Components:** Selalu prioritaskan penggunaan komponen dari shadcn/ui untuk menjaga konsistensi UI/UX.

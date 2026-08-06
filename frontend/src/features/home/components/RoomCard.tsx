@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link";
 import { Users } from "@phosphor-icons/react/dist/ssr";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";

@@ -131,9 +131,16 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             onValueChange={(val) => setSelectedSession(val || "")}
           >
             <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1 text-left">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <SelectValue placeholder="Pilih Waktu Sesi" />
+                <span className={!selectedSession ? "text-muted-foreground" : ""}>
+                  {selectedSession
+                    ? (() => {
+                        const s = sessions.find((s) => s.id.toString() === selectedSession);
+                        return s ? `${s.name} (${s.timeRange})` : "Pilih Waktu Sesi";
+                      })()
+                    : "Pilih Waktu Sesi"}
+                </span>
               </div>
             </SelectTrigger>
             <SelectContent>

@@ -1,28 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 import { RoomCard } from "@/features/home/components/RoomCard";
 import { RoomFilters } from "@/features/home/components/RoomFilters";
-import { mockRooms } from "@/data/mock";
+import { getRooms } from "@/lib/api";
+import type { Room } from "@/types/room";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showAvailableOnly, setShowAvailableOnly] = useState(true);
   const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
 
-  // Simulasi Filter ruangan berdasarkan Ketersediaan dan Tipe Ruangan (karena properties tersebut dihapus dari mockRooms)
-  const filteredRooms = mockRooms.filter((room) => {
-    // Simulasi ketersediaan: Anggap Ruang 4 sedang tidak tersedia, sisanya tersedia
-    const isAvailableMock = room.id !== 4;
-    const isRoomAvailable = showAvailableOnly ? isAvailableMock : true;
+  useEffect(() => {
+    getRooms()
+      .then(setRooms)
+      .catch(() => setRooms([]))
+      .finally(() => setIsLoading(false));
+  }, []);
 
-    // Simulasi Tipe Ruangan: Anggap Ruang 1 & 2 Reguler, 3 & 4 Premium
-    const typeMock = (room.id === 1 || room.id === 2) ? "reguler" : "premium";
-    const isMatchingType = typeMock === roomType;
-
-    return isRoomAvailable && isMatchingType;
+  const filteredRooms = rooms.filter((room) => {
+    const isPremium = !!room.bookingPrice;
+    const type = isPremium ? "premium" : "reguler";
+    // ponytail: no availability field in DB; the "Tersedia" toggle always passes
+    return type === roomType;
   });
 
   return (
@@ -35,7 +39,7 @@ export default function HomePage() {
             Ruang Belajar Tersedia
           </h1>
           <p className="text-neutral mt-2 sm:mt-0 font-medium">
-            Menampilkan {filteredRooms.length} hasil
+            {isLoading ? "Memuat..." : `Menampilkan ${filteredRooms.length} hasil`}
           </p>
         </div>
 
@@ -77,7 +81,7 @@ export default function HomePage() {
         {filteredRooms.length === 0 && (
           <div className="py-20 text-center text-neutral bg-muted rounded-lg mt-8">
             <p className="text-lg">
-              Tidak ada ruangan yang sesuai dengan filter Anda.
+              {isLoading ? "Memuat ruangan..." : "Tidak ada ruangan yang sesuai dengan filter Anda."}
             </p>
           </div>
         )}

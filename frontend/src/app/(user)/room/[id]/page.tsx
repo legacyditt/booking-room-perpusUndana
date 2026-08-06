@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
 import { RoomImageGallery } from "@/features/booking/components/RoomImageGallery";
 import { BookingDetailsForm } from "@/features/booking/components/BookingDetailsForm";
-import { mockRooms, mockSessions as librarySessions } from "@/data/mock";
+import { getRoom, getSessions } from "@/lib/api";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
@@ -15,12 +15,14 @@ export default async function BookingPage({ params }: PageProps) {
   const resolvedParams = await params;
   const { id } = resolvedParams;
 
-  // Cari data ruangan berdasarkan ID
-  const room = mockRooms.find((r) => r.id === Number(id));
-
-  if (!room) {
+  let room;
+  try {
+    room = await getRoom(Number(id));
+  } catch {
     notFound(); // Otomatis render halaman jika ID tidak ada
   }
+
+  const sessions = await getSessions();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -46,7 +48,7 @@ export default async function BookingPage({ params }: PageProps) {
             
             {/* Bagian Kanan: Form Pemesanan */}
             <div className="sticky top-28">
-              <BookingDetailsForm room={room} sessions={librarySessions} />
+              <BookingDetailsForm room={room} sessions={sessions} />
             </div>
           </div>
           

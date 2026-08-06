@@ -5,7 +5,7 @@ export interface RoomFeature {
 
 export interface BookingPrice {
   roomId: number;
-  price: number;
+  price: string;
 }
 
 export interface Room {

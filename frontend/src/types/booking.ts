@@ -14,9 +14,9 @@ export interface Booking {
   roomId: number;
   sessionId: number;
   userId: number;
-  date: Date;
+  date: string;
   status: BookingStatus;
-  createdAt: Date;
+  createdAt: string;
   room: Room;
   session: Session;
 }

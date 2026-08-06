@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { isBefore, parseISO, startOfDay } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReservationCard } from "@/features/reservations/components/ReservationCard";
-import { mockBookings, mockSessions as librarySessions, mockRooms } from "@/data/mock";
+import { getUserBookings, DEFAULT_USER_ID } from "@/lib/api";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 
@@ -11,15 +11,19 @@ export const metadata: Metadata = {
   description: "Kelola riwayat pemesanan ruangan perpustakaan Anda.",
 };
 
-export default function MyReservationsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MyReservationsPage() {
   const today = startOfDay(new Date());
 
-  const upcomingBookings = mockBookings.filter((booking) => {
-    return !isBefore(booking.date, today); // Hari ini dan masa depan
+  const bookings = await getUserBookings(DEFAULT_USER_ID);
+
+  const upcomingBookings = bookings.filter((booking) => {
+    return !isBefore(parseISO(booking.date), today); // Hari ini dan masa depan
   });
 
-  const pastBookings = mockBookings.filter((booking) => {
-    return isBefore(booking.date, today); // Kemarin dan masa lalu
+  const pastBookings = bookings.filter((booking) => {
+    return isBefore(parseISO(booking.date), today); // Kemarin dan masa lalu
   });
 
   return (
@@ -64,23 +68,14 @@ export default function MyReservationsPage() {
             <TabsContent value="upcoming" className="mt-0">
               {upcomingBookings.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                  {upcomingBookings.map((booking) => {
-                    const room = mockRooms.find((r) => r.id === booking.roomId);
-                    const session = librarySessions.find(
-                      (s) => s.id === booking.sessionId,
-                    );
-
-                    if (!room || !session) return null;
-
-                    return (
-                      <ReservationCard
-                        key={booking.id}
-                        booking={booking}
-                        room={room}
-                        session={session}
-                      />
-                    );
-                  })}
+                  {upcomingBookings.map((booking) => (
+                    <ReservationCard
+                      key={booking.id}
+                      booking={booking}
+                      room={booking.room}
+                      session={booking.session}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl">
@@ -93,21 +88,14 @@ export default function MyReservationsPage() {
             <TabsContent value="past" className="mt-0">
               {pastBookings.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                  {pastBookings.map((booking) => {
-                    const room = mockRooms.find((r) => r.id === booking.roomId);
-                    const session = librarySessions.find(
-                      (s) => s.id === booking.sessionId,
-                    );
-                    if (!room || !session) return null;
-                    return (
-                      <ReservationCard
-                        key={booking.id}
-                        booking={booking}
-                        room={room}
-                        session={session}
-                      />
-                    );
-                  })}
+                  {pastBookings.map((booking) => (
+                    <ReservationCard
+                      key={booking.id}
+                      booking={booking}
+                      room={booking.room}
+                      session={booking.session}
+                    />
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl">

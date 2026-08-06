@@ -11,7 +11,7 @@ interface RoomCardProps {
 
 export function RoomCard({ room }: RoomCardProps) {
   return (
-    <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
+    <Card className="pt-0 overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
       <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
         <img
           src={room.imageUrl}

@@ -15,10 +15,8 @@ export function RoomList({ rooms }: RoomListProps) {
   const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
 
   const filteredRooms = rooms.filter((room) => {
-    const isPremium = !!room.bookingPrice;
-    const type = isPremium ? "premium" : "reguler";
-    // ponytail: no availability field in DB; the "Tersedia" toggle always passes
-    return type === roomType;
+    if (roomType === "reguler") return true;
+    return !!room.bookingPrice;
   });
 
   return (

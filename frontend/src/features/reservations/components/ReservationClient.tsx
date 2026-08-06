@@ -85,13 +85,13 @@ export function ReservationClient() {
         >
           <TabsTrigger
             value="upcoming"
-            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none"
+            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none after:hidden"
           >
             Mendatang
           </TabsTrigger>
           <TabsTrigger
             value="past"
-            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none"
+            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none after:hidden"
           >
             Riwayat
           </TabsTrigger>

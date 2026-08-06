@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
     return [
       // Buka komen (uncomment) blok di bawah ini jika ingin langsung diarahkan ke halaman Admin saat development:
       //{
-         //source: "/",
-        // destination: "/admin/overview",
-       //  permanent: false,
+      //   source: "/",
+      //   destination: "/admin/overview",
+      //   permanent: false,
       // },
     ];
   },

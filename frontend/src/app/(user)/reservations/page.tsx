@@ -2,13 +2,18 @@ import { Metadata } from "next";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 import { ReservationClient } from "@/features/reservations/components/ReservationClient";
+import { getUserBookings, DEFAULT_USER_ID } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Pemesanan Saya | Booking Room Perpustakaan",
   description: "Kelola riwayat pemesanan ruangan perpustakaan Anda.",
 };
 
-export default function MyReservationsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MyReservationsPage() {
+  const bookings = await getUserBookings(DEFAULT_USER_ID);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -27,7 +32,7 @@ export default function MyReservationsPage() {
           </div>
 
           {/* Client component for Tabs, Search, and Filtering */}
-          <ReservationClient />
+          <ReservationClient bookings={bookings} />
         </div>
       </main>
       <Footer />

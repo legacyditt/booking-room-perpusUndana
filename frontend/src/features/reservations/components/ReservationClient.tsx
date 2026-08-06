@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { isBefore, startOfDay } from "date-fns";
+import { isBefore, parseISO, startOfDay } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReservationCard } from "@/features/reservations/components/ReservationCard";
-import { mockBookings, mockSessions as librarySessions, mockRooms } from "@/data/mock";
+import type { Booking } from "@/types/booking";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,19 +15,29 @@ import {
 } from "@/components/ui/select";
 import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
 
-export function ReservationClient() {
+interface ReservationClientProps {
+  bookings: Booking[];
+}
+
+export function ReservationClient({ bookings }: ReservationClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const today = startOfDay(new Date());
 
-  const upcomingBookings = mockBookings.filter((booking) => !isBefore(booking.date, today));
-  const pastBookings = mockBookings.filter((booking) => isBefore(booking.date, today));
+  const upcomingBookings = bookings.filter(
+    (booking) => !isBefore(parseISO(booking.date), today),
+  );
+  const pastBookings = bookings.filter((booking) =>
+    isBefore(parseISO(booking.date), today),
+  );
 
-  const filterBookings = (bookings: typeof mockBookings) => {
+  const filterBookings = (bookings: Booking[]) => {
     return bookings.filter((booking) => {
-      const room = mockRooms.find((r) => r.id === booking.roomId);
-      const matchesSearch = room?.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === "ALL" || booking.status === statusFilter;
+      const matchesSearch = booking.room.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "ALL" || booking.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   };
@@ -101,19 +111,14 @@ export function ReservationClient() {
         <TabsContent value="upcoming" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
           {filteredUpcoming.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
-              {filteredUpcoming.map((booking) => {
-                const room = mockRooms.find((r) => r.id === booking.roomId);
-                const session = librarySessions.find((s) => s.id === booking.sessionId);
-                if (!room || !session) return null;
-                return (
-                  <ReservationCard
-                    key={booking.id}
-                    booking={booking}
-                    room={room}
-                    session={session}
-                  />
-                );
-              })}
+              {filteredUpcoming.map((booking) => (
+                <ReservationCard
+                  key={booking.id}
+                  booking={booking}
+                  room={booking.room}
+                  session={booking.session}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-16 sm:py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl bg-white/50">
@@ -126,19 +131,14 @@ export function ReservationClient() {
         <TabsContent value="past" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
           {filteredPast.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
-              {filteredPast.map((booking) => {
-                const room = mockRooms.find((r) => r.id === booking.roomId);
-                const session = librarySessions.find((s) => s.id === booking.sessionId);
-                if (!room || !session) return null;
-                return (
-                  <ReservationCard
-                    key={booking.id}
-                    booking={booking}
-                    room={room}
-                    session={session}
-                  />
-                );
-              })}
+              {filteredPast.map((booking) => (
+                <ReservationCard
+                  key={booking.id}
+                  booking={booking}
+                  room={booking.room}
+                  session={booking.session}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-16 sm:py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl bg-white/50">

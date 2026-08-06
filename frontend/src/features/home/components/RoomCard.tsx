@@ -1,14 +1,8 @@
+"use client"
 import Link from "next/link";
-import { Users, CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Users } from "@phosphor-icons/react/dist/ssr";
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import { Room } from "@/types/room";
 
 interface RoomCardProps {
@@ -16,7 +10,6 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
-
   return (
     <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
       <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
@@ -43,7 +36,6 @@ export function RoomCard({ room }: RoomCardProps) {
           </div>
         </div>
       </CardHeader>
-
 
       <CardFooter className="pt-4 pb-6 px-6">
         <Link

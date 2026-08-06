@@ -3,9 +3,15 @@ export interface RoomFeature {
   label: string;
 }
 
+export interface BookingPrice {
+  roomId: number;
+  price: string;
+}
+
 export interface Room {
   id: number;
   name: string;
   capacity: number;
   imageUrl: string;
+  bookingPrice?: BookingPrice | null;
 }

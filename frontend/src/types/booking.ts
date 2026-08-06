@@ -1,7 +1,12 @@
+import type { Room } from "./room";
+
+export type BookingStatus = "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
+
 export interface Session {
   id: number;
   name: string;
-  timeRange: string;
+  startTime: string;
+  finishTime: string;
 }
 
 export interface Booking {
@@ -9,7 +14,9 @@ export interface Booking {
   roomId: number;
   sessionId: number;
   userId: number;
-  date: Date;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
-  createdAt: Date; 
+  date: string;
+  status: BookingStatus;
+  createdAt: string;
+  room: Room;
+  session: Session;
 }

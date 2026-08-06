@@ -1,6 +1,6 @@
 "use client";
 
-import { format, formatDistanceToNow, isToday, isBefore, startOfDay } from "date-fns";
+import { format, formatDistanceToNow, isToday, parseISO, isBefore, startOfDay } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
@@ -49,13 +49,13 @@ export function ReservationCard({
   session,
 }: ReservationCardProps) {
   // Format tanggal pembuatan
-  const createdDate = booking.createdAt;
+  const createdDate = parseISO(booking.createdAt);
   const createdText = isToday(createdDate)
     ? "Dibuat hari ini"
     : `Dibuat ${formatDistanceToNow(createdDate, { addSuffix: true, locale: idLocale })}`;
 
   // Format tanggal pemesanan
-  const bookingDate = booking.date;
+  const bookingDate = parseISO(booking.date);
   const formattedDate = format(bookingDate, "dd MMM yyyy", {
     locale: idLocale,
   });
@@ -109,7 +109,7 @@ export function ReservationCard({
           </div>
           <div className="flex items-center gap-3 text-neutral text-sm font-medium">
             <Clock className="w-4 h-4 text-neutral" />
-            <span>{session.timeRange}</span>
+            <span>{session.startTime} - {session.finishTime}</span>
           </div>
         </div>
       </CardContent>

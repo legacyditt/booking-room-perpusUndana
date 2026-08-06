@@ -1,6 +1,6 @@
 "use client";
 
-import { format, formatDistanceToNow, isToday } from "date-fns";
+import { format, formatDistanceToNow, isToday, isBefore, startOfDay } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,9 @@ export function ReservationCard({
     locale: idLocale,
   });
 
+  const today = startOfDay(new Date());
+  const isPast = isBefore(new Date(bookingDate), today);
+
   const currentStatus = statusConfig[booking.status] || {
     label: booking.status || "UNKNOWN",
     variant: "secondary",
@@ -112,8 +115,9 @@ export function ReservationCard({
       </CardContent>
 
       {/* Action Buttons */}
-      <CardFooter className="p-4 sm:p-6 pt-3 sm:pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
-        {booking.status === "APPROVED" && (
+      {!isPast && (
+        <CardFooter className="p-4 sm:p-6 pt-3 sm:pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
+          {booking.status === "APPROVED" && (
           <>
             <Button
               variant="outline"
@@ -217,7 +221,8 @@ export function ReservationCard({
             </DialogContent>
           </Dialog>
         )}
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 }

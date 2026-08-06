@@ -54,9 +54,15 @@ export function ReservationClient() {
         <div className="w-full sm:w-[180px]">
           <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "ALL")}>
             <SelectTrigger className="w-full h-11 bg-white">
-              <div className="flex items-center gap-2">
-                <Funnel className="h-4 w-4 text-neutral/60" />
-                <SelectValue placeholder="Status" />
+              <div className="flex items-center gap-2 flex-1 text-left">
+                <Funnel className="h-4 w-4 text-neutral/60 shrink-0" />
+                <span className="line-clamp-1">
+                  {statusFilter === "ALL" && "Semua Status"}
+                  {statusFilter === "PENDING" && "Menunggu"}
+                  {statusFilter === "APPROVED" && "Dikonfirmasi"}
+                  {statusFilter === "REJECTED" && "Ditolak"}
+                  {statusFilter === "CANCELLED" && "Dibatalkan"}
+                </span>
               </div>
             </SelectTrigger>
             <SelectContent>

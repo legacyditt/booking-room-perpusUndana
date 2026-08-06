@@ -9,7 +9,7 @@ import { mockRooms } from "@/data/mock";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
-  const [showAvailableOnly, setShowAvailableOnly] = useState(true);
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
 
   // Simulasi Filter ruangan berdasarkan Ketersediaan dan Tipe Ruangan (karena properties tersebut dihapus dari mockRooms)

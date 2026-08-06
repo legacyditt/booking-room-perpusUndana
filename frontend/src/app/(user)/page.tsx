@@ -31,10 +31,10 @@ export default function HomePage() {
 
       <main className="flex-1 container mx-auto max-w-7xl px-4 md:px-8 py-10">
         <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary">
+          <h1 className="font-serif text-2xl md:text-5xl font-bold text-primary">
             Ruang Belajar Tersedia
           </h1>
-          <p className="text-neutral mt-2 sm:mt-0 font-medium">
+          <p className="text-neutral mt-1 sm:mt-0 text-sm md:text-base font-medium">
             Menampilkan {filteredRooms.length} hasil
           </p>
         </div>
@@ -43,15 +43,15 @@ export default function HomePage() {
         <Tabs
           defaultValue="reguler"
           onValueChange={(v) => setRoomType(v as "reguler" | "premium")}
-          className="w-full mt-6"
+          className="w-full mt-4 md:mt-6"
         >
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
             <RoomFilters
               showAvailableOnly={showAvailableOnly}
               onShowAvailableOnlyChange={setShowAvailableOnly}
             />
 
-            <TabsList className="flex w-full sm:w-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:flex h-11 p-1">
               <TabsTrigger value="reguler">Reguler</TabsTrigger>
               <TabsTrigger value="premium">Premium</TabsTrigger>
             </TabsList>

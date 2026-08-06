@@ -16,10 +16,6 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
-  // Simulasi nilai yang dihapus dari Room type
-  const descriptionMock = room.id === 1 ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi." : 
-                          room.id === 4 ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik." :
-                          "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
 
   return (
     <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
@@ -48,11 +44,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pb-6">
-        <p className="text-sm leading-relaxed text-neutral/80 min-h-[60px]">
-          {descriptionMock}
-        </p>
-      </CardContent>
+
       <CardFooter className="pt-4 pb-6 px-6">
         <Link
           href={`/room/${room.id}`}

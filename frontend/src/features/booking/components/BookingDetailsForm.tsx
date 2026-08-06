@@ -130,9 +130,16 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             onValueChange={(val) => setSelectedSession(val || "")}
           >
             <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-1 text-left">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <SelectValue placeholder="Pilih Waktu Sesi" />
+                <span className={!selectedSession ? "text-muted-foreground" : ""}>
+                  {selectedSession
+                    ? (() => {
+                        const s = sessions.find((s) => s.id.toString() === selectedSession);
+                        return s ? `${s.name} (${s.startTime} - ${s.finishTime})` : "Pilih Waktu Sesi";
+                      })()
+                    : "Pilih Waktu Sesi"}
+                </span>
               </div>
             </SelectTrigger>
             <SelectContent>
@@ -146,15 +153,15 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
         </div>
       </div>
 
-      {/* Action Area */}
-      <div className="mt-2 flex flex-col gap-3">
+      {/* Action Area (Sticky Bottom di Mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border/50 z-50 lg:static lg:p-0 lg:bg-transparent lg:border-0 lg:z-auto mt-2 flex flex-col gap-3 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] lg:shadow-none">
         {isPremium && (
-          <p className="text-xs text-neutral/70 text-center">
+          <p className="text-xs text-neutral/70 text-center hidden lg:block">
             *Diskon khusus tersedia untuk dosen & mahasiswa pascasarjana.
           </p>
         )}
         <Button 
-          className="w-full py-6 text-base font-bold shadow-md transition-all hover:-translate-y-1"
+          className="w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1"
           disabled={!date || !selectedSession}
         >
           <CheckCircle className="w-5 h-5 mr-2" weight="bold" />

@@ -1,14 +1,7 @@
 import Link from "next/link";
-import { Users, CheckCircle } from "@phosphor-icons/react/dist/ssr";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+import { Users } from "@phosphor-icons/react/dist/ssr";
+import { Card, CardFooter, CardHeader } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import { Room } from "@/types/room";
 
 interface RoomCardProps {
@@ -16,19 +9,9 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
-  // ponytail: no availability field in DB; every room is treated as available
-  const isAvailable = true;
-  // ponytail: no description field in DB; placeholder text until it exists
-  const descriptionMock =
-    room.id === 1
-      ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi."
-      : room.id === 4
-        ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik."
-        : "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
-
   return (
     <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
-      <div className="relative aspect-[4/3] w-full bg-muted">
+      <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
         <img
           src={room.imageUrl}
           alt={room.name}
@@ -38,16 +21,6 @@ export function RoomCard({ room }: RoomCardProps) {
               "https://placehold.co/600x400/e2e8f0/4a4a4a?text=Gambar+Ruangan";
           }}
         />
-        <Badge
-          variant="outline"
-          className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 bg-white/95 text-foreground hover:bg-white shadow-sm rounded-full"
-        >
-          <CheckCircle
-            weight="fill"
-            className={isAvailable ? "text-green-600" : "text-neutral"}
-          />
-          {isAvailable ? "Tersedia" : "Tidak Tersedia"}
-        </Badge>
       </div>
 
       <CardHeader className="space-y-2 pb-4">
@@ -63,27 +36,16 @@ export function RoomCard({ room }: RoomCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="pb-6">
-        <p className="text-sm leading-relaxed text-neutral/80 min-h-[60px]">
-          {descriptionMock}
-        </p>
-      </CardContent>
-      <CardFooter className="flex items-center justify-between pt-6">
-        {isAvailable ? (
-          <Link
-            href={`/room/${room.id}`}
-            className={buttonVariants({
-              variant: "outlinePrimary",
-              className: "px-6",
-            })}
-          >
-            Pesan Ruangan
-          </Link>
-        ) : (
-          <Button variant="outlinePrimary" disabled className="px-6">
-            Pesan Ruangan
-          </Button>
-        )}
+      <CardFooter className="pt-4 pb-6 px-6">
+        <Link
+          href={`/room/${room.id}`}
+          className={buttonVariants({
+            variant: "outlinePrimary",
+            className: "w-full min-h-[44px]",
+          })}
+        >
+          Pesan Ruangan
+        </Link>
       </CardFooter>
     </Card>
   );

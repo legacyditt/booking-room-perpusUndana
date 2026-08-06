@@ -1,10 +1,8 @@
 import { Metadata } from "next";
-import { isBefore, parseISO, startOfDay } from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ReservationCard } from "@/features/reservations/components/ReservationCard";
-import { getUserBookings, DEFAULT_USER_ID } from "@/lib/api";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
+import { ReservationClient } from "@/features/reservations/components/ReservationClient";
+import { getUserBookings, DEFAULT_USER_ID } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Pemesanan Saya | Booking Room Perpustakaan",
@@ -14,17 +12,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function MyReservationsPage() {
-  const today = startOfDay(new Date());
-
   const bookings = await getUserBookings(DEFAULT_USER_ID);
-
-  const upcomingBookings = bookings.filter((booking) => {
-    return !isBefore(parseISO(booking.date), today); // Hari ini dan masa depan
-  });
-
-  const pastBookings = bookings.filter((booking) => {
-    return isBefore(parseISO(booking.date), today); // Kemarin dan masa lalu
-  });
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -43,67 +31,8 @@ export default async function MyReservationsPage() {
             </p>
           </div>
 
-          {/* Tabs Area */}
-          <Tabs defaultValue="upcoming" className="w-full">
-            {/* Bagian List Tab (Garis) */}
-            <TabsList
-              variant="line"
-              className="mb-8 w-full justify-start border-b border-border/40 pb-0 gap-8"
-            >
-              <TabsTrigger
-                value="upcoming"
-                className="text-sm font-bold uppercase tracking-wider pb-3 px-1"
-              >
-                Mendatang
-              </TabsTrigger>
-              <TabsTrigger
-                value="past"
-                className="text-sm font-bold uppercase tracking-wider pb-3 px-1"
-              >
-                Riwayat
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Konten Upcoming */}
-            <TabsContent value="upcoming" className="mt-0">
-              {upcomingBookings.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                  {upcomingBookings.map((booking) => (
-                    <ReservationCard
-                      key={booking.id}
-                      booking={booking}
-                      room={booking.room}
-                      session={booking.session}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl">
-                  Belum ada pemesanan yang akan datang.
-                </div>
-              )}
-            </TabsContent>
-
-            {/* Konten Past */}
-            <TabsContent value="past" className="mt-0">
-              {pastBookings.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-                  {pastBookings.map((booking) => (
-                    <ReservationCard
-                      key={booking.id}
-                      booking={booking}
-                      room={booking.room}
-                      session={booking.session}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl">
-                  Riwayat pemesanan kosong.
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+          {/* Client component for Tabs, Search, and Filtering */}
+          <ReservationClient bookings={bookings} />
         </div>
       </main>
       <Footer />

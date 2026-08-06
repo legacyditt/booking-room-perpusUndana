@@ -1,6 +1,6 @@
 "use client";
 
-import { format, formatDistanceToNow, isToday, parseISO } from "date-fns";
+import { format, formatDistanceToNow, isToday, parseISO, isBefore, startOfDay } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,9 @@ export function ReservationCard({
     locale: idLocale,
   });
 
+  const today = startOfDay(new Date());
+  const isPast = isBefore(new Date(bookingDate), today);
+
   const currentStatus = statusConfig[booking.status] || {
     label: booking.status || "UNKNOWN",
     variant: "secondary",
@@ -67,15 +70,19 @@ export function ReservationCard({
 
   return (
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow border-border/80 shadow-sm rounded-xl overflow-hidden">
-      <CardHeader className="p-6 pb-4 flex flex-col gap-6">
-        {/* Top Header Row (Judul & Waktu Dibuat) */}
-        <div className="flex justify-between items-start gap-4">
-          <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
-            {room.name}
-          </h3>
-          <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider text-right shrink-0 mt-1.5">
+      <CardHeader className="p-5 pt-4 pb-4 flex flex-col gap-5 relative">
+        {/* Top-right aligned Created At */}
+        <div className="absolute top-4 right-5">
+          <span className="text-[10px] font-bold text-neutral/40 uppercase tracking-wider">
             {createdText}
           </span>
+        </div>
+
+        {/* Top Header Row (Judul) */}
+        <div className="flex flex-col pr-24">
+          <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary leading-tight">
+            {room.name}
+          </h3>
         </div>
 
         {/* Capacity & Status */}
@@ -86,7 +93,7 @@ export function ReservationCard({
           </div>
           <Badge
             variant={currentStatus.variant}
-            className="font-bold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full"
+            className="font-bold text-[10px] tracking-wider uppercase px-3 py-1"
           >
             {currentStatus.label}
           </Badge>
@@ -108,26 +115,27 @@ export function ReservationCard({
       </CardContent>
 
       {/* Action Buttons */}
-      <CardFooter className="p-6 pt-2 grid grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
-        {booking.status === "APPROVED" && (
+      {!isPast && (
+        <CardFooter className="p-4 sm:p-6 pt-3 sm:pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
+          {booking.status === "APPROVED" && (
           <>
             <Button
               variant="outline"
-              className="w-full font-bold border-border/80 text-primary"
+              className="w-full font-bold border-border/80 text-primary min-h-[44px]"
             >
               Ubah
             </Button>
             <Dialog>
-              <DialogTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  >
-                    Batalkan
-                  </Button>
-                }
-              />
+                <DialogTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 min-h-[44px]"
+                    >
+                      Batalkan
+                    </Button>
+                  }
+                />
               <DialogContent className="sm:max-w-md">
                 <ShadcnDialogHeader>
                   <ShadcnDialogTitle className="text-base text-primary font-bold">
@@ -171,7 +179,7 @@ export function ReservationCard({
               render={
                 <Button
                   variant="outline"
-                  className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  className="w-full sm:col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 min-h-[44px]"
                 >
                   Batalkan Permintaan
                 </Button>
@@ -213,7 +221,8 @@ export function ReservationCard({
             </DialogContent>
           </Dialog>
         )}
-      </CardFooter>
+        </CardFooter>
+      )}
     </Card>
   );
 }

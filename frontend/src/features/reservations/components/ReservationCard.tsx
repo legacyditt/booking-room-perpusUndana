@@ -61,7 +61,7 @@ export function ReservationCard({
   });
 
   const today = startOfDay(new Date());
-  const isPast = isBefore(bookingDate, today);
+  const isPast = isBefore(new Date(bookingDate), today);
 
   const currentStatus = statusConfig[booking.status] || {
     label: booking.status || "UNKNOWN",

@@ -76,8 +76,8 @@ export const mockRooms: Room[] = [
 ];
 
 export const mockSessions: Session[] = [
-  { id: 1, name: "Sesi Pagi ", timeRange: "08:00 - 12:00" },
-  { id: 2, name: "Sesi Siang", timeRange: "13:00 - 17:00" },
+  { id: 1, name: "Sesi Pagi", startTime: "08:00", finishTime: "12:00" },
+  { id: 2, name: "Sesi Siang", startTime: "13:00", finishTime: "17:00" },
 ];
 
 export const mockBookingPrices: BookingPrice[] = [
@@ -94,6 +94,8 @@ export const mockBookings: Booking[] = [
     date: new Date(new Date().setHours(0, 0, 0, 0)),
     status: BookingStatus.APPROVED,
     createdAt: new Date(),
+    room: mockRooms[0],
+    session: mockSessions[0],
   },
   {
     id: 2,
@@ -103,6 +105,8 @@ export const mockBookings: Booking[] = [
     date: new Date(new Date().setDate(new Date().getDate() + 1)),
     status: BookingStatus.PENDING,
     createdAt: new Date(),
+    room: mockRooms[1],
+    session: mockSessions[1],
   },
   {
     id: 3,
@@ -112,6 +116,8 @@ export const mockBookings: Booking[] = [
     date: new Date(new Date().setDate(new Date().getDate() + 2)),
     status: BookingStatus.REJECTED,
     createdAt: new Date(),
+    room: mockRooms[3],
+    session: mockSessions[1],
   },
   {
     id: 4,
@@ -121,6 +127,8 @@ export const mockBookings: Booking[] = [
     date: new Date(new Date().setDate(new Date().getDate() - 5)),
     status: BookingStatus.APPROVED,
     createdAt: new Date(new Date().setDate(new Date().getDate() - 7)),
+    room: mockRooms[0],
+    session: mockSessions[0],
   },
   {
     id: 5,
@@ -130,6 +138,8 @@ export const mockBookings: Booking[] = [
     date: new Date(new Date().setDate(new Date().getDate() - 2)),
     status: BookingStatus.APPROVED,
     createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
+    room: mockRooms[2],
+    session: mockSessions[0],
   },
 ];
 

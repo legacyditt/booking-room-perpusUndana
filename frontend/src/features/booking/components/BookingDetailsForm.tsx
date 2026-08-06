@@ -139,7 +139,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             <SelectContent>
               {sessions.map((s) => (
                 <SelectItem key={s.id} value={s.id.toString()} className="py-3">
-                  {s.name} ({s.timeRange})
+                  {s.name} ({s.startTime} - {s.finishTime})
                 </SelectItem>
               ))}
             </SelectContent>

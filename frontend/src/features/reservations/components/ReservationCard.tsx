@@ -102,7 +102,7 @@ export function ReservationCard({
           </div>
           <div className="flex items-center gap-3 text-neutral text-sm font-medium">
             <Clock className="w-4 h-4 text-neutral" />
-            <span>{session.timeRange}</span>
+            <span>{session.startTime} - {session.finishTime}</span>
           </div>
         </div>
       </CardContent>

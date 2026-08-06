@@ -23,11 +23,9 @@ export interface AdminRoomRow {
   id: number;
   imageUrl: string;
   roomName: string;
-  location: string;
   type: string;
   capacity: string;
   price: string;
-  status: "AVAILABLE" | "MAINTENANCE" | "OFFLINE";
 }
 
 export interface AdminSessionRow {

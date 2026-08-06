@@ -24,7 +24,7 @@ export function RoomCard({ room }: RoomCardProps) {
 
   return (
     <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
-      <div className="relative aspect-[4/3] w-full bg-muted">
+      <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
         <img
           src={room.imageUrl}
           alt={room.name}
@@ -35,12 +35,13 @@ export function RoomCard({ room }: RoomCardProps) {
           }}
         />
         <Badge
-          variant="outline"
-          className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1 bg-white/95 text-foreground hover:bg-white shadow-sm rounded-full"
+          className={`absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 shadow-md rounded-md font-medium border-0 bg-white hover:bg-white ${
+            isAvailableMock ? "text-green-700" : "text-neutral-500"
+          }`}
         >
           <CheckCircle
             weight="fill"
-            className={isAvailableMock ? "text-green-600" : "text-neutral"}
+            className={isAvailableMock ? "text-green-600" : "text-neutral-400"}
           />
           {isAvailableMock ? "Tersedia" : "Tidak Tersedia"}
         </Badge>
@@ -64,19 +65,19 @@ export function RoomCard({ room }: RoomCardProps) {
           {descriptionMock}
         </p>
       </CardContent>
-      <CardFooter className="flex items-center justify-between pt-6">
+      <CardFooter className="pt-4 pb-6 px-6">
         {isAvailableMock ? (
           <Link
             href={`/room/${room.id}`}
             className={buttonVariants({
               variant: "outlinePrimary",
-              className: "px-6",
+              className: "w-full min-h-[44px]",
             })}
           >
             Pesan Ruangan
           </Link>
         ) : (
-          <Button variant="outlinePrimary" disabled className="px-6">
+          <Button variant="outlinePrimary" disabled className="w-full min-h-[44px]">
             Pesan Ruangan
           </Button>
         )}

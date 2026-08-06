@@ -5,10 +5,10 @@ import { Role, BookingStatus } from "../src/generated/prisma/enums";
 const userPassword = "password123";
 
 const roomsData = [
-  { name: "Aula Besar", capacity: 10, imageUrl: "/rooms/aula-besar.jpg" },
-  { name: "Ruang Rapat 1", capacity: 6, imageUrl: "/rooms/ruang-rapat-1.jpg" },
-  { name: "Ruang Rapat 2", capacity: 4, imageUrl: "/rooms/ruang-rapat-2.jpg" },
-  { name: "Ruang Diskusi", capacity: 8, imageUrl: "/rooms/ruang-diskusi.jpg" },
+  { name: "Aula Besar", capacity: 10, imageUrl: "https://picsum.photos/id/48/5000/3333" },
+  { name: "Ruang Rapat 1", capacity: 6, imageUrl: "https://picsum.photos/id/311/367/267" },
+  { name: "Ruang Rapat 2", capacity: 4, imageUrl: "https://picsum.photos/id/445/4256/2819" },
+  { name: "Ruang Diskusi", capacity: 8, imageUrl: "https://picsum.photos/id/504/367/267" },
 ];
 
 const prices = [

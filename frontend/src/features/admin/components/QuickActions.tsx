@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PlusCircle, ChartBar } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function QuickActions() {
   return (
@@ -11,7 +11,7 @@ export function QuickActions() {
           Aksi Cepat
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="p-6">
         <div className="flex flex-col gap-3">
           <Button
@@ -19,7 +19,7 @@ export function QuickActions() {
             size="lg"
             nativeButton={false}
             className="w-full justify-center gap-2"
-            render={<Link href="/admin/rooms/new" />}
+            render={<Link href="/admin/rooms/add" />}
           >
             <PlusCircle size={18} />
             Tambah Ruangan Baru

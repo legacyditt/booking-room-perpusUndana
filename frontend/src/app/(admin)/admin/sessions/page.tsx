@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Plus } from "@phosphor-icons/react";
 import { SessionTable } from "@/features/admin/components/SessionTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
@@ -19,10 +20,12 @@ export default function AdminSessionsPage() {
             Atur slot waktu sesi yang tersedia untuk pemesanan ruangan.
           </p>
         </div>
-        <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
-          <Plus weight="bold" className="w-4 h-4" />
-          Tambah Sesi
-        </Button>
+        <Link href="/admin/sessions/add">
+          <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
+            <Plus weight="bold" className="w-4 h-4" />
+            Tambah Sesi
+          </Button>
+        </Link>
       </div>
 
       {/* ── Kontainer Utama (Tabel + Pagination) ── */}

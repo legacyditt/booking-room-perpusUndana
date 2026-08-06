@@ -34,10 +34,10 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
       {/* Header tabel */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
         <h2 className="text-lg font-serif font-semibold text-primary">
-          Peminjaman Terbaru
+          Penyewaan Ruang Terbaru
         </h2>
         <Link
-          href="/admin/reservations" 
+          href="/admin/reservations"
           className="flex items-center gap-1 text-xs font-medium text-neutral-500 hover:text-primary transition-colors"
         >
           Lihat Semua

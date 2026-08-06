@@ -147,7 +147,7 @@ export const mockBookings: Booking[] = [
 export const mockAdminStats: AdminStat[] = [
   {
     id: "total-bookings",
-    label: "Total Peminjaman Hari Ini",
+    label: "Total Booking Hari Ini",
     value: 8,
     trend: "+12% dari kemarin",
     trendPositive: true,

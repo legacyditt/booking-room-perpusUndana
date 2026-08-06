@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Eye, PencilSimple, Trash } from "@phosphor-icons/react";
 import { mockAdminSessions } from "@/data/mock";
 import { AdminSessionRow } from "@/types/admin";
@@ -109,14 +110,16 @@ export function SessionTable() {
                     >
                       <Eye weight="bold" size={18} />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Edit Sesi"
-                    >
-                      <PencilSimple weight="bold" size={18} />
-                    </Button>
+                    <Link href={`/admin/sessions/${session.id}/edit`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-neutral-400 hover:text-primary w-8 h-8"
+                        title="Edit Sesi"
+                      >
+                        <PencilSimple weight="bold" size={18} />
+                      </Button>
+                    </Link>
                     <Button
                       variant="ghost"
                       size="icon"

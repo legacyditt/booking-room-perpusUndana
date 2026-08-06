@@ -20,10 +20,10 @@ export default function AdminUsersPage() {
             Tinjau dan kelola seluruh pengguna dan hak akses di sistem perpustakaan.
           </p>
         </div>
-        <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
-          <Plus weight="bold" className="w-4 h-4" />
-          Tambah Pengguna
-        </Button>
+        {/* <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2"> */}
+        {/*   <Plus weight="bold" className="w-4 h-4" /> */}
+        {/*   Tambah Pengguna */}
+        {/* </Button> */}
       </div>
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}

@@ -69,11 +69,11 @@ export function ReservationCard({
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow border-border/80 shadow-sm rounded-xl overflow-hidden">
       <CardHeader className="p-6 pb-4 flex flex-col gap-6">
         {/* Top Header Row (Judul & Waktu Dibuat) */}
-        <div className="flex justify-between items-start gap-4">
-          <h3 className="text-2xl font-serif font-bold text-primary leading-tight">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-1.5 sm:gap-4">
+          <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary leading-tight">
             {room.name}
           </h3>
-          <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider text-right shrink-0 mt-1.5">
+          <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider shrink-0 mt-0 sm:mt-1.5">
             {createdText}
           </span>
         </div>
@@ -108,26 +108,26 @@ export function ReservationCard({
       </CardContent>
 
       {/* Action Buttons */}
-      <CardFooter className="p-6 pt-2 grid grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
+      <CardFooter className="p-4 sm:p-6 pt-3 sm:pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
         {booking.status === "APPROVED" && (
           <>
             <Button
               variant="outline"
-              className="w-full font-bold border-border/80 text-primary"
+              className="w-full font-bold border-border/80 text-primary min-h-[44px]"
             >
               Ubah
             </Button>
             <Dialog>
-              <DialogTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  >
-                    Batalkan
-                  </Button>
-                }
-              />
+                <DialogTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      className="w-full font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 min-h-[44px]"
+                    >
+                      Batalkan
+                    </Button>
+                  }
+                />
               <DialogContent className="sm:max-w-md">
                 <ShadcnDialogHeader>
                   <ShadcnDialogTitle className="text-base text-primary font-bold">
@@ -171,7 +171,7 @@ export function ReservationCard({
               render={
                 <Button
                   variant="outline"
-                  className="w-full col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  className="w-full sm:col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 min-h-[44px]"
                 >
                   Batalkan Permintaan
                 </Button>

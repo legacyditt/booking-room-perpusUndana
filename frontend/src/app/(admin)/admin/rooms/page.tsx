@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { Plus } from "@phosphor-icons/react";
 import { RoomFilters } from "@/features/admin/components/RoomFilters";
 import { RoomTable } from "@/features/admin/components/RoomTable";
@@ -20,10 +21,12 @@ export default function AdminRoomsPage() {
             Awasi dan pelihara inventaris seluruh fasilitas akademik perpustakaan.
           </p>
         </div>
-        <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
-          <Plus className="w-4 h-4" weight="bold" />
-          Tambah Ruangan
-        </Button>
+        <Link href="/admin/rooms/add">
+          <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
+            <Plus className="w-4 h-4" weight="bold" />
+            Tambah Ruangan
+          </Button>
+        </Link>
       </div>
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}

@@ -21,17 +21,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
-
-// ── Status Config ──
-const statusConfig: Record<
-  AdminRoomRow["status"],
-  { label: string; variant: BadgeVariant }
-> = {
-  AVAILABLE: { label: "Tersedia", variant: "default" },
-  MAINTENANCE: { label: "Perawatan", variant: "destructive" },
-  OFFLINE: { label: "Tidak Aktif", variant: "secondary" },
-};
 
 // Helper Icon berdasarkan tipe
 function getTypeIcon(type: string) {
@@ -62,9 +51,6 @@ export function RoomTable() {
               HARGA / SESI
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
-              STATUS
-            </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               AKSI
             </TableHead>
           </TableRow>
@@ -72,8 +58,6 @@ export function RoomTable() {
 
         <TableBody>
           {mockAdminRooms.map((room) => {
-            const status = statusConfig[room.status];
-
             return (
               <TableRow
                 key={room.id}
@@ -84,9 +68,6 @@ export function RoomTable() {
                   <div className="flex flex-col gap-0.5 items-center text-center">
                     <span className="font-semibold text-primary">
                       {room.roomName}
-                    </span>
-                    <span className="text-xs text-neutral-500">
-                      {room.location}
                     </span>
                   </div>
                 </TableCell>
@@ -107,16 +88,6 @@ export function RoomTable() {
                 {/* Kolom Harga */}
                 <TableCell className="px-5 py-4 text-neutral-600 text-center">
                   {room.price}
-                </TableCell>
-
-                {/* Kolom Status */}
-                <TableCell className="px-5 py-4 text-center">
-                  <Badge
-                    variant={status.variant}
-                    className="min-w-[90px] justify-center"
-                  >
-                    {status.label}
-                  </Badge>
                 </TableCell>
 
                 {/* Kolom Aksi (Eye & Pencil) */}

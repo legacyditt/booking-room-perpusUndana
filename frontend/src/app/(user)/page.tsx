@@ -4,25 +4,17 @@ import { useState } from "react";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 import { RoomCard } from "@/features/home/components/RoomCard";
-import { RoomFilters } from "@/features/home/components/RoomFilters";
 import { mockRooms } from "@/data/mock";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
-  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
   const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
 
-  // Simulasi Filter ruangan berdasarkan Ketersediaan dan Tipe Ruangan (karena properties tersebut dihapus dari mockRooms)
+  // Simulasi Filter ruangan berdasarkan Tipe Ruangan
   const filteredRooms = mockRooms.filter((room) => {
-    // Simulasi ketersediaan: Anggap Ruang 4 sedang tidak tersedia, sisanya tersedia
-    const isAvailableMock = room.id !== 4;
-    const isRoomAvailable = showAvailableOnly ? isAvailableMock : true;
-
     // Simulasi Tipe Ruangan: Anggap Ruang 1 & 2 Reguler, 3 & 4 Premium
     const typeMock = (room.id === 1 || room.id === 2) ? "reguler" : "premium";
-    const isMatchingType = typeMock === roomType;
-
-    return isRoomAvailable && isMatchingType;
+    return typeMock === roomType;
   });
 
   return (
@@ -45,12 +37,7 @@ export default function HomePage() {
           onValueChange={(v) => setRoomType(v as "reguler" | "premium")}
           className="w-full mt-4 md:mt-6"
         >
-          <div className="flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-4 mb-6">
-            <RoomFilters
-              showAvailableOnly={showAvailableOnly}
-              onShowAvailableOnlyChange={setShowAvailableOnly}
-            />
-
+          <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-4 mb-6">
             <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:flex h-11 p-1">
               <TabsTrigger value="reguler">Reguler</TabsTrigger>
               <TabsTrigger value="premium">Premium</TabsTrigger>

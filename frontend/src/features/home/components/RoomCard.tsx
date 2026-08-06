@@ -17,7 +17,6 @@ interface RoomCardProps {
 
 export function RoomCard({ room }: RoomCardProps) {
   // Simulasi nilai yang dihapus dari Room type
-  const isAvailableMock = room.id !== 4;
   const descriptionMock = room.id === 1 ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi." : 
                           room.id === 4 ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik." :
                           "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
@@ -34,17 +33,6 @@ export function RoomCard({ room }: RoomCardProps) {
               "https://placehold.co/600x400/e2e8f0/4a4a4a?text=Gambar+Ruangan";
           }}
         />
-        <Badge
-          className={`absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 shadow-md rounded-md font-medium border-0 bg-white hover:bg-white ${
-            isAvailableMock ? "text-green-700" : "text-neutral-500"
-          }`}
-        >
-          <CheckCircle
-            weight="fill"
-            className={isAvailableMock ? "text-green-600" : "text-neutral-400"}
-          />
-          {isAvailableMock ? "Tersedia" : "Tidak Tersedia"}
-        </Badge>
       </div>
 
       <CardHeader className="space-y-2 pb-4">
@@ -66,21 +54,15 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </CardContent>
       <CardFooter className="pt-4 pb-6 px-6">
-        {isAvailableMock ? (
-          <Link
-            href={`/room/${room.id}`}
-            className={buttonVariants({
-              variant: "outlinePrimary",
-              className: "w-full min-h-[44px]",
-            })}
-          >
-            Pesan Ruangan
-          </Link>
-        ) : (
-          <Button variant="outlinePrimary" disabled className="w-full min-h-[44px]">
-            Pesan Ruangan
-          </Button>
-        )}
+        <Link
+          href={`/room/${room.id}`}
+          className={buttonVariants({
+            variant: "outlinePrimary",
+            className: "w-full min-h-[44px]",
+          })}
+        >
+          Pesan Ruangan
+        </Link>
       </CardFooter>
     </Card>
   );

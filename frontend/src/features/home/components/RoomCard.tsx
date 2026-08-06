@@ -16,11 +16,15 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
-  // Simulasi nilai yang dihapus dari Room type
-  const isAvailableMock = room.id !== 4;
-  const descriptionMock = room.id === 1 ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi." : 
-                          room.id === 4 ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik." :
-                          "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
+  // ponytail: no availability field in DB; every room is treated as available
+  const isAvailable = true;
+  // ponytail: no description field in DB; placeholder text until it exists
+  const descriptionMock =
+    room.id === 1
+      ? "Ruangan yang tenang dan intim, sempurna untuk penelitian mandiri atau sesi bimbingan pribadi."
+      : room.id === 4
+        ? "Ruangan luas yang dirancang untuk diskusi kelompok besar, kuliah, atau lokakarya akademik."
+        : "Dilengkapi dengan layar presentasi, ideal untuk proyek kelompok dan persiapan seminar.";
 
   return (
     <Card className="overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
@@ -40,9 +44,9 @@ export function RoomCard({ room }: RoomCardProps) {
         >
           <CheckCircle
             weight="fill"
-            className={isAvailableMock ? "text-green-600" : "text-neutral"}
+            className={isAvailable ? "text-green-600" : "text-neutral"}
           />
-          {isAvailableMock ? "Tersedia" : "Tidak Tersedia"}
+          {isAvailable ? "Tersedia" : "Tidak Tersedia"}
         </Badge>
       </div>
 
@@ -65,7 +69,7 @@ export function RoomCard({ room }: RoomCardProps) {
         </p>
       </CardContent>
       <CardFooter className="flex items-center justify-between pt-6">
-        {isAvailableMock ? (
+        {isAvailable ? (
           <Link
             href={`/room/${room.id}`}
             className={buttonVariants({

@@ -13,8 +13,6 @@ const roomsData = [
 
 const prices = [
   { name: "Aula Besar", price: 500000 },
-  { name: "Ruang Rapat 1", price: 300000 },
-  { name: "Ruang Rapat 2", price: 250000 },
   { name: "Ruang Diskusi", price: 200000 },
 ];
 

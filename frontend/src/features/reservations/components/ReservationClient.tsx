@@ -81,17 +81,17 @@ export function ReservationClient() {
         {/* Bagian List Tab (Garis) */}
         <TabsList
           variant="line"
-          className="mb-6 w-full justify-start border-b border-border/40 pb-0 gap-6 sm:gap-8 overflow-x-auto overflow-y-hidden no-scrollbar"
+          className="mb-6 w-full justify-start pb-0 gap-6 sm:gap-8 overflow-x-auto no-scrollbar"
         >
           <TabsTrigger
             value="upcoming"
-            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap"
+            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none"
           >
             Mendatang
           </TabsTrigger>
           <TabsTrigger
             value="past"
-            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap"
+            className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none"
           >
             Riwayat
           </TabsTrigger>

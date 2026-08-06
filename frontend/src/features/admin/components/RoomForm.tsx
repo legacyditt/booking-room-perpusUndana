@@ -4,16 +4,30 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-export function RoomForm() {
+interface RoomFormValues {
+  name: string;
+  capacity: string;
+  imageUrl: string;
+  price: string;
+}
+
+interface RoomFormProps {
+  room?: RoomFormValues;
+}
+
+export function RoomForm({ room }: RoomFormProps) {
   const router = useRouter();
+  const isEdit = Boolean(room);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    capacity: "",
-    imageUrl: "",
-    price: "",
-  });
+  const [formData, setFormData] = useState<RoomFormValues>(
+    room ?? {
+      name: "",
+      capacity: "",
+      imageUrl: "",
+      price: "",
+    }
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -127,7 +141,11 @@ export function RoomForm() {
           disabled={isSubmitting}
           className="bg-primary text-white hover:bg-primary/90 font-semibold min-h-[44px]"
         >
-          {isSubmitting ? "Menyimpan..." : "Simpan Ruangan"}
+          {isSubmitting
+            ? "Menyimpan..."
+            : isEdit
+              ? "Simpan Perubahan"
+              : "Simpan Ruangan"}
         </Button>
       </div>
     </form>

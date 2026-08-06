@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import Link from "next/link";
 import {
   Eye,
   PencilSimple,
@@ -101,14 +102,16 @@ export function RoomTable() {
                     >
                       <Eye weight="bold" size={18} />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Edit Ruangan"
-                    >
-                      <PencilSimple weight="bold" size={18} />
-                    </Button>
+                    <Link href={`/admin/rooms/${room.id}/edit`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-neutral-400 hover:text-primary w-8 h-8"
+                        title="Edit Ruangan"
+                      >
+                        <PencilSimple weight="bold" size={18} />
+                      </Button>
+                    </Link>
                   </div>
                 </TableCell>
               </TableRow>

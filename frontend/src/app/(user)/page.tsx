@@ -4,25 +4,17 @@ import { useState } from "react";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 import { RoomCard } from "@/features/home/components/RoomCard";
-import { RoomFilters } from "@/features/home/components/RoomFilters";
 import { mockRooms } from "@/data/mock";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function HomePage() {
-  const [showAvailableOnly, setShowAvailableOnly] = useState(true);
   const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
 
-  // Simulasi Filter ruangan berdasarkan Ketersediaan dan Tipe Ruangan (karena properties tersebut dihapus dari mockRooms)
+  // Simulasi Filter ruangan berdasarkan Tipe Ruangan
   const filteredRooms = mockRooms.filter((room) => {
-    // Simulasi ketersediaan: Anggap Ruang 4 sedang tidak tersedia, sisanya tersedia
-    const isAvailableMock = room.id !== 4;
-    const isRoomAvailable = showAvailableOnly ? isAvailableMock : true;
-
     // Simulasi Tipe Ruangan: Anggap Ruang 1 & 2 Reguler, 3 & 4 Premium
     const typeMock = (room.id === 1 || room.id === 2) ? "reguler" : "premium";
-    const isMatchingType = typeMock === roomType;
-
-    return isRoomAvailable && isMatchingType;
+    return typeMock === roomType;
   });
 
   return (
@@ -30,31 +22,29 @@ export default function HomePage() {
       <Header />
 
       <main className="flex-1 container mx-auto max-w-7xl px-4 md:px-8 py-10">
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between mb-2">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold text-primary">
-            Ruang Belajar Tersedia
-          </h1>
-          <p className="text-neutral mt-2 sm:mt-0 font-medium">
-            Menampilkan {filteredRooms.length} hasil
-          </p>
-        </div>
-
-        {/* Komponen Filter dan Tabs */}
         <Tabs
           defaultValue="reguler"
           onValueChange={(v) => setRoomType(v as "reguler" | "premium")}
-          className="w-full mt-6"
+          className="w-full"
         >
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-            <RoomFilters
-              showAvailableOnly={showAvailableOnly}
-              onShowAvailableOnlyChange={setShowAvailableOnly}
-            />
+          {/* Header Row: Judul, Tabs, dan Info Hasil */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5 mb-8">
+            <h1 className="font-serif text-3xl md:text-5xl font-bold text-primary">
+              Ruang Belajar Tersedia
+            </h1>
 
-            <TabsList className="flex w-full sm:w-auto">
-              <TabsTrigger value="reguler">Reguler</TabsTrigger>
-              <TabsTrigger value="premium">Premium</TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full lg:w-auto mt-2 lg:mt-0">
+              <TabsList className="grid w-full sm:w-auto grid-cols-2 sm:flex h-11 p-1">
+                <TabsTrigger value="reguler">Reguler</TabsTrigger>
+                <TabsTrigger value="premium">Premium</TabsTrigger>
+              </TabsList>
+              
+              <div className="hidden sm:block w-px h-6 bg-neutral/20" />
+              
+              <p className="text-neutral text-sm font-medium pl-1 sm:pl-0">
+                {filteredRooms.length} Ruangan
+              </p>
+            </div>
           </div>
 
           <TabsContent value="reguler" className="mt-0">

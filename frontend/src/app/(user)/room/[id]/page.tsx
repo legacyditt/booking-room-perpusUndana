@@ -26,7 +26,7 @@ export default async function BookingPage({ params }: PageProps) {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 bg-background">
+      <main className="flex-1 bg-background pb-28 lg:pb-0">
         <div className="container mx-auto max-w-7xl px-4 py-8 md:px-8">
           
           {/* Navigasi Kembali */}
@@ -40,7 +40,7 @@ export default async function BookingPage({ params }: PageProps) {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-10 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 lg:gap-10 items-start">
             {/* Bagian Kiri: Gambar */}
             <RoomImageGallery room={room} />
             

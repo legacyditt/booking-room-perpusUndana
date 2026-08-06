@@ -67,15 +67,19 @@ export function ReservationCard({
 
   return (
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow border-border/80 shadow-sm rounded-xl overflow-hidden">
-      <CardHeader className="p-6 pb-4 flex flex-col gap-6">
-        {/* Top Header Row (Judul & Waktu Dibuat) */}
-        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-1.5 sm:gap-4">
+      <CardHeader className="p-5 pt-4 pb-4 flex flex-col gap-5 relative">
+        {/* Top-right aligned Created At */}
+        <div className="absolute top-4 right-5">
+          <span className="text-[10px] font-bold text-neutral/40 uppercase tracking-wider">
+            {createdText}
+          </span>
+        </div>
+
+        {/* Top Header Row (Judul) */}
+        <div className="flex flex-col pr-24">
           <h3 className="text-xl sm:text-2xl font-serif font-bold text-primary leading-tight">
             {room.name}
           </h3>
-          <span className="text-[10px] font-bold text-neutral/50 uppercase tracking-wider shrink-0 mt-0 sm:mt-1.5">
-            {createdText}
-          </span>
         </div>
 
         {/* Capacity & Status */}
@@ -86,7 +90,7 @@ export function ReservationCard({
           </div>
           <Badge
             variant={currentStatus.variant}
-            className="font-bold text-[10px] tracking-wider uppercase px-3 py-1 rounded-full"
+            className="font-bold text-[10px] tracking-wider uppercase px-3 py-1"
           >
             {currentStatus.label}
           </Badge>

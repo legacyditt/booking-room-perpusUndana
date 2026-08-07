@@ -42,8 +42,12 @@ export function LoginForm({
       return;
     }
 
-    // Jika sukses, arahkan ke beranda dan muat ulang status server
-    router.push("/");
+    // Jika sukses, arahkan sesuai dengan Role
+    if (data?.user?.role === "admin") {
+      router.push("/admin/overview");
+    } else {
+      router.push("/");
+    }
     router.refresh(); 
   };
 

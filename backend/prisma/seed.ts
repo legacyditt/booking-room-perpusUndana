@@ -1,5 +1,5 @@
 import prisma from "../src/lib/prisma";
-import { hash } from "bcryptjs";
+import { hashPassword } from "@better-auth/utils/password";
 import { Role, BookingStatus } from "../src/generated/prisma/enums";
 
 const userPassword = "password123";
@@ -26,26 +26,59 @@ async function main() {
   await prisma.booking.deleteMany();
   await prisma.bookingPrice.deleteMany();
   await prisma.room.deleteMany();
+  await prisma.bookingSession.deleteMany();
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
 
-  const passwordHash = await hash(userPassword, 10);
+  // Menggunakan fungsi bawaan dari BetterAuth untuk hashing agar kompatibel
+  const adminPasswordHash = await hashPassword("admin_PERPUSTAKAAN123");
+  const userPasswordHash = await hashPassword("delano_MAHASISWA123");
 
-  await prisma.user.createMany({
-    data: [
-      { name: "Admin", email: "admin@perpus.test", password: passwordHash, role: Role.ADMIN },
-      ...Array.from({ length: 9 }, (_, i) => ({
-        name: `User ${i + 1}`,
-        email: `user${i + 1}@perpus.test`,
-        password: passwordHash,
-        role: Role.USER as const,
-      })),
-    ],
+  // 1. Create Admin
+  const adminId = "admin-uuid-1";
+  await prisma.user.create({
+    data: {
+      id: adminId,
+      name: "Admin Perpustakaan",
+      email: "adminperpus@gmail.com",
+      role: "admin",
+      status: "dosen",
+      idNumber: "111122223333",
+      whatsapp: "081234567890",
+      accounts: {
+        create: {
+          id: "acc-admin-1",
+          accountId: "adminperpus@gmail.com",
+          providerId: "credential",
+          password: adminPasswordHash,
+        },
+      },
+    },
   });
 
-  const users = await prisma.user.findMany({ orderBy: { id: "asc" } });
-  const admin = users.find((u) => u.role === Role.ADMIN) ?? users[0];
-  const members = users.filter((u) => u.id !== admin.id);
+  // 2. Create Regular User
+  const userId = "user-uuid-1";
+  await prisma.user.create({
+    data: {
+      id: userId,
+      name: "Delano Manafe",
+      email: "delanomanafe05@gmail.com",
+      role: "user",
+      status: "mahasiswa",
+      idNumber: "220000001",
+      whatsapp: "08120000001",
+      accounts: {
+        create: {
+          id: "acc-user-1",
+          accountId: "delanomanafe05@gmail.com",
+          providerId: "credential",
+          password: userPasswordHash,
+        },
+      },
+    },
+  });
+  
+  const members = [{ id: userId }];
 
   await prisma.room.createMany({ data: roomsData });
 
@@ -62,9 +95,9 @@ async function main() {
     )
   );
 
-  await prisma.session.createMany({ data: sessionsData });
+  await prisma.bookingSession.createMany({ data: sessionsData });
 
-  const sessions = await prisma.session.findMany();
+  const sessions = await prisma.bookingSession.findMany();
   const fullRoom = roomById.get("Aula Besar")!;
   const pagiSession = sessions.find((s) => s.name === "Pagi")!;
   const bookingDate = new Date("2026-08-10T00:00:00.000Z");
@@ -88,13 +121,14 @@ async function main() {
       {
         roomId: roomById.get("Ruang Diskusi")!.id,
         sessionId: sessions.find((s) => s.name === "Siang")!.id,
-        userId: members[1].id,
+        userId: members[0].id,
         date: bookingDate,
         status: BookingStatus.REJECTED,
       },
     ],
   });
 
+  const users = await prisma.user.findMany();
   console.log(
     `Seeded: ${users.length} users, ${rooms.length} rooms, ${sessions.length} sessions, ` +
       `Aula Besar fully booked (${members.length} bookings) on ${bookingDate.toISOString().slice(0, 10)}`

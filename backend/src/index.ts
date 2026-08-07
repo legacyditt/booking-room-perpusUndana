@@ -20,8 +20,8 @@ app.use(
   }),
 );
 
-// 2. Router BetterAuth
-app.all("/api/auth/*", toNodeHandler(auth));
+// 2. Router BetterAuth 
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 // 3. Body Parser
 app.use(express.json());
@@ -36,6 +36,6 @@ app.use("/sessions", sessionRoute);
 app.use("/bookings", bookingsRoute);
 app.use("/booking-prices", bookingPriceRoute);
 
-app.listen(port, () => {
+app.listen(Number(port), "0.0.0.0", () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });

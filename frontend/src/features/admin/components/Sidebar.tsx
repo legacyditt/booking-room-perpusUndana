@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
+import { useSession, signOut } from "@/lib/api/auth-client";
 import {
   SquaresFour,
   CalendarBlank,
@@ -28,6 +28,7 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   return (
     <aside className="w-64 border-r border-neutral-200 bg-white flex flex-col min-h-screen">
@@ -71,21 +72,19 @@ export function Sidebar() {
       <div className="p-4 border-t border-neutral-200">
         <div className="flex items-center gap-3 px-3 py-2">
           {/* Avatar */}
-          <div className="w-10 h-10 rounded-full bg-neutral-200 overflow-hidden relative shrink-0">
-            <Image
-              src="https://placehold.co/100x100/png"
-              alt="Admin Profile"
-              fill
-              className="object-cover"
-            />
+          <div className="w-10 h-10 rounded-full bg-neutral-200 overflow-hidden relative shrink-0 flex items-center justify-center text-lg font-bold text-neutral-500 uppercase">
+            {session?.user?.name?.charAt(0) || "A"}
           </div>
 
           {/* Nama & Tombol Keluar */}
           <div className="flex-1 overflow-hidden">
             <p className="text-sm font-semibold text-primary truncate">
-              Admin User
+              {session?.user?.name || "Admin User"}
             </p>
-            <button className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-neutral-200 text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200">
+            <button 
+              onClick={() => signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login"; } } })}
+              className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-neutral-200 text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200 cursor-pointer"
+            >
               <SignOut size={13} weight="bold" />
               Keluar
             </button>

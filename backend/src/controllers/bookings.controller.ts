@@ -6,7 +6,7 @@ export const getUserBookings = async (req: Request, res: Response) => {
         const { userId } = req.params
 
         const bookings = await prisma.booking.findMany({
-            where: { userId: Number(userId) },
+            where: { userId: userId as string }, 
             include: {
                 room: {
                     include: { bookingPrice: true }
@@ -17,7 +17,7 @@ export const getUserBookings = async (req: Request, res: Response) => {
 
         return res.status(200).json({
             message: 'Bookings fetched successfully',
-            data: bookings
+        data: bookings
         })
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error' })
@@ -77,7 +77,7 @@ export const createBooking = async (req: Request, res: Response) => {
         const room = await prisma.room.findUnique({ where: { id: Number(roomId) } })
         if (!room) return res.status(404).json({ message: 'Room Not Found' })
 
-        const session = await prisma.session.findUnique({ where: { id: Number(sessionId) } })
+        const session = await prisma.bookingSession.findUnique({ where: { id: Number(sessionId) } })
         if (!session) return res.status(404).json({ message: 'Session Not Found' })
 
         const conflict = await prisma.booking.findFirst({
@@ -97,7 +97,7 @@ export const createBooking = async (req: Request, res: Response) => {
             data: {
                 roomId: Number(roomId),
                 sessionId: Number(sessionId),
-                userId: Number(userId),
+                userId: userId, // Hapus Number() karena ID sekarang String
                 date: new Date(date),
                 status: 'PENDING'
             },

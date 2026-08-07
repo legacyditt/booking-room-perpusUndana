@@ -18,16 +18,17 @@ export default async function HomePage() {
 
   // ponytail: no type field in DB; premium = has bookingPrice
   const premiumRooms = rooms.filter((room) => !!room.bookingPrice);
+  const regulerRooms = rooms.filter((room) => !room.bookingPrice);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
 
       <main className="flex-1 container mx-auto max-w-7xl px-4 md:px-8 py-10">
-        <HomeTabs regulerCount={rooms.length} premiumCount={premiumRooms.length}>
+        <HomeTabs regulerCount={regulerRooms.length} premiumCount={premiumRooms.length}>
           <TabsContent value="reguler" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {rooms.map((room) => (
+              {regulerRooms.map((room) => (
                 <RoomCard key={room.id} room={room} />
               ))}
             </div>

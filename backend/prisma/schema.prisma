@@ -7,16 +7,73 @@ datasource db {
   provider = "postgresql"
 }
 
+// BETTERAUTH MODELS
 model User {
-  id       Int       @id @default(autoincrement())
-  name     String
-  email    String    @unique
-  password String
-  role     Role      @default(USER)
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  status        String // "mahasiswa" | "dosen" | "umum"
+  idNumber      String // NIM / NIP / NIK
+  whatsapp      String
+  role          String   @default("user") // "user" atau "admin"
+
+  sessions Session[]
+  accounts Account[]
+
   bookings Booking[]
 
-  @@map("users")
+  @@map("user")
 }
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// APP MODELS
 
 model Room {
   id           Int           @id @default(autoincrement())
@@ -29,7 +86,7 @@ model Room {
   @@map("rooms")
 }
 
-model Session {
+model BookingSession {
   id         Int       @id @default(autoincrement())
   name       String
   startTime  String    @map("start_time")
@@ -43,14 +100,14 @@ model Booking {
   id        Int           @id @default(autoincrement())
   roomId    Int           @map("room_id")
   sessionId Int           @map("session_id")
-  userId    Int           @map("user_id")
+  userId    String        @map("user_id")
   date      DateTime
   status    BookingStatus @default(PENDING)
   createdAt DateTime      @default(now()) @map("created_at")
 
-  room    Room    @relation(fields: [roomId], references: [id])
-  session Session @relation(fields: [sessionId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  room    Room           @relation(fields: [roomId], references: [id])
+  session BookingSession @relation(fields: [sessionId], references: [id])
+  user    User           @relation(fields: [userId], references: [id])
 
   @@map("bookings")
 }
@@ -59,7 +116,7 @@ model BookingPrice {
   roomId Int     @id @map("room_id")
   price  Decimal
 
-  room   Room    @relation(fields: [roomId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
 
   @@map("booking_prices")
 }

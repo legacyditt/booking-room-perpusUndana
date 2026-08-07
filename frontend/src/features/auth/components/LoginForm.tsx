@@ -42,8 +42,8 @@ export function LoginForm({
       return;
     }
 
-    // Jika sukses, arahkan ke dashboard dan muat ulang status server
-    router.push("/dashboard");
+    // Jika sukses, arahkan ke beranda dan muat ulang status server
+    router.push("/");
     router.refresh(); 
   };
 

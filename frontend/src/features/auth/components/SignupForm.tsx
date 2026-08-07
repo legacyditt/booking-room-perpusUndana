@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/api/auth-client";
+import { signUp, signOut } from "@/lib/api/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -93,6 +93,8 @@ export function SignupForm({
       setIsLoading(false);
       return;
     }
+    
+    await signOut();
 
     // Arahkan user ke halaman login setelah registrasi sukses
     router.push("/login");

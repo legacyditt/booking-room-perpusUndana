@@ -30,7 +30,7 @@ async function main() {
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
 
-  // Menggunakan fungsi bawaan dari BetterAuth untuk hashing agar kompatibel
+  // Menggunakan fungsi bawaan dari BetterAuth untuk hashing
   const adminPasswordHash = await hashPassword("admin_PERPUSTAKAAN123");
   const userPasswordHash = await hashPassword("delano_MAHASISWA123");
 

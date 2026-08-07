@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Daftar halaman yang HANYA untuk orang yang BELUM login
 const authRoutes = ["/login", "/register"];
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Cek apakah ada cookie sesi dari BetterAuth

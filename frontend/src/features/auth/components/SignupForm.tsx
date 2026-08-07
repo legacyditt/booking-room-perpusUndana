@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signUp } from "@/lib/api/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,24 +28,14 @@ import {
 } from "@/components/ui/select";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
 
-// Tipe data untuk status pengguna
 type UserStatus = "mahasiswa" | "dosen" | "umum" | "";
 
-// Konfigurasi label field kondisional berdasarkan status yang dipilih
 const conditionalFieldConfig: Record<
   Exclude<UserStatus, "">,
   { label: string; placeholder: string; id: string }
 > = {
-  mahasiswa: {
-    label: "NIM",
-    placeholder: "Nomor Induk Mahasiswa",
-    id: "nim",
-  },
-  dosen: {
-    label: "NIP",
-    placeholder: "Nomor Induk Pegawai",
-    id: "nip",
-  },
+  mahasiswa: { label: "NIM", placeholder: "Nomor Induk Mahasiswa", id: "nim" },
+  dosen: { label: "NIP", placeholder: "Nomor Induk Pegawai", id: "nip" },
   umum: {
     label: "NIK",
     placeholder: "Nomor Induk Kependudukan (16 digit)",
@@ -56,9 +48,55 @@ export function SignupForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [status, setStatus] = useState<UserStatus>("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [idNumber, setIdNumber] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const router = useRouter();
   const conditionalField = status ? conditionalFieldConfig[status] : null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    // Validasi basic dari sisi klien
+    if (password !== confirmPassword) {
+      setError("Kata sandi dan konfirmasi kata sandi tidak cocok.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Kata sandi minimal 8 karakter.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Kirim POST register ke BetterAuth dengan membawa kolom custom
+    const { data, error: authError } = await signUp.email({
+      email,
+      password,
+      name,
+      status: status,
+      idNumber: idNumber,
+      whatsapp: whatsapp,
+    });
+
+    if (authError) {
+      setError(authError.message ?? "Pendaftaran gagal. Coba lagi.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Arahkan user ke halaman login setelah registrasi sukses
+    router.push("/login");
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -73,9 +111,15 @@ export function SignupForm({
         </CardHeader>
 
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
-              {/* --- Field 1: Nama Lengkap --- */}
+              {error && (
+                <div className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-md p-3">
+                  {error}
+                </div>
+              )}
+
+              {/* Nama */}
               <Field>
                 <FieldLabel htmlFor="name" className="font-medium">
                   Nama Lengkap
@@ -85,11 +129,13 @@ export function SignupForm({
                   type="text"
                   placeholder="Masukkan nama lengkap Anda"
                   required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="bg-white/60 focus:bg-white transition-colors"
                 />
               </Field>
 
-              {/* --- Field 2: Email --- */}
+              {/* Email */}
               <Field>
                 <FieldLabel htmlFor="email" className="font-medium">
                   Email
@@ -99,11 +145,13 @@ export function SignupForm({
                   type="email"
                   placeholder="contoh@email.com"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="bg-white/60 focus:bg-white transition-colors"
                 />
               </Field>
 
-              {/* --- Field 3: Status (Dropdown) --- */}
+              {/* Status */}
               <Field>
                 <FieldLabel htmlFor="status" className="font-medium">
                   Status
@@ -123,9 +171,7 @@ export function SignupForm({
                 </Select>
               </Field>
 
-              {/*
-                --- Field 4: Field Kondisional (NIM / NIP / NIK) ---
-              */}
+              {/* NIM / NIP / NIK kondisional */}
               {conditionalField && (
                 <Field>
                   <FieldLabel
@@ -139,12 +185,14 @@ export function SignupForm({
                     type="text"
                     placeholder={conditionalField.placeholder}
                     required
+                    value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value)}
                     className="bg-white/60 focus:bg-white transition-colors"
                   />
                 </Field>
               )}
 
-              {/* --- Field 5: No. WhatsApp --- */}
+              {/* WhatsApp */}
               <Field>
                 <FieldLabel htmlFor="whatsapp" className="font-medium">
                   No. WhatsApp
@@ -154,11 +202,13 @@ export function SignupForm({
                   type="tel"
                   placeholder="08xxxxxxxxxx"
                   required
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
                   className="bg-white/60 focus:bg-white transition-colors"
                 />
               </Field>
 
-              {/* --- Field 6: Password  --- */}
+              {/* Password */}
               <Field>
                 <FieldLabel htmlFor="password" className="font-medium">
                   Kata Sandi
@@ -168,6 +218,8 @@ export function SignupForm({
                     id="password"
                     type={showPassword ? "text" : "password"}
                     required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="bg-white/60 focus:bg-white transition-colors pr-10"
                   />
                   <button
@@ -186,7 +238,7 @@ export function SignupForm({
                 <FieldDescription>Minimal 8 karakter.</FieldDescription>
               </Field>
 
-              {/* --- Field 7: Konfirmasi Password  --- */}
+              {/* Konfirmasi Password */}
               <Field>
                 <FieldLabel htmlFor="confirm-password" className="font-medium">
                   Konfirmasi Kata Sandi
@@ -196,6 +248,8 @@ export function SignupForm({
                     id="confirm-password"
                     type={showConfirmPassword ? "text" : "password"}
                     required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     className="bg-white/60 focus:bg-white transition-colors pr-10"
                   />
                   <button
@@ -204,8 +258,8 @@ export function SignupForm({
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                     aria-label={
                       showConfirmPassword
-                        ? "Sembunyikan konfirmasi kata sandi"
-                        : "Tampilkan konfirmasi kata sandi"
+                        ? "Sembunyikan konfirmasi"
+                        : "Tampilkan konfirmasi"
                     }
                   >
                     {showConfirmPassword ? (
@@ -217,13 +271,14 @@ export function SignupForm({
                 </div>
               </Field>
 
-              {/* --- Tombol Submit & Link Login --- */}
+              {/* Submit */}
               <Field className="pt-4">
                 <Button
                   type="submit"
+                  disabled={isLoading}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11"
                 >
-                  Daftar Sekarang
+                  {isLoading ? "Mendaftarkan..." : "Daftar Sekarang"}
                 </Button>
                 <FieldDescription className="text-center mt-4">
                   Sudah punya akun?{" "}

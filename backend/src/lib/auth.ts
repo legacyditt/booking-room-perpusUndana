@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import prisma from "./prisma"; 
+import prisma from "./prisma";
 
 export const auth = betterAuth({
   // 1. Adapter Database
@@ -9,6 +9,15 @@ export const auth = betterAuth({
   }),
 
   // 2. Modul Autentikasi
+  user: {
+    additionalFields: {
+      status: { type: "string", required: true },
+      idNumber: { type: "string", required: true },
+      whatsapp: { type: "string", required: true },
+      role: { type: "string", required: false, defaultValue: "user" },
+    },
+  },
+
   emailAndPassword: {
     enabled: true, // Nyalakan fitur login pakai email & password
   },

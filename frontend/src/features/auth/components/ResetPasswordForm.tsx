@@ -135,6 +135,7 @@ export function ResetPasswordForm({
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   >
                     {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                   </button>
@@ -159,6 +160,7 @@ export function ResetPasswordForm({
                     type="button"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showConfirmPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
                   >
                     {showConfirmPassword ? (
                       <EyeSlash size={16} />

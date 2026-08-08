@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "@/lib/api/auth-client"
+import { signIn } from "@/lib/api/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
-  Card, CardContent, CardDescription, CardHeader, CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import {
-  Field, FieldDescription, FieldGroup, FieldLabel,
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
@@ -37,7 +44,10 @@ export function LoginForm({
     });
 
     if (authError) {
-      setError(authError.message ?? "Login gagal. Periksa kembali email dan kata sandi.");
+      setError(
+        authError.message ??
+          "Login gagal. Periksa kembali email dan kata sandi.",
+      );
       setIsLoading(false);
       return;
     }
@@ -48,7 +58,7 @@ export function LoginForm({
     } else {
       router.push("/");
     }
-    router.refresh(); 
+    router.refresh();
   };
 
   return (
@@ -73,7 +83,9 @@ export function LoginForm({
               )}
 
               <Field>
-                <FieldLabel htmlFor="email" className="font-medium">Email</FieldLabel>
+                <FieldLabel htmlFor="email" className="font-medium">
+                  Email
+                </FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -87,8 +99,13 @@ export function LoginForm({
 
               <Field>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor="password" className="font-medium">Kata Sandi</FieldLabel>
-                  <a href="#" className="ml-auto inline-block text-sm text-primary underline-offset-4 hover:underline">
+                  <FieldLabel htmlFor="password" className="font-medium">
+                    Kata Sandi
+                  </FieldLabel>
+                  <a
+                    href="/forgot-password"
+                    className="ml-auto inline-block text-sm text-primary underline-offset-4 hover:underline"
+                  >
                     Lupa kata sandi?
                   </a>
                 </div>
@@ -105,7 +122,11 @@ export function LoginForm({
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    aria-label={
+                      showPassword
+                        ? "Sembunyikan kata sandi"
+                        : "Tampilkan kata sandi"
+                    }
                   >
                     {showPassword ? <EyeSlash size={16} /> : <Eye size={16} />}
                   </button>
@@ -122,7 +143,10 @@ export function LoginForm({
                 </Button>
                 <FieldDescription className="text-center mt-4">
                   Belum punya akun?{" "}
-                  <a href="/register" className="text-primary font-medium hover:underline">
+                  <a
+                    href="/register"
+                    className="text-primary font-medium hover:underline"
+                  >
                     Daftar di sini
                   </a>
                 </FieldDescription>

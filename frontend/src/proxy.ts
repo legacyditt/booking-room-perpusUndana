@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Daftar halaman yang HANYA untuk orang yang BELUM login
-const authRoutes = ["/login", "/register"];
+const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
 
 // Helper function: Validasi kedaluwarsa JWT
 function isJwtExpired(token: string) {

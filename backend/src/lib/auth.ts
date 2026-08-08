@@ -18,6 +18,12 @@ export const auth = betterAuth({
     },
   },
 
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, //Batas Sesi 7 hari
+    updateAge: 60 * 60 * 24, // Refresh Session: Jika user aktif dalam 1 hari,
+    // masa aktif token otomatis diperpanjang 7 hari lagi.
+  },
+
   emailAndPassword: {
     enabled: true, // Nyalakan fitur login pakai email & password
   },

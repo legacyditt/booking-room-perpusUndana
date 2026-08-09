@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/api/auth-client";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,28 +46,55 @@ export function LoginForm({
       });
 
       if (authError) {
-        // Server merespons dengan error (email/password salah)
-        setError(
+        // Jika gagal (password salah, user tidak ada, dll)
+        const errorMessage =
           authError.message ??
-            "Login gagal. Periksa kembali email dan kata sandi.",
-        );
+          "Login gagal. Periksa kembali email dan kata sandi.";
+        setError(errorMessage);
+
+        // Memunculkan Toast Error
+        toast.add({
+          type: "error",
+          title: "Gagal Masuk",
+          description: errorMessage,
+        });
+
         setIsLoading(false);
         return;
       }
 
-      // Sukses: kembalikan loading state lalu pindah halaman
-      // window.location.href digunakan agar session cookie terbaca segar
-      // oleh Next.js middleware tanpa bentrokan router.refresh()
+      // Jika berhasil login
+      // Memunculkan Toast Sukses
+      toast.add({
+        type: "success",
+        title: "Berhasil Masuk",
+        description: "Selamat datang kembali di sistem.",
+      });
+
+      // Kembalikan tombol ke kondisi awal
       setIsLoading(false);
-      if (data?.user?.role === "admin") {
-        window.location.href = "/admin/overview";
-      } else {
-        window.location.href = "/";
-      }
+
+      setTimeout(() => {
+        if (data?.user?.role === "admin") {
+          window.location.href = "/admin/overview";
+        } else {
+          window.location.href = "/";
+        }
+      }, 1000);
     } catch (networkError: any) {
-      // Menangkap error jaringan (server mati, timeout, CORS, dll)
-      // Tanpa blok ini, tombol akan STUCK di "Memproses..." selamanya
-      setError("Tidak dapat terhubung ke server. Periksa koneksi Anda.");
+      // Menangkap error jaringan agar tombol tidak stuck
+      const errorMessage =
+        networkError?.message ||
+        "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+      setError(errorMessage);
+
+      // Memunculkan Toast Error Koneksi
+      toast.add({
+        type: "error",
+        title: "Kesalahan Sistem",
+        description: errorMessage,
+      });
+
       setIsLoading(false);
     }
   };

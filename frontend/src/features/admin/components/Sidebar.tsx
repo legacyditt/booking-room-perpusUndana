@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "@/lib/api/auth-client";
+import { toast } from "@/components/ui/toast";
 import {
   SquaresFour,
   CalendarBlank,
@@ -29,6 +30,26 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+
+  const handleLogout = () => {
+    signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          // 1. Tampilkan notifikasi
+          toast.add({
+            type: "success",
+            title: "Berhasil Keluar",
+            description: "Anda telah berhasil keluar dari sistem.",
+          });
+
+          // 2. Beri jeda 1 detik sebelum redirect
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
+        },
+      },
+    });
+  };
 
   return (
     <aside className="w-64 border-r border-neutral-200 bg-white flex flex-col min-h-screen">
@@ -81,8 +102,8 @@ export function Sidebar() {
             <p className="text-sm font-semibold text-primary truncate">
               {session?.user?.name || "Admin User"}
             </p>
-            <button 
-              onClick={() => signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login"; } } })}
+            <button
+              onClick={handleLogout}
               className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-neutral-200 text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200 cursor-pointer"
             >
               <SignOut size={13} weight="bold" />

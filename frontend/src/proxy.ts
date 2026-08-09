@@ -26,26 +26,17 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Ambil cookie sesi dari BetterAuth
+  // CATATAN: BetterAuth menggunakan opaque session token (BUKAN JWT).
+  // Token tidak bisa di-decode sebagai JWT. Cukup cek keberadaannya.
+  // Validasi keaslian token dilakukan oleh backend saat ada request API.
   const sessionCookie = request.cookies.get("better-auth.session_token");
-  let isLoggedIn = false;
-
-  // 2. Validasi eksistensi & expiry
-  if (sessionCookie?.value && !isJwtExpired(sessionCookie.value)) {
-    isLoggedIn = true;
-  }
+  const isLoggedIn = !!sessionCookie?.value;
 
   const isAuthRoute = authRoutes.includes(pathname);
 
-  // Kasus 1: Belum login (atau token kedaluwarsa) dan mencoba akses rute terproteksi
+  // Kasus 1: Belum login dan mencoba akses rute terproteksi
   if (!isLoggedIn && !isAuthRoute) {
-    const response = NextResponse.redirect(new URL("/login", request.url));
-    
-    // Clean up: Hapus cookie yang expired agar browser bersih
-    if (sessionCookie?.value) {
-      response.cookies.delete("better-auth.session_token");
-    }
-    
-    return response;
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Kasus 2: Sudah login tapi mau buka halaman login/register
@@ -55,6 +46,7 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.next();
 }
+
 
 export const config = {
   matcher: [

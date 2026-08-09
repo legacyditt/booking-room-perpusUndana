@@ -37,28 +37,38 @@ export function LoginForm({
     setIsLoading(true);
     setError(null);
 
-    // Memanggil fitur login dari BetterAuth
-    const { data, error: authError } = await signIn.email({
-      email,
-      password,
-    });
+    try {
+      // Memanggil fitur login dari BetterAuth
+      const { data, error: authError } = await signIn.email({
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError(
-        authError.message ??
-          "Login gagal. Periksa kembali email dan kata sandi.",
-      );
+      if (authError) {
+        // Server merespons dengan error (email/password salah)
+        setError(
+          authError.message ??
+            "Login gagal. Periksa kembali email dan kata sandi.",
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      // Sukses: kembalikan loading state lalu pindah halaman
+      // window.location.href digunakan agar session cookie terbaca segar
+      // oleh Next.js middleware tanpa bentrokan router.refresh()
       setIsLoading(false);
-      return;
+      if (data?.user?.role === "admin") {
+        window.location.href = "/admin/overview";
+      } else {
+        window.location.href = "/";
+      }
+    } catch (networkError: any) {
+      // Menangkap error jaringan (server mati, timeout, CORS, dll)
+      // Tanpa blok ini, tombol akan STUCK di "Memproses..." selamanya
+      setError("Tidak dapat terhubung ke server. Periksa koneksi Anda.");
+      setIsLoading(false);
     }
-
-    // Jika sukses, arahkan sesuai dengan Role
-    if (data?.user?.role === "admin") {
-      router.push("/admin/overview");
-    } else {
-      router.push("/");
-    }
-    router.refresh();
   };
 
   return (

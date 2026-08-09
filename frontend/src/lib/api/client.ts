@@ -14,8 +14,10 @@ client.interceptors.response.use(
     // Jika terjadi error, cek apakah statusnya 401 (Unauthorized / Sesi Habis)
     if (error.response && error.response.status === 401) {
       if (typeof window !== "undefined") {
-        // Redirect paksa ke halaman login dengan membawa parameter error.
-        window.location.href = "/login?error=session_expired";
+        // Cek agar tidak redirect terus-menerus jika sudah berada di halaman login
+        if (!window.location.pathname.startsWith("/login")) {
+          window.location.href = "/login?error=session_expired";
+        }
       }
     }
     return Promise.reject(error);

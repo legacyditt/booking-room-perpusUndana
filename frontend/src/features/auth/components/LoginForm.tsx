@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/api/auth-client";
 import { cn } from "@/lib/utils";
@@ -33,13 +33,30 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("error") === "session_expired") {
+        // Tampilkan toast bahwa sesi sudah habis
+        toast.add({
+          type: "warning",
+          title: "Sesi Berakhir",
+          description: "Sesi Anda telah berakhir. Silakan login kembali.",
+        });
+
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete("error");
+        window.history.replaceState({}, document.title, newUrl.toString());
+      }
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      // Memanggil fitur login dari BetterAuth
       const { data, error: authError } = await signIn.email({
         email,
         password,
@@ -62,18 +79,15 @@ export function LoginForm({
         return;
       }
 
-      // Ambil nama lengkap dari database, lalu ambil kata pertamanya saja
       const fullName = data?.user?.name || "";
       const firstName = fullName.split(" ")[0];
-      // Jika berhasil login
-      // Memunculkan Toast Sukses
+
       toast.add({
         type: "success",
         title: "Berhasil Masuk",
         description: `Selamat datang kembali, ${firstName ? firstName : "Pengguna"}!`,
       });
 
-      // Kembalikan tombol ke kondisi awal
       setIsLoading(false);
 
       setTimeout(() => {
@@ -84,13 +98,11 @@ export function LoginForm({
         }
       }, 1000);
     } catch (networkError: any) {
-      // Menangkap error jaringan agar tombol tidak stuck
       const errorMessage =
         networkError?.message ||
         "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
       setError(errorMessage);
 
-      // Memunculkan Toast Error Koneksi
       toast.add({
         type: "error",
         title: "Kesalahan Sistem",

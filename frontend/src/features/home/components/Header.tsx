@@ -4,7 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { MagnifyingGlass, List, X, UserCircle } from "@phosphor-icons/react/dist/ssr";
+import {
+  MagnifyingGlass,
+  List,
+  X,
+  UserCircle,
+} from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession, signOut } from "@/lib/api/auth-client";
@@ -22,11 +27,31 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/toast";
 
 export function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, isPending } = useSession();
+  const handleLogout = () => {
+    signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          // 1. Tampilkan notifikasi
+          toast.add({
+            type: "success",
+            title: "Berhasil Keluar",
+            description: "Anda telah berhasil keluar dari sistem.",
+          });
+
+          // 2. Beri jeda 1 detik
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 1000);
+        },
+      },
+    });
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
@@ -90,26 +115,37 @@ export function Header() {
           </div>
 
           {isPending ? (
-            <Button disabled variant="outline" className="hidden sm:inline-flex px-8 shadow-sm">
+            <Button
+              disabled
+              variant="outline"
+              className="hidden sm:inline-flex px-8 shadow-sm"
+            >
               Loading...
             </Button>
           ) : session ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="hidden sm:inline-flex items-center justify-center gap-2 text-neutral hover:text-primary transition-colors hover:bg-muted/50 px-3 rounded-md h-10 focus:outline-none">
                 <UserCircle className="h-6 w-6 text-primary" weight="fill" />
-                <span className="font-medium text-sm max-w-[120px] truncate">{session.user.name}</span>
+                <span className="font-medium text-sm max-w-[120px] truncate">
+                  {session.user.name}
+                </span>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-white border-border shadow-md rounded-md p-1">
-                <DropdownMenuItem 
+              <DropdownMenuContent
+                align="end"
+                className="w-48 bg-white border-border shadow-md rounded-md p-1"
+              >
+                <DropdownMenuItem
                   className="cursor-pointer rounded-sm hover:bg-muted p-2 text-sm font-medium"
-                  onClick={() => { window.location.href = "/profile"; }}
+                  onClick={() => {
+                    window.location.href = "/profile";
+                  }}
                 >
                   Edit Profile
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border my-1" />
-                <DropdownMenuItem 
+                <DropdownMenuItem
                   className="cursor-pointer rounded-sm hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50 p-2 text-sm font-medium"
-                  onClick={() => signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login"; } } })}
+                  onClick={handleLogout}
                 >
                   Logout
                 </DropdownMenuItem>
@@ -162,7 +198,11 @@ export function Header() {
 
           <div className="pt-2 border-t border-border">
             {isPending ? (
-              <Button disabled variant="outline" className="w-full h-10 justify-center font-semibold text-sm shadow-sm">
+              <Button
+                disabled
+                variant="outline"
+                className="w-full h-10 justify-center font-semibold text-sm shadow-sm"
+              >
                 Loading...
               </Button>
             ) : session ? (
@@ -170,12 +210,23 @@ export function Header() {
                 <div className="flex items-center gap-3 px-3 py-3 mb-1 bg-muted/50 border border-border rounded-lg">
                   <UserCircle className="h-9 w-9 text-primary" weight="fill" />
                   <div className="flex flex-col overflow-hidden">
-                    <span className="font-bold text-sm text-foreground truncate">{session.user.name}</span>
-                    <span className="text-xs text-neutral truncate">{session.user.email}</span>
+                    <span className="font-bold text-sm text-foreground truncate">
+                      {session.user.name}
+                    </span>
+                    <span className="text-xs text-neutral truncate">
+                      {session.user.email}
+                    </span>
                   </div>
                 </div>
-                <Link href="/profile" onClick={() => setIsOpen(false)} className="w-full block">
-                  <Button variant="outline" className="w-full h-10 justify-center font-semibold text-sm shadow-sm border-border">
+                <Link
+                  href="/profile"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full block"
+                >
+                  <Button
+                    variant="outline"
+                    className="w-full h-10 justify-center font-semibold text-sm shadow-sm border-border"
+                  >
                     Edit Profile
                   </Button>
                 </Link>
@@ -184,7 +235,7 @@ export function Header() {
                   className="w-full h-10 justify-center font-semibold text-sm shadow-sm"
                   onClick={() => {
                     setIsOpen(false);
-                    signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login"; } } });
+                    handleLogout();
                   }}
                 >
                   Logout

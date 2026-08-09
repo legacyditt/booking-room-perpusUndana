@@ -40,6 +40,7 @@ export function Header() {
               alt="Logo Universitas Nusa Cendana"
               fill
               priority
+              sizes="(max-width: 640px) 48px, 64px"
               className="object-contain"
             />
           </div>

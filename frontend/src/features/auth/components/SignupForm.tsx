@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Eye, EyeSlash } from "@phosphor-icons/react";
+import { toast } from "@/components/ui/toast";
 
 type UserStatus = "mahasiswa" | "dosen" | "umum" | "";
 
@@ -66,7 +67,6 @@ export function SignupForm({
     e.preventDefault();
     setError(null);
 
-    // Validasi basic dari sisi klien
     if (password !== confirmPassword) {
       setError("Kata sandi dan konfirmasi kata sandi tidak cocok.");
       return;
@@ -78,26 +78,55 @@ export function SignupForm({
 
     setIsLoading(true);
 
-    // Kirim POST register ke BetterAuth dengan membawa kolom custom
-    const { data, error: authError } = await signUp.email({
-      email,
-      password,
-      name,
-      status: status,
-      idNumber: idNumber,
-      whatsapp: whatsapp,
-    });
+    try {
+      const { data, error: authError } = await signUp.email({
+        email,
+        password,
+        name,
+        status: status,
+        idNumber: idNumber,
+        whatsapp: whatsapp,
+      });
 
-    if (authError) {
-      setError(authError.message ?? "Pendaftaran gagal. Coba lagi.");
+      if (authError) {
+        setError(authError.message ?? "Pendaftaran gagal. Coba lagi.");
+
+        toast.add({
+          type: "error",
+          title: "Pendaftaran Gagal",
+          description: "Silakan periksa kembali data yang diisi pada form Anda.",
+        });
+
+        setIsLoading(false);
+        return;
+      }
+
+      toast.add({
+        type: "success",
+        title: "Pendaftaran Berhasil",
+        description: "Akun Anda berhasil dibuat. Silakan login.",
+      });
+
+      await signOut();
+
       setIsLoading(false);
-      return;
-    }
-    
-    await signOut();
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
+    } catch (err: any) {
+      const errorMessage =
+        err?.message ||
+        "Terjadi kesalahan jaringan atau server tidak merespons.";
+      setError(errorMessage);
 
-    // Arahkan user ke halaman login setelah registrasi sukses
-    router.push("/login");
+      toast.add({
+        type: "error",
+        title: "Kesalahan Sistem",
+        description: errorMessage,
+      });
+
+      setIsLoading(false);
+    }
   };
 
   return (

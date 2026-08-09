@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toast";
 
 const fontSerif = Playfair_Display({
   subsets: ["latin"],
@@ -15,7 +16,8 @@ const fontSans = Inter({
 
 export const metadata: Metadata = {
   title: "Academia Libri - Study Room Booking",
-  description: "University Library Services. Preserving Knowledge, Enabling Discovery.",
+  description:
+    "University Library Services. Preserving Knowledge, Enabling Discovery.",
 };
 
 export default function RootLayout({
@@ -26,9 +28,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full antialiased", fontSans.variable, fontSerif.variable)}
+      className={cn(
+        "h-full antialiased",
+        fontSans.variable,
+        fontSerif.variable,
+      )}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        {children}
+        <Toaster />
+      </body>
     </html>
   );
 }

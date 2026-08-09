@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/api/auth-client";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,28 +38,67 @@ export function LoginForm({
     setIsLoading(true);
     setError(null);
 
-    // Memanggil fitur login dari BetterAuth
-    const { data, error: authError } = await signIn.email({
-      email,
-      password,
-    });
+    try {
+      // Memanggil fitur login dari BetterAuth
+      const { data, error: authError } = await signIn.email({
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError(
-        authError.message ??
-          "Login gagal. Periksa kembali email dan kata sandi.",
-      );
+      if (authError) {
+        setError(
+          authError.message ??
+            "Login gagal. Periksa kembali email dan kata sandi.",
+        );
+
+        toast.add({
+          type: "error",
+          title: "Gagal Masuk",
+          description:
+            "Mohon periksa kembali email dan kata sandi yang Anda masukkan.",
+        });
+
+        setIsLoading(false);
+        return;
+      }
+
+      // Ambil nama lengkap dari database, lalu ambil kata pertamanya saja
+      const fullName = data?.user?.name || "";
+      const firstName = fullName.split(" ")[0];
+      // Jika berhasil login
+      // Memunculkan Toast Sukses
+      toast.add({
+        type: "success",
+        title: "Berhasil Masuk",
+        description: `Selamat datang kembali, ${firstName ? firstName : "Pengguna"}!`,
+      });
+
+      // Kembalikan tombol ke kondisi awal
       setIsLoading(false);
-      return;
-    }
 
-    // Jika sukses, arahkan sesuai dengan Role
-    if (data?.user?.role === "admin") {
-      router.push("/admin/overview");
-    } else {
-      router.push("/");
+      setTimeout(() => {
+        if (data?.user?.role === "admin") {
+          window.location.href = "/admin/overview";
+        } else {
+          window.location.href = "/";
+        }
+      }, 1000);
+    } catch (networkError: any) {
+      // Menangkap error jaringan agar tombol tidak stuck
+      const errorMessage =
+        networkError?.message ||
+        "Tidak dapat terhubung ke server. Periksa koneksi Anda.";
+      setError(errorMessage);
+
+      // Memunculkan Toast Error Koneksi
+      toast.add({
+        type: "error",
+        title: "Kesalahan Sistem",
+        description: errorMessage,
+      });
+
+      setIsLoading(false);
     }
-    router.refresh();
   };
 
   return (

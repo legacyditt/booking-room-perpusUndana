@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Daftar halaman yang HANYA untuk orang yang BELUM login
-const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
+const authRoutes = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+];
 
 // Helper function: Validasi kedaluwarsa JWT
 function isJwtExpired(token: string) {
   try {
     const payloadBase64Url = token.split(".")[1];
-    if (!payloadBase64Url) return true; 
-    
+    if (!payloadBase64Url) return true;
+
     // Decode base64url
     const decodedJson = Buffer.from(payloadBase64Url, "base64").toString();
     const payload = JSON.parse(decodedJson);
-    
+
     // payload.exp menggunakan format Unix Timestamp (detik)
     const currentTime = Math.floor(Date.now() / 1000);
     return payload.exp ? payload.exp < currentTime : false;
   } catch (error) {
     // Jika gagal decode, anggap token rusak/expired
-    return true; 
+    return true;
   }
 }
 
@@ -26,26 +31,18 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Ambil cookie sesi dari BetterAuth
+  // CATATAN: BetterAuth menggunakan opaque session token (BUKAN JWT).
+  // Token tidak bisa di-decode sebagai JWT. Cukup cek keberadaannya.
+  // Validasi keaslian token dilakukan oleh backend saat ada request API.
   const sessionCookie = request.cookies.get("better-auth.session_token");
-  let isLoggedIn = false;
+  const isLoggedIn = !!sessionCookie?.value;
 
-  // 2. Validasi eksistensi & expiry
-  if (sessionCookie?.value && !isJwtExpired(sessionCookie.value)) {
-    isLoggedIn = true;
-  }
+  // Mengecek apakah pathname diawali dengan salah satu string di authRoutes
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
-  const isAuthRoute = authRoutes.includes(pathname);
-
-  // Kasus 1: Belum login (atau token kedaluwarsa) dan mencoba akses rute terproteksi
+  // Kasus 1: Belum login dan mencoba akses rute terproteksi
   if (!isLoggedIn && !isAuthRoute) {
-    const response = NextResponse.redirect(new URL("/login", request.url));
-    
-    // Clean up: Hapus cookie yang expired agar browser bersih
-    if (sessionCookie?.value) {
-      response.cookies.delete("better-auth.session_token");
-    }
-    
-    return response;
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Kasus 2: Sudah login tapi mau buka halaman login/register

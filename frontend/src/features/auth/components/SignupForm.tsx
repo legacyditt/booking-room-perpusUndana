@@ -89,14 +89,12 @@ export function SignupForm({
       });
 
       if (authError) {
-        const errorMessage =
-          authError.message ?? "Pendaftaran gagal. Coba lagi.";
-        setError(errorMessage);
+        setError(authError.message ?? "Pendaftaran gagal. Coba lagi.");
 
         toast.add({
           type: "error",
           title: "Pendaftaran Gagal",
-          description: errorMessage,
+          description: "Silakan periksa kembali data yang diisi pada form Anda.",
         });
 
         setIsLoading(false);

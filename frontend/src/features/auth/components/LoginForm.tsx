@@ -46,29 +46,31 @@ export function LoginForm({
       });
 
       if (authError) {
-        // Jika gagal (password salah, user tidak ada, dll)
-        const errorMessage =
+        setError(
           authError.message ??
-          "Login gagal. Periksa kembali email dan kata sandi.";
-        setError(errorMessage);
+            "Login gagal. Periksa kembali email dan kata sandi.",
+        );
 
-        // Memunculkan Toast Error
         toast.add({
           type: "error",
           title: "Gagal Masuk",
-          description: errorMessage,
+          description:
+            "Mohon periksa kembali email dan kata sandi yang Anda masukkan.",
         });
 
         setIsLoading(false);
         return;
       }
 
+      // Ambil nama lengkap dari database, lalu ambil kata pertamanya saja
+      const fullName = data?.user?.name || "";
+      const firstName = fullName.split(" ")[0];
       // Jika berhasil login
       // Memunculkan Toast Sukses
       toast.add({
         type: "success",
         title: "Berhasil Masuk",
-        description: "Selamat datang kembali di sistem.",
+        description: `Selamat datang kembali, ${firstName ? firstName : "Pengguna"}!`,
       });
 
       // Kembalikan tombol ke kondisi awal

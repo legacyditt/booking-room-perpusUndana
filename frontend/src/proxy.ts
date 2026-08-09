@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Daftar halaman yang HANYA untuk orang yang BELUM login
-const authRoutes = ["/login", "/register", "/forgot-password", "/reset-password"];
+const authRoutes = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+];
 
 // Helper function: Validasi kedaluwarsa JWT
 function isJwtExpired(token: string) {
   try {
     const payloadBase64Url = token.split(".")[1];
-    if (!payloadBase64Url) return true; 
-    
+    if (!payloadBase64Url) return true;
+
     // Decode base64url
     const decodedJson = Buffer.from(payloadBase64Url, "base64").toString();
     const payload = JSON.parse(decodedJson);
-    
+
     // payload.exp menggunakan format Unix Timestamp (detik)
     const currentTime = Math.floor(Date.now() / 1000);
     return payload.exp ? payload.exp < currentTime : false;
   } catch (error) {
     // Jika gagal decode, anggap token rusak/expired
-    return true; 
+    return true;
   }
 }
 
@@ -32,7 +37,8 @@ export async function proxy(request: NextRequest) {
   const sessionCookie = request.cookies.get("better-auth.session_token");
   const isLoggedIn = !!sessionCookie?.value;
 
-  const isAuthRoute = authRoutes.includes(pathname);
+  // Mengecek apakah pathname diawali dengan salah satu string di authRoutes
+  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   // Kasus 1: Belum login dan mencoba akses rute terproteksi
   if (!isLoggedIn && !isAuthRoute) {
@@ -46,7 +52,6 @@ export async function proxy(request: NextRequest) {
 
   return NextResponse.next();
 }
-
 
 export const config = {
   matcher: [

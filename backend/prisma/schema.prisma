@@ -116,7 +116,7 @@ model BookingPrice {
   roomId Int     @id @map("room_id")
   price  Decimal
 
-  room Room @relation(fields: [roomId], references: [id])
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@map("booking_prices")
 }

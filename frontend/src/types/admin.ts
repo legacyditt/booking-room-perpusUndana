@@ -19,15 +19,6 @@ export interface RecentBookingRow {
   date: string;
 }
 
-export interface AdminRoomRow {
-  id: number;
-  imageUrl: string;
-  roomName: string;
-  type: string;
-  capacity: string;
-  price: string;
-}
-
 export interface AdminSessionRow {
   id: number;
   name: string;

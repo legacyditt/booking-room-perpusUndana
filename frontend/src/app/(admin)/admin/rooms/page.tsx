@@ -1,14 +1,20 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
-import { Plus } from "@phosphor-icons/react";
-import { RoomFilters } from "@/features/admin/components/RoomFilters";
-import { RoomTable } from "@/features/admin/components/RoomTable";
-import { TablePagination } from "@/features/admin/components/TablePagination";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { RoomsManagement } from "@/features/admin/components/RoomsManagement";
+import { getRooms } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import type { Room } from "@/types/room";
 
-export default function AdminRoomsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminRoomsPage() {
+  let rooms: Room[] = [];
+  try {
+    rooms = await getRooms();
+  } catch {
+    rooms = [];
+  }
+
   return (
     <div className="p-8 space-y-8">
       {/* ── Header Section ── */}
@@ -31,18 +37,7 @@ export default function AdminRoomsPage() {
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
-        {/* Filter Bar */}
-        <RoomFilters />
-
-        {/* Area Tabel Data */}
-        <div className="flex-1 min-h-[400px]">
-          <RoomTable />
-        </div>
-        
-        {/* Area Pagination */}
-        <div className="p-5 border-t border-[#E2E8F0] bg-white">
-          <TablePagination />
-        </div>
+        <RoomsManagement rooms={rooms} />
       </div>
     </div>
   );

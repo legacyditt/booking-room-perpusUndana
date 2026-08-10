@@ -109,6 +109,9 @@ export const deleteRoom = async (req: Request, res: Response) => {
         return res.status(200).json({ message: "Room Deleted Successfully", data: room })
     }
     catch (error) {
+        if ((error as { code?: string }).code === "P2003") {
+            return res.status(409).json({ message: "Ruangan tidak dapat dihapus karena masih memiliki data booking." })
+        }
         console.log(error)
         return res.status(500).json({ message: 'Internal server error' })
     }

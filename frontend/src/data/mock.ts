@@ -4,7 +4,6 @@ import { Booking, Session } from "@/types/booking";
 import {
   AdminStat,
   RecentBookingRow,
-  AdminRoomRow,
   AdminSessionRow,
 } from "@/types/admin";
 
@@ -211,41 +210,6 @@ export const mockRecentBookings: RecentBookingRow[] = [
     sessionTimeRange: "08:00 - 12:00",
     status: "CANCELLED",
     date: "31 Jul 2026",
-  },
-];
-
-export const mockAdminRooms: AdminRoomRow[] = [
-  {
-    id: 1,
-    imageUrl: "https://placehold.co/100x100/e2e8f0/4a4a4a?text=R1",
-    roomName: "Radcliffe Carrel A1",
-    type: "Reguler",
-    capacity: "1 person",
-    price: "Gratis",
-  },
-  {
-    id: 2,
-    imageUrl: "https://placehold.co/100x100/e2e8f0/4a4a4a?text=R2",
-    roomName: "Bodleian Seminar Room 4",
-    type: "Premium",
-    capacity: "12 people",
-    price: "Rp 50.000",
-  },
-  {
-    id: 3,
-    imageUrl: "https://placehold.co/100x100/e2e8f0/4a4a4a?text=R3",
-    roomName: "Weston Lecture Theatre",
-    type: "Reguler",
-    capacity: "150 people",
-    price: "Rp 150.000",
-  },
-  {
-    id: 4,
-    imageUrl: "https://placehold.co/100x100/e2e8f0/4a4a4a?text=R4",
-    roomName: "Turing Lab B",
-    type: "Premium",
-    capacity: "24 people",
-    price: "Rp 100.000",
   },
 ];
 

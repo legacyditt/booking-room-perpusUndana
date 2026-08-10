@@ -93,7 +93,7 @@ model BookingSession {
   finishTime String    @map("finish_time")
   bookings   Booking[]
 
-  @@map("sessions")
+  @@map("booking_sessions")
 }
 
 model Booking {

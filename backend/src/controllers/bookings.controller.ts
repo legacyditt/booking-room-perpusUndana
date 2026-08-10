@@ -80,34 +80,48 @@ export const createBooking = async (req: Request, res: Response) => {
         const session = await prisma.bookingSession.findUnique({ where: { id: Number(sessionId) } })
         if (!session) return res.status(404).json({ message: 'Session Not Found' })
 
-        const conflict = await prisma.booking.findFirst({
-            where: {
-                roomId: Number(roomId),
-                sessionId: Number(sessionId),
-                date: new Date(date),
-                status: {
-                    in: ['PENDING', 'APPROVED']
+        let booking;
+        try {
+            const [bookedCount, newBooking] = await prisma.$transaction(async (tx) => {
+                const count = await tx.booking.count({
+                    where: {
+                        roomId: Number(roomId),
+                        sessionId: Number(sessionId),
+                        date: new Date(date),
+                        status: {
+                            in: ['PENDING', 'APPROVED']
+                        }
+                    }
+                })
+                
+                if (count >= room.capacity) {
+                    throw new Error('CAPACITY_FULL')
                 }
+                
+                const b = await tx.booking.create({
+                    data: {
+                        roomId: Number(roomId),
+                        sessionId: Number(sessionId),
+                        userId: userId,
+                        date: new Date(date),
+                        status: 'PENDING'
+                    },
+                    include: {
+                        room: {
+                            include: { bookingPrice: true }
+                        },
+                        session: true
+                    }
+                })
+                return [count, b];
+            });
+            booking = newBooking;
+        } catch (e: any) {
+            if (e.message === 'CAPACITY_FULL') {
+                return res.status(400).json({ message: 'Conflict: Room is fully booked for this session' })
             }
-        })
-        if (conflict) {
-            return res.status(400).json({ message: 'Conflict: Room is already booked' })
+            throw e; // Akan ditangkap oleh catch(error) 
         }
-        const booking = await prisma.booking.create({
-            data: {
-                roomId: Number(roomId),
-                sessionId: Number(sessionId),
-                userId: userId, // Hapus Number() karena ID sekarang String
-                date: new Date(date),
-                status: 'PENDING'
-            },
-            include: {
-                room: {
-                    include: { bookingPrice: true }
-                },
-                session: true
-            }
-        })
 
         return res.status(201).json({
             message: 'Booking created successfully',

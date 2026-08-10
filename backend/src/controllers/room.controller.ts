@@ -10,6 +10,44 @@ export const getAllRooms = async (req: Request, res: Response) => {
     }
 }
 
+export const getRoomAvailability = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { date, sessionId } = req.query;
+
+        if (!date || !sessionId) {
+            return res.status(400).json({ message: 'Date and sessionId are required' });
+        }
+
+        const room = await prisma.room.findUnique({ where: { id: Number(id) } });
+        if (!room) return res.status(404).json({ message: 'Room not found' });
+
+        const bookedCount = await prisma.booking.count({
+            where: {
+                roomId: Number(id),
+                sessionId: Number(sessionId),
+                date: new Date(date as string),
+                status: {
+                    in: ['PENDING', 'APPROVED']
+                }
+            }
+        });
+
+        const remainingCapacity = Math.max(0, room.capacity - bookedCount);
+
+        return res.status(200).json({ 
+            data: { 
+                remainingCapacity, 
+                capacity: room.capacity, 
+                booked: bookedCount 
+            } 
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 export const getRoomById = async (req: Request, res: Response) => {
     try {
         const { id } = req.params

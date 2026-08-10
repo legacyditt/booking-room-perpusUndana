@@ -19,7 +19,6 @@ const prices = [
 const sessionsData = [
   { name: "Pagi", startTime: "08:00", finishTime: "12:00" },
   { name: "Siang", startTime: "12:00", finishTime: "16:00" },
-  { name: "Sore", startTime: "16:00", finishTime: "20:00" },
 ];
 
 async function main() {

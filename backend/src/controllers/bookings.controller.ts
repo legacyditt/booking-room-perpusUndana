@@ -80,7 +80,7 @@ export const createBooking = async (req: Request, res: Response) => {
         const session = await prisma.bookingSession.findUnique({ where: { id: Number(sessionId) } })
         if (!session) return res.status(404).json({ message: 'Session Not Found' })
 
-        const conflict = await prisma.booking.findFirst({
+        const bookedCount = await prisma.booking.count({
             where: {
                 roomId: Number(roomId),
                 sessionId: Number(sessionId),
@@ -90,8 +90,9 @@ export const createBooking = async (req: Request, res: Response) => {
                 }
             }
         })
-        if (conflict) {
-            return res.status(400).json({ message: 'Conflict: Room is already booked' })
+        
+        if (bookedCount >= room.capacity) {
+            return res.status(400).json({ message: 'Conflict: Room is fully booked for this session' })
         }
         const booking = await prisma.booking.create({
             data: {

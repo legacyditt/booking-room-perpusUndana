@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { useRouter } from "next/navigation";
@@ -29,6 +29,7 @@ import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
+import { client } from "@/lib/api/client";
 
 interface BookingDetailsFormProps {
   room: Room;
@@ -43,6 +44,11 @@ export function BookingDetailsForm({
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // State for availability
+  const [availability, setAvailability] = useState<{ remainingCapacity: number; capacity: number; booked: number } | null>(null);
+  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  
   const router = useRouter();
 
   const rupiahFormatter = new Intl.NumberFormat("id-ID", {
@@ -56,6 +62,31 @@ export function BookingDetailsForm({
   const bookingPrice = room.bookingPrice;
   const isPremium = !!bookingPrice;
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
+
+  useEffect(() => {
+    async function checkAvailability() {
+      if (!date || !selectedSession) {
+        setAvailability(null);
+        return;
+      }
+      setIsCheckingAvailability(true);
+      try {
+        // Date manipulation to prevent timezone issues, passing ISO date format (YYYY-MM-DD)
+        const dateString = format(date, 'yyyy-MM-dd');
+        const response = await client.get(`/api/rooms/${room.id}/availability?date=${dateString}&sessionId=${selectedSession}`);
+        if (response.data && response.data.data) {
+          setAvailability(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to check availability:", error);
+        setAvailability(null);
+      } finally {
+        setIsCheckingAvailability(false);
+      }
+    }
+    
+    checkAvailability();
+  }, [date, selectedSession, room.id]);
 
   const handleBooking = async () => {
     if (!date || !selectedSession) return;
@@ -148,6 +179,7 @@ export function BookingDetailsForm({
                   setDate(selectedDate);
                   setIsCalendarOpen(false);
                 }}
+                disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
                 locale={id}
               />
             </PopoverContent>
@@ -191,6 +223,33 @@ export function BookingDetailsForm({
             </SelectContent>
           </Select>
         </div>
+
+        {/* Indikator Sisa Kursi */}
+        {date && selectedSession && (
+          <div className="flex flex-col gap-1 mt-2 p-4 bg-neutral-50 rounded-xl border border-border/60 shadow-sm">
+            {isCheckingAvailability ? (
+              <span className="text-sm font-medium text-neutral-500 animate-pulse text-center">
+                Mengecek ketersediaan kursi...
+              </span>
+            ) : availability ? (
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-neutral">Ketersediaan Kursi:</span>
+                <span
+                  className={cn(
+                    "text-sm font-extrabold px-3 py-1.5 rounded-md shadow-sm border",
+                    availability.remainingCapacity > 0
+                      ? "bg-green-50 text-green-700 border-green-200"
+                      : "bg-red-50 text-red-700 border-red-200"
+                  )}
+                >
+                  {availability.remainingCapacity > 0
+                    ? `Tersedia ${availability.remainingCapacity} Kursi`
+                    : "Penuh"}
+                </span>
+              </div>
+            ) : null}
+          </div>
+        )}
       </div>
 
       {/* Action Area (Sticky Bottom di Mobile) */}
@@ -201,12 +260,17 @@ export function BookingDetailsForm({
           </p>
         )}
         <Button
-          className="w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1"
-          disabled={!date || !selectedSession || isLoading}
+          className={cn(
+            "w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1",
+            availability?.remainingCapacity === 0 && "opacity-70"
+          )}
+          disabled={!date || !selectedSession || isLoading || isCheckingAvailability || availability?.remainingCapacity === 0}
           onClick={handleBooking}
         >
           {isLoading ? (
             "Memproses..."
+          ) : availability?.remainingCapacity === 0 ? (
+            "Kapasitas Penuh"
           ) : (
             <>
               <CheckCircle className="w-5 h-5 mr-2" weight="bold" />

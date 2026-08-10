@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
@@ -73,7 +75,7 @@ export function BookingDetailsForm({
       try {
         // Date manipulation to prevent timezone issues, passing ISO date format (YYYY-MM-DD)
         const dateString = format(date, 'yyyy-MM-dd');
-        const response = await client.get(`/api/rooms/${room.id}/availability?date=${dateString}&sessionId=${selectedSession}`);
+        const response = await client.get(`/rooms/${room.id}/availability?date=${dateString}&sessionId=${selectedSession}`);
         if (response.data && response.data.data) {
           setAvailability(response.data.data);
         }
@@ -226,29 +228,27 @@ export function BookingDetailsForm({
 
         {/* Indikator Sisa Kursi */}
         {date && selectedSession && (
-          <div className="flex flex-col gap-1 mt-2 p-4 bg-neutral-50 rounded-xl border border-border/60 shadow-sm">
-            {isCheckingAvailability ? (
-              <span className="text-sm font-medium text-neutral-500 animate-pulse text-center">
-                Mengecek ketersediaan kursi...
-              </span>
-            ) : availability ? (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-neutral">Ketersediaan Kursi:</span>
-                <span
-                  className={cn(
-                    "text-sm font-extrabold px-3 py-1.5 rounded-md shadow-sm border",
-                    availability.remainingCapacity > 0
-                      ? "bg-green-50 text-green-700 border-green-200"
-                      : "bg-red-50 text-red-700 border-red-200"
-                  )}
-                >
-                  {availability.remainingCapacity > 0
-                    ? `Tersedia ${availability.remainingCapacity} Kursi`
-                    : "Penuh"}
+          <Card className="mt-2 border-border/60 shadow-sm bg-neutral-50/50">
+            <CardContent className="p-3">
+              {isCheckingAvailability ? (
+                <span className="block text-sm font-medium text-neutral-500 animate-pulse text-center">
+                  Mengecek ketersediaan kursi...
                 </span>
-              </div>
-            ) : null}
-          </div>
+              ) : availability ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-neutral">Ketersediaan Kursi:</span>
+                  <Badge
+                    variant={availability.remainingCapacity > 0 ? "default" : "destructive"}
+                    className="text-sm font-extrabold px-3 py-1.5 shadow-sm"
+                  >
+                    {availability.remainingCapacity > 0
+                      ? `Tersedia ${availability.remainingCapacity} Kursi`
+                      : "Penuh"}
+                  </Badge>
+                </div>
+              ) : null}
+            </CardContent>
+          </Card>
         )}
       </div>
 

@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { useRouter } from "next/navigation";
 import {
   Calendar as CalendarIcon,
   Clock,
   Users,
   CheckCircle,
-  Tag
+  Tag,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
@@ -40,28 +42,59 @@ export function BookingDetailsForm({
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-const rupiahFormatter = new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  minimumFractionDigits: 0,
-});
-const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
+  const rupiahFormatter = new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  });
+  const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
   // Premium jika ruangan punya bookingPrice di tabel booking_prices
   const bookingPrice = room.bookingPrice;
   const isPremium = !!bookingPrice;
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
 
+  const handleBooking = async () => {
+    if (!date || !selectedSession) return;
+    setIsLoading(true);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      toast.add({
+        type: "success",
+        title: "Pemesanan Berhasil",
+        description: `Ruangan ${room.name} berhasil dipesan.`,
+      });
+
+      // Bersihkan state form
+      setDate(undefined);
+      setSelectedSession("");
+
+      // Arahkan user ke halaman riwayat pemesanan
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: "Pemesanan Gagal",
+        description:
+          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
-      
       {/* Header Info & Capacity/Price */}
       <div className="border-b border-border pb-5 flex flex-col gap-3">
         <h1 className="text-3xl font-serif font-bold text-primary">
           {room.name}
         </h1>
-        
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-neutral/80">
             <Users className="w-5 h-5 text-primary shrink-0" />
@@ -112,7 +145,7 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
                 selected={date}
                 onSelect={(selectedDate) => {
                   setDate(selectedDate);
-                  setIsCalendarOpen(false); 
+                  setIsCalendarOpen(false);
                 }}
                 locale={id}
               />
@@ -132,11 +165,17 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3 flex-1 text-left">
                 <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <span className={!selectedSession ? "text-muted-foreground" : ""}>
+                <span
+                  className={!selectedSession ? "text-muted-foreground" : ""}
+                >
                   {selectedSession
                     ? (() => {
-                        const s = sessions.find((s) => s.id.toString() === selectedSession);
-                        return s ? `${s.name} (${s.startTime} - ${s.finishTime})` : "Pilih Waktu Sesi";
+                        const s = sessions.find(
+                          (s) => s.id.toString() === selectedSession,
+                        );
+                        return s
+                          ? `${s.name} (${s.startTime} - ${s.finishTime})`
+                          : "Pilih Waktu Sesi";
                       })()
                     : "Pilih Waktu Sesi"}
                 </span>
@@ -160,15 +199,21 @@ const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
             *Diskon khusus tersedia untuk dosen & mahasiswa pascasarjana.
           </p>
         )}
-        <Button 
+        <Button
           className="w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1"
-          disabled={!date || !selectedSession}
+          disabled={!date || !selectedSession || isLoading}
+          onClick={handleBooking}
         >
-          <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
-          {isPremium ? "Book Now" : "Reservasi Sekarang"}
+          {isLoading ? (
+            "Memproses..."
+          ) : (
+            <>
+              <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
+              {isPremium ? "Book Now" : "Reservasi Sekarang"}
+            </>
+          )}
         </Button>
       </div>
-
     </div>
   );
 }

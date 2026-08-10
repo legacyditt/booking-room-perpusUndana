@@ -3,7 +3,6 @@
 import React from "react";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,7 +11,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function UserFilters() {
+interface UserFiltersProps {
+  search: string;
+  onSearchChange: (value: string) => void;
+  role: string;
+  onRoleChange: (value: string) => void;
+  category: string;
+  onCategoryChange: (value: string) => void;
+}
+
+export function UserFilters({
+  search,
+  onSearchChange,
+  role,
+  onRoleChange,
+  category,
+  onCategoryChange,
+}: UserFiltersProps) {
   return (
     <div className="p-5 border-b border-[#E2E8F0] bg-white flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
       {/* ── Kiri: Kolom Pencarian ── */}
@@ -23,6 +38,8 @@ export function UserFilters() {
         <Input
           type="text"
           placeholder="Cari berdasarkan nama atau email..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
           className="pl-10 h-10 w-full bg-neutral-50/50 border-neutral-200 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-lg"
         />
       </div>
@@ -30,29 +47,34 @@ export function UserFilters() {
       {/* ── Kanan: Filter Dropdowns & Sort ── */}
       <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
         <div className="flex items-center gap-2">
-          <Select defaultValue="Semua">
+          <Select
+            value={role}
+            onValueChange={(value) => value && onRoleChange(value)}
+          >
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
               <SelectValue placeholder="Pilih Peran" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Semua">Semua Peran</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="librarian">Pustakawan</SelectItem>
               <SelectItem value="user">Pengguna</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="flex items-center gap-2">
-          <Select defaultValue="Semua">
+          <Select
+            value={category}
+            onValueChange={(value) => value && onCategoryChange(value)}
+          >
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue placeholder="Pilih Status" />
+              <SelectValue placeholder="Pilih Kategori" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Semua">Semua Status</SelectItem>
-              <SelectItem value="active">Aktif</SelectItem>
-              <SelectItem value="inactive">Nonaktif</SelectItem>
-              <SelectItem value="suspended">Ditangguhkan</SelectItem>
+              <SelectItem value="Semua">Semua Kategori</SelectItem>
+              <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
+              <SelectItem value="dosen">Dosen</SelectItem>
+              <SelectItem value="umum">Umum</SelectItem>
             </SelectContent>
           </Select>
         </div>

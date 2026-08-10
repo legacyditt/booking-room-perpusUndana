@@ -1,9 +1,5 @@
-"use client";
-
-import React from "react";
-import { Eye, PencilSimple } from "@phosphor-icons/react";
-import { mockAdminUsers } from "@/data/mock";
-import { AdminUserRow } from "@/types/admin";
+import { PencilSimple } from "@phosphor-icons/react/dist/ssr";
+import { AdminUser } from "@/types/admin";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -15,24 +11,31 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
-// ── Union type varian Badge shadcn ──
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-// ── Config Badge untuk Status ──
-const statusConfig: Record<string, { label: string; variant: BadgeVariant }> = {
-  ACTIVE: { label: "Aktif", variant: "default" },
-  INACTIVE: { label: "Nonaktif", variant: "secondary" },
-  SUSPENDED: { label: "Ditangguhkan", variant: "destructive" },
-};
-
-// ── Config Badge untuk Role ──
 const roleConfig: Record<string, { label: string; variant: BadgeVariant }> = {
-  ADMIN: { label: "Admin", variant: "default" },
-  USER: { label: "Pengguna", variant: "outline" },
-  LIBRARIAN: { label: "Pustakawan", variant: "secondary" },
+  admin: { label: "Admin", variant: "default" },
+  user: { label: "Pengguna", variant: "outline" },
 };
 
-export function UserTable() {
+const categoryConfig: Record<string, { label: string; variant: BadgeVariant }> = {
+  mahasiswa: { label: "Mahasiswa", variant: "secondary" },
+  dosen: { label: "Dosen", variant: "default" },
+  umum: { label: "Umum", variant: "outline" },
+};
+
+const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+interface UserTableProps {
+  users: AdminUser[];
+  onEdit: (user: AdminUser) => void;
+}
+
+export function UserTable({ users, onEdit }: UserTableProps) {
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -48,7 +51,7 @@ export function UserTable() {
               TANGGAL BERGABUNG
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
-              STATUS
+              KATEGORI
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               AKSI
@@ -57,9 +60,12 @@ export function UserTable() {
         </TableHeader>
 
         <TableBody>
-          {mockAdminUsers.map((user: AdminUserRow) => {
-            const status = statusConfig[user.status];
-            const role = roleConfig[user.role];
+          {users.map((user) => {
+            const role =
+              roleConfig[user.role] ?? { label: user.role, variant: "outline" as BadgeVariant };
+            const category =
+              categoryConfig[user.status] ??
+              { label: user.status, variant: "outline" as BadgeVariant };
 
             return (
               <TableRow
@@ -83,35 +89,28 @@ export function UserTable() {
 
                 {/* Kolom Tanggal Bergabung */}
                 <TableCell className="px-5 py-4 text-neutral-600 text-center">
-                  {user.joinDate}
+                  {dateFormatter.format(new Date(user.createdAt))}
                 </TableCell>
 
-                {/* Kolom Status */}
+                {/* Kolom Kategori */}
                 <TableCell className="px-5 py-4 text-center">
                   <Badge
-                    variant={status.variant}
+                    variant={category.variant}
                     className="min-w-[100px] justify-center"
                   >
-                    {status.label}
+                    {category.label}
                   </Badge>
                 </TableCell>
 
-                {/* Kolom Aksi (Hanya Eye dan Edit) */}
+                {/* Kolom Aksi (Ubah Peran) */}
                 <TableCell className="px-5 py-4">
                   <div className="flex items-center justify-center gap-1">
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Lihat Detail Pengguna"
-                    >
-                      <Eye weight="bold" size={18} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Edit Pengguna"
+                      title="Ubah Peran Pengguna"
+                      onClick={() => onEdit(user)}
                     >
                       <PencilSimple weight="bold" size={18} />
                     </Button>
@@ -122,6 +121,12 @@ export function UserTable() {
           })}
         </TableBody>
       </Table>
+
+      {users.length === 0 && (
+        <div className="py-16 text-center text-neutral-500">
+          <p className="text-lg">Tidak ada pengguna yang cocok.</p>
+        </div>
+      )}
     </div>
   );
 }

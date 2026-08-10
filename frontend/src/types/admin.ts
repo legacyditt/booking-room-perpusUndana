@@ -37,11 +37,11 @@ export interface AdminSessionRow {
   isActive: boolean;
 }
 
-export interface AdminUserRow {
-  id: number;
+export interface AdminUser {
+  id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "USER" | "LIBRARIAN";
-  joinDate: string;    // format "5 Agu 2026"
-  status: "ACTIVE" | "INACTIVE" | "SUSPENDED";
+  role: string;
+  status: string;
+  createdAt: string;
 }

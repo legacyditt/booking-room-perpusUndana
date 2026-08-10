@@ -16,7 +16,7 @@ const prices = [
   { name: "Ruang Diskusi", price: 200000 },
 ];
 
-const sessionsData = [
+const bookingSessionsData = [
   { name: "Pagi", startTime: "08:00", finishTime: "12:00" },
   { name: "Siang", startTime: "12:00", finishTime: "16:00" },
 ];
@@ -94,11 +94,11 @@ async function main() {
     )
   );
 
-  await prisma.bookingSession.createMany({ data: sessionsData });
+  await prisma.bookingSession.createMany({ data: bookingSessionsData });
 
-  const sessions = await prisma.bookingSession.findMany();
+  const bookingSessions = await prisma.bookingSession.findMany();
   const fullRoom = roomById.get("Aula Besar")!;
-  const pagiSession = sessions.find((s) => s.name === "Pagi")!;
+  const pagiSession = bookingSessions.find((s) => s.name === "Pagi")!;
   const bookingDate = new Date("2026-08-10T00:00:00.000Z");
 
   await prisma.booking.createMany({
@@ -119,7 +119,7 @@ async function main() {
       },
       {
         roomId: roomById.get("Ruang Diskusi")!.id,
-        sessionId: sessions.find((s) => s.name === "Siang")!.id,
+        sessionId: bookingSessions.find((s) => s.name === "Siang")!.id,
         userId: members[0].id,
         date: bookingDate,
         status: BookingStatus.REJECTED,
@@ -129,7 +129,7 @@ async function main() {
 
   const users = await prisma.user.findMany();
   console.log(
-    `Seeded: ${users.length} users, ${rooms.length} rooms, ${sessions.length} sessions, ` +
+    `Seeded: ${users.length} users, ${rooms.length} rooms, ${bookingSessions.length} booking sessions, ` +
       `Aula Besar fully booked (${members.length} bookings) on ${bookingDate.toISOString().slice(0, 10)}`
   );
 }

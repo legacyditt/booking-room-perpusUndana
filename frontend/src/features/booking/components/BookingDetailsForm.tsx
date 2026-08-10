@@ -75,6 +75,7 @@ export function BookingDetailsForm({
       setSelectedSession("");
 
       // Arahkan user ke halaman riwayat pemesanan
+      router.push("/reservations");
     } catch (error) {
       toast.add({
         type: "error",

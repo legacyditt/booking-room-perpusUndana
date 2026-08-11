@@ -3,7 +3,7 @@ import prisma from "../lib/prisma";
 
 export const getAllSessions = async (req: Request, res: Response) => {
     try {
-        const sessions = await prisma.bookingSession.findMany(); // Berubah
+        const sessions = await prisma.bookingSession.findMany({ orderBy: { startTime: "asc" } }); // Berubah
         return res.status(200).json({ data: sessions });
     } catch (error) {
         return res.status(500).json({ message: 'Internal server error' });
@@ -67,6 +67,9 @@ export const deleteSession = async (req: Request, res: Response) => {
         const session = await prisma.bookingSession.delete({ where: { id: Number(id) } }); // Berubah
         return res.status(200).json({ message: "Session deleted successfully", data: session });
     } catch (error) {
+        if ((error as { code?: string }).code === "P2003") {
+            return res.status(409).json({ message: "Sesi tidak dapat dihapus karena masih memiliki data booking." });
+        }
         console.log(error);
         return res.status(500).json({ message: 'Internal server error' });
     }

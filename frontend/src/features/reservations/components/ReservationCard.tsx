@@ -1,9 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { format, formatDistanceToNow, isToday, parseISO, isBefore, startOfDay } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -21,6 +24,9 @@ import {
   DialogFooter as ShadcnDialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { toast } from "@/components/ui/toast";
+import { cancelBooking } from "@/lib/api/bookings";
+import { errorMessage } from "@/lib/api/errors";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 
@@ -48,6 +54,32 @@ export function ReservationCard({
   room,
   session,
 }: ReservationCardProps) {
+  const router = useRouter();
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  const handleCancel = async () => {
+    setIsCancelling(true);
+    try {
+      await cancelBooking(booking.id);
+      toast.add({
+        type: "success",
+        title: "Pemesanan Dibatalkan",
+        description: `Pemesanan ${room.name} berhasil dibatalkan.`,
+      });
+      router.refresh();
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: "Gagal Membatalkan",
+        description: errorMessage(
+          error,
+          "Terjadi kesalahan sistem. Silakan coba lagi."
+        ),
+      });
+      setIsCancelling(false);
+    }
+  };
+
   // Format tanggal pembuatan
   const createdDate = parseISO(booking.createdAt);
   const createdText = isToday(createdDate)
@@ -119,12 +151,15 @@ export function ReservationCard({
         <CardFooter className="p-4 sm:p-6 pt-3 sm:pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
           {booking.status === "APPROVED" && (
           <>
-            <Button
-              variant="outline"
-              className="w-full font-bold border-border/80 text-primary min-h-[44px]"
+            <Link
+              href={`/room/${room.id}`}
+              className={buttonVariants({
+                variant: "outline",
+                className: "w-full font-bold border-border/80 text-primary min-h-[44px]",
+              })}
             >
               Ubah
-            </Button>
+            </Link>
             <Dialog>
                 <DialogTrigger
                   render={
@@ -163,8 +198,10 @@ export function ReservationCard({
                       <Button
                         variant="destructive"
                         className="flex-1 sm:flex-none font-bold shadow-sm"
+                        onClick={handleCancel}
+                        disabled={isCancelling}
                       >
-                        Ya, Batalkan
+                        {isCancelling ? "Membatalkan..." : "Ya, Batalkan"}
                       </Button>
                     }
                   />
@@ -212,8 +249,10 @@ export function ReservationCard({
                     <Button
                       variant="destructive"
                       className="flex-1 sm:flex-none font-bold shadow-sm"
+                      onClick={handleCancel}
+                      disabled={isCancelling}
                     >
-                      Ya, Batalkan
+                      {isCancelling ? "Membatalkan..." : "Ya, Batalkan"}
                     </Button>
                   }
                 />

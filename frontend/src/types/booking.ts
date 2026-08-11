@@ -13,10 +13,11 @@ export interface Booking {
   id: number;
   roomId: number;
   sessionId: number;
-  userId: number;
+  userId: string;
   date: string;
   status: BookingStatus;
   createdAt: string;
   room: Room;
   session: Session;
+  user?: { name: string };
 }

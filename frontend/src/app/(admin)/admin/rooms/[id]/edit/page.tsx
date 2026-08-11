@@ -3,25 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { RoomForm } from "@/features/admin/components/RoomForm";
-import { mockAdminRooms } from "@/data/mock";
+import { getRoom } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-function parseCapacity(value: string) {
-  return String(parseInt(value, 10) || 0);
-}
-
-function parsePrice(value: string) {
-  return String(parseInt(value.replace(/[^\d]/g, ""), 10) || 0);
-}
+export const dynamic = "force-dynamic";
 
 export default async function EditRoomPage({ params }: PageProps) {
   const { id } = await params;
-  const room = mockAdminRooms.find((r) => r.id === Number(id));
 
-  if (!room) {
+  let room;
+  try {
+    room = await getRoom(Number(id), (await getCookieHeader()).cookie);
+  } catch {
     notFound();
   }
 
@@ -43,10 +40,12 @@ export default async function EditRoomPage({ params }: PageProps) {
       {/* ── Form Section ── */}
       <RoomForm
         room={{
-          name: room.roomName,
-          capacity: parseCapacity(room.capacity),
+          id: room.id,
+          name: room.name,
+          capacity: String(room.capacity),
           imageUrl: room.imageUrl,
-          price: parsePrice(room.price),
+          price: room.bookingPrice ? String(room.bookingPrice.price) : "0",
+          hasBookingPrice: !!room.bookingPrice,
         }}
       />
     </div>

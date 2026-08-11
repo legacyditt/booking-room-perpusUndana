@@ -1,13 +1,21 @@
-"use client";
-
-import React from "react";
-import { DownloadIcon } from "@phosphor-icons/react";
-import { ReservationFilters } from "@/features/admin/components/ReservationFilters";
-import { ReservationTable } from "@/features/admin/components/ReservationTable";
-import { TablePagination } from "@/features/admin/components/TablePagination";
+import Link from "next/link";
+import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
+import { ReservationsManagement } from "@/features/admin/components/ReservationsManagement";
+import { getBookings } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
+import type { Booking } from "@/types/booking";
 
-export default function AdminReservationsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminReservationsPage() {
+  let bookings: Booking[] = [];
+  try {
+    bookings = await getBookings((await getCookieHeader()).cookie);
+  } catch {
+    bookings = [];
+  }
+
   return (
     <div className="p-8 space-y-8">
       {/* ── Header Section ── */}
@@ -28,17 +36,7 @@ export default function AdminReservationsPage() {
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
-        {/* Filter Bar */}
-        <ReservationFilters />
-
-        {/* Area Tabel Data */}
-        <div className="flex-1 min-h-[400px]">
-          <ReservationTable />
-        </div>
-        {/* Area Pagination */}
-        <div className="p-5 border-t border-[#E2E8F0] bg-white">
-          <TablePagination />
-        </div>
+        <ReservationsManagement bookings={bookings} />
       </div>
     </div>
   );

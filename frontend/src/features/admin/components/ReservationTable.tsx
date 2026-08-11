@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
-import { Eye, PencilSimple } from "@phosphor-icons/react";
-import { mockRecentBookings } from "@/data/mock";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { Booking, BookingStatus } from "@/types/booking";
+import { isPremiumRoom } from "@/types/room";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -12,23 +14,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RecentBookingRow } from "@/types/admin";
 import { Button } from "@/components/ui/button";
+
+interface ReservationTableProps {
+  bookings: Booking[];
+  onUpdateStatus: (id: number, status: BookingStatus) => void;
+  isUpdatingId: number | null;
+}
 
 // ── Pemetaan status booking ke variant Badge & label ─────────────────────────
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-const statusConfig: Record<
-  RecentBookingRow["status"],
-  { label: string; variant: BadgeVariant }
-> = {
+const statusConfig: Record<BookingStatus, { label: string; variant: BadgeVariant }> = {
   APPROVED: { label: "Disetujui", variant: "default" },
   PENDING: { label: "Menunggu", variant: "outline" },
   REJECTED: { label: "Ditolak", variant: "destructive" },
   CANCELLED: { label: "Dibatalkan", variant: "secondary" },
 };
 
-export function ReservationTable() {
+export function ReservationTable({
+  bookings,
+  onUpdateStatus,
+  isUpdatingId,
+}: ReservationTableProps) {
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -42,6 +50,9 @@ export function ReservationTable() {
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Ruangan
+            </TableHead>
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+              Tipe
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               Tanggal
@@ -59,58 +70,77 @@ export function ReservationTable() {
         </TableHeader>
 
         <TableBody>
-          {mockRecentBookings.map((booking) => {
+          {bookings.map((booking) => {
             const { label, variant } = statusConfig[booking.status];
+            const isUpdating = isUpdatingId === booking.id;
+            const isPremium = isPremiumRoom(booking.room);
 
             return (
               <TableRow
                 key={booking.id}
-                className="hover:bg-neutral-50/50 transition-colors group border-[#E2E8F0] text-center"
+                className="hover:bg-neutral-50/50 transition-colors border-[#E2E8F0] text-center"
               >
-                <TableCell className="px-5 py-4 font-medium text-neutral-700">
-                  #BKG-889{booking.id}
-                </TableCell>
-                <TableCell className="px-5 py-4 font-semibold text-primary">
-                  {booking.userName}
-                </TableCell>
-                <TableCell className="px-5 py-4 text-neutral-600">
-                  {booking.roomName}
-                </TableCell>
-                <TableCell className="px-5 py-4 text-neutral-600">
-                  {booking.date}
-                </TableCell>
-                <TableCell className="px-5 py-4 text-neutral-600">
-                  {booking.sessionTimeRange}
-                </TableCell>
-                <TableCell className="px-5 py-4">
-                  <Badge
-                    variant={variant}
-                    className="min-w-[90px] justify-center"
-                  >
-                    {label}
-                  </Badge>
-                </TableCell>
-                <TableCell className="px-5 py-4">
-                  <div className="flex items-center justify-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Lihat Detail"
+                  <TableCell className="px-5 py-4 font-medium text-neutral-700">
+                    #BKG-{booking.id}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 font-semibold text-primary">
+                    {booking.user?.name ?? "-"}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-neutral-600">
+                    {booking.room.name}
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
+                    {isPremium ? (
+                      <Badge className="bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100 min-w-[70px] justify-center">
+                        Premium
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-neutral-500 min-w-[70px] justify-center">
+                        Reguler
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-neutral-600">
+                    {format(new Date(booking.date), "dd MMM yyyy", { locale: id })}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-neutral-600">
+                    {booking.session.startTime} - {booking.session.finishTime}
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
+                    <Badge
+                      variant={variant}
+                      className="min-w-[90px] justify-center"
                     >
-                      <Eye weight="bold" size={18} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Edit Pemesanan"
-                    >
-                      <PencilSimple weight="bold" size={18} />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+                      {label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="px-5 py-4">
+                    {booking.status === "PENDING" && isPremium ? (
+                      <div className="flex items-center justify-center gap-1.5">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={isUpdatingId !== null}
+                          onClick={() => onUpdateStatus(booking.id, "APPROVED")}
+                          className="text-primary border-primary/30 hover:bg-primary/5 font-semibold"
+                        >
+                          {isUpdating ? "Memproses..." : "Setujui"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={isUpdatingId !== null}
+                          onClick={() => onUpdateStatus(booking.id, "REJECTED")}
+                          className="text-red-600 border-red-200 hover:bg-red-50 font-semibold"
+                        >
+                          Tolak
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-neutral-300">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
             );
           })}
         </TableBody>

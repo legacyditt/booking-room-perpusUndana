@@ -115,7 +115,7 @@ async function main() {
         sessionId: pagiSession.id,
         userId: members[0].id,
         date: bookingDate,
-        status: BookingStatus.PENDING,
+        status: BookingStatus.APPROVED,
       },
       {
         roomId: roomById.get("Ruang Diskusi")!.id,

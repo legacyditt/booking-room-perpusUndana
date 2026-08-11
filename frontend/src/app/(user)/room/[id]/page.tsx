@@ -3,6 +3,7 @@ import { Header } from "@/features/home/components/Header";
 import { RoomImageGallery } from "@/features/booking/components/RoomImageGallery";
 import { BookingDetailsForm } from "@/features/booking/components/BookingDetailsForm";
 import { getRoom, getSessions } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
@@ -16,13 +17,14 @@ export default async function BookingPage({ params }: PageProps) {
   const { id } = resolvedParams;
 
   let room;
+  const cookie = (await getCookieHeader()).cookie;
   try {
-    room = await getRoom(Number(id));
+    room = await getRoom(Number(id), cookie);
   } catch {
     notFound(); // Otomatis render halaman jika ID tidak ada
   }
 
-  const sessions = await getSessions();
+  const sessions = await getSessions(cookie);
 
   return (
     <div className="min-h-screen flex flex-col">

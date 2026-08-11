@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass, DownloadSimple } from "@phosphor-icons/react";
+import { MagnifyingGlass } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,68 +11,50 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function RoomFilters() {
+interface RoomFiltersProps {
+  search: string;
+  onSearchChange: (value: string) => void;
+  type: string;
+  onTypeChange: (value: string) => void;
+}
+
+export function RoomFilters({
+  search,
+  onSearchChange,
+  type,
+  onTypeChange,
+}: RoomFiltersProps) {
   return (
-    <div className="p-5 border-b border-[#E2E8F0] bg-white">
-      <div className="flex flex-col xl:flex-row gap-4 items-end">
-        {/* Grup Form Filter */}
-        <div className="flex flex-col md:flex-row gap-4 flex-1 w-full">
-          {/* Pencarian */}
-          <div className="flex flex-col gap-1.5 flex-1">
-            <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-              Cari Ruangan
-            </label>
-            <div className="relative">
-              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4 z-10" />
-              <Input
-                type="text"
-                placeholder="Cari Nama Ruangan..."
-                className="pl-9"
-              />
-            </div>
-          </div>
-
-          {/* Status Dropdown */}
-          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
-            <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-              Status
-            </label>
-            <Select defaultValue="Semua">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Semua">Semua Status</SelectItem>
-                <SelectItem value="available">Tersedia</SelectItem>
-                <SelectItem value="maintenance">Perawatan</SelectItem>
-                <SelectItem value="offline">Tidak Aktif</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Tipe Ruangan Dropdown */}
-          <div className="flex flex-col gap-1.5 w-full md:w-[160px]">
-            <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-              Tipe Ruangan
-            </label>
-            <Select defaultValue="Semua">
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih Tipe Ruangan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Semua">Semua Tipe</SelectItem>
-                <SelectItem value="reguler">Reguler</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="p-5 border-b border-[#E2E8F0] bg-white flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+      {/* ── Kiri: Kolom Pencarian ── */}
+      <div className="w-full md:w-96 relative group">
+        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 group-focus-within:text-primary transition-colors">
+          <MagnifyingGlass size={18} />
         </div>
+        <Input
+          type="text"
+          placeholder="Cari Nama Ruangan..."
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-10 h-10 w-full bg-neutral-50/50 border-neutral-200 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-lg"
+        />
+      </div>
 
-        {/* Tombol Export Filter */}
-        <Button variant="outline" className="w-full xl:w-auto flex gap-2">
-          <DownloadSimple className="w-4 h-4" />
-          Ekspor
-        </Button>
+      {/* ── Kanan: Filter Tipe ── */}
+      <div className="flex items-center gap-2">
+        <Select
+          value={type}
+          onValueChange={(value) => value && onTypeChange(value)}
+        >
+          <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
+            <SelectValue placeholder="Pilih Tipe" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Semua">Semua Tipe</SelectItem>
+            <SelectItem value="reguler">Reguler</SelectItem>
+            <SelectItem value="premium">Premium</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

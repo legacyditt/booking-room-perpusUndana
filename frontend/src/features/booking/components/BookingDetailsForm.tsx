@@ -32,6 +32,8 @@ import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
 import { client } from "@/lib/api/client";
+import { createBooking } from "@/lib/api/bookings";
+import { errorMessage } from "@/lib/api/errors";
 
 interface BookingDetailsFormProps {
   room: Room;
@@ -95,7 +97,11 @@ export function BookingDetailsForm({
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await createBooking({
+        roomId: room.id,
+        sessionId: Number(selectedSession),
+        date: format(date, "yyyy-MM-dd"),
+      });
 
       toast.add({
         type: "success",
@@ -113,8 +119,10 @@ export function BookingDetailsForm({
       toast.add({
         type: "error",
         title: "Pemesanan Gagal",
-        description:
-          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
+        description: errorMessage(
+          error,
+          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi."
+        ),
       });
     } finally {
       setIsLoading(false);

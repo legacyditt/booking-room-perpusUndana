@@ -1,10 +1,22 @@
 import { StatCard } from "@/features/admin/components/StatCard";
 import { RecentBookingsTable } from "@/features/admin/components/RecentBookingsTable";
 import { QuickActions } from "@/features/admin/components/QuickActions";
-import { mockAdminStats, mockRecentBookings } from "@/data/mock";
+import { mockAdminStats } from "@/data/mock";
+import { getBookings } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
+import type { Booking } from "@/types/booking";
+
+export const dynamic = "force-dynamic";
 
 // ── Halaman Overview Admin ────────────────────────────────────────────────────
-export default function AdminOverviewPage() {
+export default async function AdminOverviewPage() {
+  let bookings: Booking[] = [];
+  try {
+    bookings = await getBookings((await getCookieHeader()).cookie);
+  } catch {
+    bookings = [];
+  }
+
   return (
     <div className="p-8 space-y-8">
       {/* ── Header ── */}
@@ -28,7 +40,7 @@ export default function AdminOverviewPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tabel mengambil 2 kolom dari 3 */}
         <div className="lg:col-span-2">
-          <RecentBookingsTable bookings={mockRecentBookings} />
+          <RecentBookingsTable bookings={bookings.slice(0, 5)} />
         </div>
 
         {/* Quick Actions mengambil 1 kolom dari 3 */}

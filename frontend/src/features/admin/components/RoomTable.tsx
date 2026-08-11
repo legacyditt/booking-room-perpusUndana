@@ -1,17 +1,9 @@
 "use client";
+
 import React from "react";
 import Link from "next/link";
-import {
-  Eye,
-  PencilSimple,
-  BookOpen,
-  Users,
-  Desktop,
-  PresentationChart,
-} from "@phosphor-icons/react";
-import { mockAdminRooms } from "@/data/mock";
-import { AdminRoomRow } from "@/types/admin";
-import { Badge } from "@/components/ui/badge";
+import { PencilSimple, Trash, BookOpen, Users, Star } from "@phosphor-icons/react";
+import { Room } from "@/types/room";
 import {
   Table,
   TableBody,
@@ -22,18 +14,18 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
+const rupiahFormatter = new Intl.NumberFormat("id-ID", {
+  style: "currency",
+  currency: "IDR",
+  minimumFractionDigits: 0,
+});
 
-// Helper Icon berdasarkan tipe
-function getTypeIcon(type: string) {
-  if (type.includes("Study") || type.includes("Reguler"))
-    return <BookOpen className="w-3.5 h-3.5" />;
-  if (type.includes("Seminar") || type.includes("Premium"))
-    return <Users className="w-3.5 h-3.5" />;
-  if (type.includes("Computer")) return <Desktop className="w-3.5 h-3.5" />;
-  return <PresentationChart className="w-3.5 h-3.5" />;
+interface RoomTableProps {
+  rooms: Room[];
+  onDelete: (room: Room) => void;
 }
 
-export function RoomTable() {
+export function RoomTable({ rooms, onDelete }: RoomTableProps) {
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -58,7 +50,12 @@ export function RoomTable() {
         </TableHeader>
 
         <TableBody>
-          {mockAdminRooms.map((room) => {
+          {rooms.map((room) => {
+            const isPremium = !!room.bookingPrice;
+            const price = room.bookingPrice
+              ? rupiahFormatter.format(Number(room.bookingPrice.price))
+              : "Gratis";
+
             return (
               <TableRow
                 key={room.id}
@@ -68,7 +65,7 @@ export function RoomTable() {
                 <TableCell className="px-5 py-4">
                   <div className="flex flex-col gap-0.5 items-center text-center">
                     <span className="font-semibold text-primary">
-                      {room.roomName}
+                      {room.name}
                     </span>
                   </div>
                 </TableCell>
@@ -76,32 +73,31 @@ export function RoomTable() {
                 {/* Kolom Tipe */}
                 <TableCell className="px-5 py-4 text-center">
                   <div className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-neutral-600 text-xs font-medium">
-                    {getTypeIcon(room.type)}
-                    {room.type}
+                    {isPremium ? (
+                      <Star className="w-3.5 h-3.5" weight="fill" />
+                    ) : (
+                      <BookOpen className="w-3.5 h-3.5" />
+                    )}
+                    {isPremium ? "Premium" : "Reguler"}
                   </div>
                 </TableCell>
 
                 {/* Kolom Kapasitas */}
                 <TableCell className="px-5 py-4 text-neutral-600 text-center">
-                  {room.capacity}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5" />
+                    {room.capacity} Orang
+                  </span>
                 </TableCell>
 
                 {/* Kolom Harga */}
                 <TableCell className="px-5 py-4 text-neutral-600 text-center">
-                  {room.price}
+                  {price}
                 </TableCell>
 
-                {/* Kolom Aksi (Eye & Pencil) */}
+                {/* Kolom Aksi (Edit & Hapus) */}
                 <TableCell className="px-5 py-4">
                   <div className="flex items-center justify-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Lihat Detail Ruangan"
-                    >
-                      <Eye weight="bold" size={18} />
-                    </Button>
                     <Link href={`/admin/rooms/${room.id}/edit`}>
                       <Button
                         variant="ghost"
@@ -112,6 +108,15 @@ export function RoomTable() {
                         <PencilSimple weight="bold" size={18} />
                       </Button>
                     </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-neutral-400 hover:text-destructive w-8 h-8"
+                      title="Hapus Ruangan"
+                      onClick={() => onDelete(room)}
+                    >
+                      <Trash weight="bold" size={18} />
+                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -119,6 +124,12 @@ export function RoomTable() {
           })}
         </TableBody>
       </Table>
+
+      {rooms.length === 0 && (
+        <div className="py-16 text-center text-neutral-500">
+          <p className="text-lg">Tidak ada ruangan yang cocok.</p>
+        </div>
+      )}
     </div>
   );
 }

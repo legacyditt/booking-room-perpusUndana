@@ -3,17 +3,22 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { SessionForm } from "@/features/admin/components/SessionForm";
-import { mockAdminSessions } from "@/data/mock";
+import { getSession } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function EditSessionPage({ params }: PageProps) {
   const { id } = await params;
-  const session = mockAdminSessions.find((s) => s.id === Number(id));
 
-  if (!session) {
+  let session;
+  try {
+    session = await getSession(Number(id), (await getCookieHeader()).cookie);
+  } catch {
     notFound();
   }
 
@@ -35,9 +40,10 @@ export default async function EditSessionPage({ params }: PageProps) {
       {/* ── Form Section ── */}
       <SessionForm
         session={{
+          id: session.id,
           name: session.name,
           startTime: session.startTime,
-          finishTime: session.endTime,
+          finishTime: session.finishTime,
         }}
       />
     </div>

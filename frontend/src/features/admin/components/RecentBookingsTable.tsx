@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -9,15 +11,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RecentBookingRow } from "@/types/admin";
+import { Booking, BookingStatus } from "@/types/booking";
 
 // ── Pemetaan status booking ke variant Badge & label ─────────────────────────
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
-const statusConfig: Record<
-  RecentBookingRow["status"],
-  { label: string; variant: BadgeVariant }
-> = {
+const statusConfig: Record<BookingStatus, { label: string; variant: BadgeVariant }> = {
   APPROVED: { label: "Disetujui", variant: "default" },
   PENDING: { label: "Menunggu", variant: "outline" },
   REJECTED: { label: "Ditolak", variant: "destructive" },
@@ -25,7 +24,7 @@ const statusConfig: Record<
 };
 
 interface RecentBookingsTableProps {
-  bookings: RecentBookingRow[];
+  bookings: Booking[];
 }
 
 export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
@@ -58,6 +57,9 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
               Sesi
             </TableHead>
             <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto text-center">
+              Tanggal
+            </TableHead>
+            <TableHead className="px-6 py-3 text-xs font-semibold text-neutral-500 uppercase tracking-wider h-auto text-center">
               Status
             </TableHead>
           </TableRow>
@@ -73,13 +75,16 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
                 className="hover:bg-neutral-50/60 transition-colors border-neutral-100 text-center"
               >
                 <TableCell className="px-6 py-4 font-medium text-primary">
-                  {booking.userName}
+                  {booking.user?.name ?? "-"}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-neutral-600">
-                  {booking.roomName}
+                  {booking.room.name}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-neutral-600 tabular-nums">
-                  {booking.sessionTimeRange}
+                  {booking.session.startTime} - {booking.session.finishTime}
+                </TableCell>
+                <TableCell className="px-6 py-4 text-neutral-500">
+                  {format(new Date(booking.date), "dd MMM yyyy", { locale: id })}
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <Badge

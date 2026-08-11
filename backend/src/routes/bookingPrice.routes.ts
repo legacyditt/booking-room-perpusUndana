@@ -6,13 +6,14 @@ import {
     updateBookingPrice,
     deleteBookingPrice
 } from '../controllers/bookingPrice.controller';
+import { requireAuth, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', getAllBookingPrices);
-router.get('/:roomId', getBookingPriceByRoom);
-router.post('/', createBookingPrice);
-router.put('/:roomId', updateBookingPrice);
-router.delete('/:roomId', deleteBookingPrice);
+router.get('/', requireAuth, getAllBookingPrices);
+router.get('/:roomId', requireAuth, getBookingPriceByRoom);
+router.post('/', requireAdmin, createBookingPrice);
+router.put('/:roomId', requireAdmin, updateBookingPrice);
+router.delete('/:roomId', requireAdmin, deleteBookingPrice);
 
 export default router;

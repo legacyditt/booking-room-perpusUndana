@@ -3,6 +3,13 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
+import { createRoom, updateRoom } from "@/lib/api/rooms";
+import {
+  createBookingPrice,
+  updateBookingPrice,
+  deleteBookingPrice,
+} from "@/lib/api/bookingPrices";
 
 interface RoomFormValues {
   name: string;
@@ -12,8 +19,12 @@ interface RoomFormValues {
 }
 
 interface RoomFormProps {
-  room?: RoomFormValues;
+  room?: RoomFormValues & { id: number; hasBookingPrice: boolean };
 }
+
+const errorMessage = (error: unknown, fallback: string) =>
+  (error as { response?: { data?: { message?: string } } })?.response?.data
+    ?.message ?? fallback;
 
 export function RoomForm({ room }: RoomFormProps) {
   const router = useRouter();
@@ -34,19 +45,65 @@ export function RoomForm({ room }: RoomFormProps) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const syncPrice = async (roomId: number, price: number) => {
+    if (!isEdit) return;
+
+    if (price > 0) {
+      if (room!.hasBookingPrice) {
+        await updateBookingPrice(roomId, price);
+      } else {
+        await createBookingPrice({ roomId, price });
+      }
+    } else if (room!.hasBookingPrice) {
+      await deleteBookingPrice(roomId);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // TODO: Ganti dengan pemanggilan API ke backend yang sebenarnya
-    // const payload = { ...formData, capacity: Number(formData.capacity), price: Number(formData.price) };
-    
-    // Simulasi loading API request
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // Kembali ke halaman daftar ruangan
+
+    try {
+      const payload = {
+        name: formData.name,
+        capacity: Number(formData.capacity),
+        imageUrl: formData.imageUrl,
+      };
+      const price = Number(formData.price) || 0;
+
+      if (isEdit) {
+        await updateRoom(room!.id, payload);
+        await syncPrice(room!.id, price);
+        toast.add({
+          type: "success",
+          title: "Ruangan Diperbarui",
+          description: `Ruangan ${payload.name} berhasil diperbarui.`,
+        });
+      } else {
+        const created = await createRoom(payload);
+        if (price > 0) {
+          await createBookingPrice({ roomId: created.id, price });
+        }
+        toast.add({
+          type: "success",
+          title: "Ruangan Dibuat",
+          description: `Ruangan ${payload.name} berhasil ditambahkan.`,
+        });
+      }
+
       router.push("/admin/rooms");
-    }, 1000);
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: isEdit ? "Gagal Memperbarui Ruangan" : "Gagal Membuat Ruangan",
+        description: errorMessage(
+          error,
+          "Terjadi kesalahan sistem. Silakan coba lagi.",
+        ),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

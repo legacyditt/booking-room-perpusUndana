@@ -1,18 +1,17 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
 
-export const getUserBookings = async (req: Request, res: Response) => {
+export const getMyBookings = async (req: Request, res: Response) => {
     try {
-        const { userId } = req.params
-
         const bookings = await prisma.booking.findMany({
-            where: { userId: userId as string }, 
+            where: { userId: req.userId },
             include: {
                 room: {
                     include: { bookingPrice: true }
                 },
                 session: true
-            }
+            },
+            orderBy: { createdAt: "desc" }
         })
 
         return res.status(200).json({
@@ -31,8 +30,10 @@ export const getAllBookings = async (req: Request, res: Response) => {
                 room: {
                     include: { bookingPrice: true }
                 },
-                session: true
-            }
+                session: true,
+                user: { select: { name: true } }
+            },
+            orderBy: { createdAt: "desc" }
         });
         return res.status(200).json({ data: bookings });
     } catch (error) {
@@ -72,13 +73,21 @@ export const getBookingById = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
     try {
-        const { roomId, sessionId, userId, date } = req.body
+        const { roomId, sessionId, date } = req.body
+        if (!req.userId) return res.status(401).json({ message: 'Unauthorized' })
 
-        const room = await prisma.room.findUnique({ where: { id: Number(roomId) } })
+        const room = await prisma.room.findUnique({
+            where: { id: Number(roomId) },
+            include: { bookingPrice: true }
+        })
         if (!room) return res.status(404).json({ message: 'Room Not Found' })
 
         const session = await prisma.bookingSession.findUnique({ where: { id: Number(sessionId) } })
         if (!session) return res.status(404).json({ message: 'Session Not Found' })
+
+        // Hanya ruangan premium yang butuh persetujuan admin.
+        // Ruangan reguler langsung disetujui.
+        const needsApproval = room.bookingPrice != null;
 
         let booking;
         try {
@@ -102,9 +111,9 @@ export const createBooking = async (req: Request, res: Response) => {
                     data: {
                         roomId: Number(roomId),
                         sessionId: Number(sessionId),
-                        userId: userId,
+                        userId: req.userId as string,
                         date: new Date(date),
-                        status: 'PENDING'
+                        status: needsApproval ? 'PENDING' : 'APPROVED'
                     },
                     include: {
                         room: {
@@ -133,6 +142,39 @@ export const createBooking = async (req: Request, res: Response) => {
         return res.status(500).json({ message: 'Internal Server Error' })
     }
 
+}
+
+export const cancelBooking = async (req: Request, res: Response) => {
+    try {
+        if (!req.userId) return res.status(401).json({ message: 'Unauthorized' })
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: Number(req.params.id) }
+        })
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' })
+        }
+        if (booking.userId !== req.userId) {
+            return res.status(403).json({ message: 'Forbidden: not your booking' })
+        }
+        if (booking.status !== 'PENDING' && booking.status !== 'APPROVED') {
+            return res.status(400).json({ message: 'Only pending or approved bookings can be cancelled' })
+        }
+
+        const cancelled = await prisma.booking.update({
+            where: { id: booking.id },
+            data: { status: 'CANCELLED' },
+            include: {
+                room: { include: { bookingPrice: true } },
+                session: true
+            }
+        })
+
+        return res.status(200).json({ message: 'Booking cancelled successfully', data: cancelled })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Internal server error' })
+    }
 }
 
 export const updateBookingStatus = async (req: Request, res: Response) => {

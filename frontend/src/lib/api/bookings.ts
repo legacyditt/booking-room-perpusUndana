@@ -28,6 +28,10 @@ export function deleteBooking(id: number): Promise<void> {
   return unwrap(client.delete(`/bookings/${id}`));
 }
 
+export function cancelBooking(id: number): Promise<Booking> {
+  return unwrap(client.patch(`/bookings/${id}/cancel`));
+}
+
 export function updateBookingStatus(id: number, status: BookingStatus): Promise<Booking> {
   return unwrap(client.patch(`/bookings/${id}/status`, { status }));
 }

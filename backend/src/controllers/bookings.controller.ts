@@ -144,6 +144,39 @@ export const createBooking = async (req: Request, res: Response) => {
 
 }
 
+export const cancelBooking = async (req: Request, res: Response) => {
+    try {
+        if (!req.userId) return res.status(401).json({ message: 'Unauthorized' })
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: Number(req.params.id) }
+        })
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' })
+        }
+        if (booking.userId !== req.userId) {
+            return res.status(403).json({ message: 'Forbidden: not your booking' })
+        }
+        if (booking.status !== 'PENDING' && booking.status !== 'APPROVED') {
+            return res.status(400).json({ message: 'Only pending or approved bookings can be cancelled' })
+        }
+
+        const cancelled = await prisma.booking.update({
+            where: { id: booking.id },
+            data: { status: 'CANCELLED' },
+            include: {
+                room: { include: { bookingPrice: true } },
+                session: true
+            }
+        })
+
+        return res.status(200).json({ message: 'Booking cancelled successfully', data: cancelled })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Internal server error' })
+    }
+}
+
 export const updateBookingStatus = async (req: Request, res: Response) => {
     try {
         const { id } = req.params

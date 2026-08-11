@@ -18,8 +18,10 @@ model User {
   updatedAt     DateTime @updatedAt
   status        String // "mahasiswa" | "dosen" | "umum"
   idNumber      String // NIM / NIP / NIK
-  whatsapp      String
-  role          String   @default("user") // "user" atau "admin"
+  whatsapp         String
+  role             String     @default("user") // "user" atau "admin"
+  resetToken       String?    @unique @map("reset_token")
+  resetTokenExpiry DateTime?  @map("reset_token_expiry")
 
   sessions Session[]
   accounts Account[]

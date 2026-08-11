@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { createHash, randomBytes } from "crypto";
+// @ts-ignore: Module resolution for .d.mts in commonjs
 import { hashPassword } from "@better-auth/utils/password";
 import prisma from "../lib/prisma";
 import { sendPasswordResetEmail } from "../lib/mailer";
@@ -7,8 +8,32 @@ import { sendPasswordResetEmail } from "../lib/mailer";
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 jam
 
+// --- Helpers Domain (private) ---
+
 const hashResetToken = (token: string) =>
   createHash("sha256").update(token).digest("hex");
+
+const generateAndSaveResetToken = async (userId: string) => {
+  const token = randomBytes(32).toString("hex");
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      resetToken: hashResetToken(token),
+      resetTokenExpiry: new Date(Date.now() + RESET_TOKEN_TTL_MS),
+    },
+  });
+
+  return token;
+};
+
+const clearResetToken = (userId: string) =>
+  prisma.user.update({
+    where: { id: userId },
+    data: { resetToken: null, resetTokenExpiry: null },
+  });
+
+// --- Controllers ---
 
 export const forgotPassword = async (req: Request, res: Response) => {
   try {
@@ -20,31 +45,31 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     const user = await prisma.user.findUnique({ where: { email } });
 
-    // Selalu kembalikan pesan sukses agar alamat email tidak bisa "diintip" (user enumeration)
+    // Selalu kembalikan pesan sukses agar alamat email tidak bisa "diintip" (anti user enumeration)
     if (!user) {
       return res.status(200).json({
         message: "Jika email terdaftar, tautan reset kata sandi telah dikirim.",
       });
     }
 
-    const token = randomBytes(32).toString("hex");
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        resetToken: hashResetToken(token),
-        resetTokenExpiry: new Date(Date.now() + RESET_TOKEN_TTL_MS),
-      },
-    });
-
+    const token = await generateAndSaveResetToken(user.id);
     const resetLink = `${frontendUrl}/reset-password?token=${token}`;
-    await sendPasswordResetEmail(user.email, resetLink);
+
+    try {
+      await sendPasswordResetEmail(user.email, resetLink);
+    } catch {
+      // Jika email gagal terkirim, rollback token agar tidak ada token "zombie" di DB
+      await clearResetToken(user.id);
+      return res.status(500).json({
+        message: "Gagal mengirim email. Silakan coba beberapa saat lagi.",
+      });
+    }
 
     return res.status(200).json({
       message: "Jika email terdaftar, tautan reset kata sandi telah dikirim.",
     });
   } catch (error) {
-    console.log(error);
+    console.error("[auth] forgotPassword error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -88,7 +113,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       }),
       // 2. Hapus semua sesi lama agar token login lama tidak bisa dipakai lagi
       prisma.session.deleteMany({ where: { userId: user.id } }),
-      // 3. Bersihkan token reset (otomatis tidak bisa dipakai ulang)
+      // 3. Bersihkan token reset agar tidak bisa dipakai ulang
       prisma.user.update({
         where: { id: user.id },
         data: { resetToken: null, resetTokenExpiry: null },
@@ -99,7 +124,7 @@ export const resetPassword = async (req: Request, res: Response) => {
       .status(200)
       .json({ message: "Kata sandi berhasil diubah, silakan masuk kembali." });
   } catch (error) {
-    console.log(error);
+    console.error("[auth] resetPassword error:", error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };

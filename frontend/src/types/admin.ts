@@ -10,15 +10,6 @@ export interface AdminStat {
   progress?: number;
 }
 
-export interface RecentBookingRow {
-  id: number;
-  userName: string;
-  roomName: string;
-  sessionTimeRange: string;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED";
-  date: string;
-}
-
 export interface AdminUser {
   id: string;
   name: string;

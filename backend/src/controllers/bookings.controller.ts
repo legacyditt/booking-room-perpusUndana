@@ -31,8 +31,10 @@ export const getAllBookings = async (req: Request, res: Response) => {
                 room: {
                     include: { bookingPrice: true }
                 },
-                session: true
-            }
+                session: true,
+                user: { select: { name: true } }
+            },
+            orderBy: { createdAt: "desc" }
         });
         return res.status(200).json({ data: bookings });
     } catch (error) {
@@ -74,11 +76,18 @@ export const createBooking = async (req: Request, res: Response) => {
     try {
         const { roomId, sessionId, userId, date } = req.body
 
-        const room = await prisma.room.findUnique({ where: { id: Number(roomId) } })
+        const room = await prisma.room.findUnique({
+            where: { id: Number(roomId) },
+            include: { bookingPrice: true }
+        })
         if (!room) return res.status(404).json({ message: 'Room Not Found' })
 
         const session = await prisma.bookingSession.findUnique({ where: { id: Number(sessionId) } })
         if (!session) return res.status(404).json({ message: 'Session Not Found' })
+
+        // Hanya ruangan premium yang butuh persetujuan admin.
+        // Ruangan reguler langsung disetujui.
+        const needsApproval = room.bookingPrice != null;
 
         let booking;
         try {
@@ -104,7 +113,7 @@ export const createBooking = async (req: Request, res: Response) => {
                         sessionId: Number(sessionId),
                         userId: userId,
                         date: new Date(date),
-                        status: 'PENDING'
+                        status: needsApproval ? 'PENDING' : 'APPROVED'
                     },
                     include: {
                         room: {

@@ -1,5 +1,6 @@
 import { UsersManagement } from "@/features/admin/components/UsersManagement";
 import { getUsers } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import type { AdminUser } from "@/types/admin";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminUsersPage() {
   let users: AdminUser[] = [];
   try {
-    users = await getUsers();
+    users = await getUsers((await getCookieHeader()).cookie);
   } catch {
     users = [];
   }

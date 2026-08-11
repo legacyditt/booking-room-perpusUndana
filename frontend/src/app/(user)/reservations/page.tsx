@@ -1,8 +1,10 @@
 import { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 import { ReservationClient } from "@/features/reservations/components/ReservationClient";
-import { getUserBookings, DEFAULT_USER_ID } from "@/lib/api";
+import { getUserBookings } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 
 export const metadata: Metadata = {
   title: "Pemesanan Saya | Booking Room Perpustakaan",
@@ -12,7 +14,14 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function MyReservationsPage() {
-  const bookings = await getUserBookings(DEFAULT_USER_ID);
+  const cookie = (await getCookieHeader()).cookie;
+  let bookings;
+
+  try {
+    bookings = await getUserBookings(cookie);
+  } catch {
+    redirect("/login");
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

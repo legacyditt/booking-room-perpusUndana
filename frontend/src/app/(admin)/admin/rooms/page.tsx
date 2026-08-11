@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { RoomsManagement } from "@/features/admin/components/RoomsManagement";
 import { getRooms } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
 import type { Room } from "@/types/room";
 
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminRoomsPage() {
   let rooms: Room[] = [];
   try {
-    rooms = await getRooms();
+    rooms = await getRooms((await getCookieHeader()).cookie);
   } catch {
     rooms = [];
   }

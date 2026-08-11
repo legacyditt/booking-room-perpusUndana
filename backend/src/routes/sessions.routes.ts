@@ -6,13 +6,14 @@ import {
     updateSession,
     deleteSession
 } from '../controllers/sessions.controller';
+import { requireAuth, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', getAllSessions);
-router.get('/:id', getSessionById);
-router.post('/', createSession);
-router.put('/:id', updateSession);
-router.delete('/:id', deleteSession);
+router.get('/', requireAuth, getAllSessions);
+router.get('/:id', requireAuth, getSessionById);
+router.post('/', requireAdmin, createSession);
+router.put('/:id', requireAdmin, updateSession);
+router.delete('/:id', requireAdmin, deleteSession);
 
 export default router;

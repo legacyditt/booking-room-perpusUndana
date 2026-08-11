@@ -1,22 +1,24 @@
 import { client, unwrap } from "./client";
 import type { Booking, BookingStatus } from "@/types/booking";
 
-export function getUserBookings(userId: number): Promise<Booking[]> {
-  return unwrap(client.get(`/bookings/user/${userId}`));
+export function getUserBookings(cookie?: string): Promise<Booking[]> {
+  const headers = cookie ? { cookie } : undefined;
+  return unwrap(client.get("/bookings/me", { headers }));
 }
 
-export function getBookings(): Promise<Booking[]> {
-  return unwrap(client.get("/bookings"));
+export function getBookings(cookie?: string): Promise<Booking[]> {
+  const headers = cookie ? { cookie } : undefined;
+  return unwrap(client.get("/bookings", { headers }));
 }
 
-export function getBooking(id: number): Promise<Booking> {
-  return unwrap(client.get(`/bookings/${id}`));
+export function getBooking(id: number, cookie?: string): Promise<Booking> {
+  const headers = cookie ? { cookie } : undefined;
+  return unwrap(client.get(`/bookings/${id}`, { headers }));
 }
 
 export function createBooking(input: {
   roomId: number;
   sessionId: number;
-  userId: number;
   date: string;
 }): Promise<Booking> {
   return unwrap(client.post("/bookings", input));

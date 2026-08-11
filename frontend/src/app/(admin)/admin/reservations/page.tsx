@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DownloadIcon } from "@phosphor-icons/react/dist/ssr";
 import { ReservationsManagement } from "@/features/admin/components/ReservationsManagement";
 import { getBookings } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
 import type { Booking } from "@/types/booking";
 
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminReservationsPage() {
   let bookings: Booking[] = [];
   try {
-    bookings = await getBookings();
+    bookings = await getBookings((await getCookieHeader()).cookie);
   } catch {
     bookings = [];
   }

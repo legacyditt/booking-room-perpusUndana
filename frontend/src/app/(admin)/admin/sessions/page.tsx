@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { SessionsManagement } from "@/features/admin/components/SessionsManagement";
 import { getSessions } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
 import type { Session } from "@/types/booking";
 
@@ -10,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminSessionsPage() {
   let sessions: Session[] = [];
   try {
-    sessions = await getSessions();
+    sessions = await getSessions((await getCookieHeader()).cookie);
   } catch {
     sessions = [];
   }

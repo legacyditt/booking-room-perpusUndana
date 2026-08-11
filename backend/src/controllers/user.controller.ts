@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
-import { auth } from "../lib/auth";
 
 const userSelect = {
     id: true,
@@ -26,21 +25,13 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const updateUserRole = async (req: Request, res: Response) => {
     try {
-        const session = await auth.api.getSession({ headers: req.headers as HeadersInit });
-        if (!session) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-        if (session.user.role !== "admin") {
-            return res.status(403).json({ message: 'Forbidden: admin access required' });
-        }
-
         const id = req.params.id as string;
         const { role } = req.body;
 
         if (role !== "user" && role !== "admin") {
             return res.status(400).json({ message: 'Role must be "user" or "admin"' });
         }
-        if (session.user.id === id && role !== "admin") {
+        if (req.userId === id && role !== "admin") {
             return res.status(403).json({ message: 'Tidak dapat menurunkan peran diri sendiri' });
         }
 

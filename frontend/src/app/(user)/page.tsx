@@ -4,6 +4,7 @@ import { RoomCard } from "@/features/home/components/RoomCard";
 import { HomeTabs } from "@/features/home/components/HomeTabs";
 import { TabsContent } from "@/components/ui/tabs";
 import { getRooms } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import type { Room } from "@/types/room";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   let rooms: Room[] = [];
   try {
-    rooms = await getRooms();
+    rooms = await getRooms((await getCookieHeader()).cookie);
   } catch {
     rooms = [];
   }

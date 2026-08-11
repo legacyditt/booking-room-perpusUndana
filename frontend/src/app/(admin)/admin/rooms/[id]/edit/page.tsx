@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { RoomForm } from "@/features/admin/components/RoomForm";
 import { getRoom } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,7 +17,7 @@ export default async function EditRoomPage({ params }: PageProps) {
 
   let room;
   try {
-    room = await getRoom(Number(id));
+    room = await getRoom(Number(id), (await getCookieHeader()).cookie);
   } catch {
     notFound();
   }

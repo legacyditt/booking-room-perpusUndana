@@ -1,18 +1,17 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
 
-export const getUserBookings = async (req: Request, res: Response) => {
+export const getMyBookings = async (req: Request, res: Response) => {
     try {
-        const { userId } = req.params
-
         const bookings = await prisma.booking.findMany({
-            where: { userId: userId as string }, 
+            where: { userId: req.userId },
             include: {
                 room: {
                     include: { bookingPrice: true }
                 },
                 session: true
-            }
+            },
+            orderBy: { createdAt: "desc" }
         })
 
         return res.status(200).json({
@@ -74,7 +73,8 @@ export const getBookingById = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
     try {
-        const { roomId, sessionId, userId, date } = req.body
+        const { roomId, sessionId, date } = req.body
+        if (!req.userId) return res.status(401).json({ message: 'Unauthorized' })
 
         const room = await prisma.room.findUnique({
             where: { id: Number(roomId) },
@@ -111,7 +111,7 @@ export const createBooking = async (req: Request, res: Response) => {
                     data: {
                         roomId: Number(roomId),
                         sessionId: Number(sessionId),
-                        userId: userId,
+                        userId: req.userId as string,
                         date: new Date(date),
                         status: needsApproval ? 'PENDING' : 'APPROVED'
                     },

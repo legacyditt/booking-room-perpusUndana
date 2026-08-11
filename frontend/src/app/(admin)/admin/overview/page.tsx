@@ -3,6 +3,7 @@ import { RecentBookingsTable } from "@/features/admin/components/RecentBookingsT
 import { QuickActions } from "@/features/admin/components/QuickActions";
 import { mockAdminStats } from "@/data/mock";
 import { getBookings } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 import type { Booking } from "@/types/booking";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminOverviewPage() {
   let bookings: Booking[] = [];
   try {
-    bookings = await getBookings();
+    bookings = await getBookings((await getCookieHeader()).cookie);
   } catch {
     bookings = [];
   }

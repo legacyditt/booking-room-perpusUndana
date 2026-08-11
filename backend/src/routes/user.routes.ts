@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { getAllUsers, updateUserRole } from '../controllers/user.controller';
+import { requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', getAllUsers);
-router.patch('/:id/role', updateUserRole);
+router.get('/', requireAdmin, getAllUsers);
+router.patch('/:id/role', requireAdmin, updateUserRole);
 
 export default router;

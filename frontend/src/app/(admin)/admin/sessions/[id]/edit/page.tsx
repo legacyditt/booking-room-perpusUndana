@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 import { SessionForm } from "@/features/admin/components/SessionForm";
 import { getSession } from "@/lib/api";
+import { getCookieHeader } from "@/lib/api/server";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -16,7 +17,7 @@ export default async function EditSessionPage({ params }: PageProps) {
 
   let session;
   try {
-    session = await getSession(Number(id));
+    session = await getSession(Number(id), (await getCookieHeader()).cookie);
   } catch {
     notFound();
   }

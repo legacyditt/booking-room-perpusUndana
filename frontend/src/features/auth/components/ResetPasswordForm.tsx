@@ -14,6 +14,8 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeSlash, CheckCircle } from "@phosphor-icons/react";
+import { resetPassword } from "@/lib/api/auth";
+import { errorMessage } from "@/lib/api/errors";
 
 export function ResetPasswordForm({
   className,
@@ -61,10 +63,17 @@ export function ResetPasswordForm({
       setIsLoading(false);
       return;
     }
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      await resetPassword(token, password);
       setIsSuccess(true);
-    }, 1500);
+    } catch (err) {
+      setError(
+        errorMessage(err, "Gagal mereset kata sandi. Coba lagi nanti."),
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Tampilan layar sukses setelah password berhasil diubah

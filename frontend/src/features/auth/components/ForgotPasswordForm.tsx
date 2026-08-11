@@ -14,6 +14,8 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "@phosphor-icons/react";
+import { requestPasswordReset } from "@/lib/api/auth";
+import { errorMessage } from "@/lib/api/errors";
 
 export function ForgotPasswordForm({
   className,
@@ -22,16 +24,22 @@ export function ForgotPasswordForm({
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
+    setError(null);
+
+    try {
+      await requestPasswordReset(email);
       setIsSuccess(true);
-    }, 1500);
+    } catch (err) {
+      setError(errorMessage(err, "Gagal mengirim tautan reset. Coba lagi nanti."));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -66,6 +74,12 @@ export function ForgotPasswordForm({
           ) : (
             <form onSubmit={handleSubmit}>
               <FieldGroup>
+                {error && (
+                  <div className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-md p-3">
+                    {error}
+                  </div>
+                )}
+
                 <Field>
                   <FieldLabel htmlFor="email" className="font-medium">
                     Email

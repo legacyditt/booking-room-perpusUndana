@@ -8,6 +8,7 @@ import sessionRoute from "./routes/sessions.routes";
 import bookingsRoute from "./routes/bookings.routes";
 import bookingPriceRoute from "./routes/bookingPrice.routes";
 import userRoute from "./routes/user.routes";
+import authRoute from "./routes/auth.routes";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -21,11 +22,14 @@ app.use(
   }),
 );
 
-// 2. Router BetterAuth 
-app.all("/api/auth/{*any}", toNodeHandler(auth));
-
-// 3. Body Parser
+// 2. Body Parser (harus sebelum route auth agar req.body terisi)
 app.use(express.json());
+
+// 3. Route Reset Password (wajib sebelum catch-all BetterAuth agar tidak ditangkap handler-nya)
+app.use("/api/auth", authRoute);
+
+// 4. Router BetterAuth 
+app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 // --- ROUTES APLIKASI ---
 app.get("/", (req: Request, res: Response) => {

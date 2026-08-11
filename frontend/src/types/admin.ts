@@ -19,15 +19,6 @@ export interface RecentBookingRow {
   date: string;
 }
 
-export interface AdminSessionRow {
-  id: number;
-  name: string;
-  startTime: string;  // format "08:00"
-  endTime: string;    // format "10:00"
-  duration: string;   // format "2 Jam"
-  isActive: boolean;
-}
-
 export interface AdminUser {
   id: string;
   name: string;

@@ -4,7 +4,6 @@ import { Booking, Session } from "@/types/booking";
 import {
   AdminStat,
   RecentBookingRow,
-  AdminSessionRow,
 } from "@/types/admin";
 
 // ── Enum & Interface lokal ──────────────────────────────────────────────────
@@ -210,48 +209,5 @@ export const mockRecentBookings: RecentBookingRow[] = [
     sessionTimeRange: "08:00 - 12:00",
     status: "CANCELLED",
     date: "31 Jul 2026",
-  },
-];
-
-export const mockAdminSessions: AdminSessionRow[] = [
-  {
-    id: 1,
-    name: "Sesi Pagi A",
-    startTime: "08:00",
-    endTime: "10:00",
-    duration: "2 Jam",
-    isActive: true,
-  },
-  {
-    id: 2,
-    name: "Sesi Pagi B",
-    startTime: "10:30",
-    endTime: "12:30",
-    duration: "2 Jam",
-    isActive: true,
-  },
-  {
-    id: 3,
-    name: "Sesi Siang",
-    startTime: "13:00",
-    endTime: "16:00",
-    duration: "3 Jam",
-    isActive: true,
-  },
-  {
-    id: 4,
-    name: "Sesi Sore",
-    startTime: "16:30",
-    endTime: "18:30",
-    duration: "2 Jam",
-    isActive: false,
-  },
-  {
-    id: 5,
-    name: "Sesi Malam",
-    startTime: "19:00",
-    endTime: "21:00",
-    duration: "2 Jam",
-    isActive: false,
   },
 ];

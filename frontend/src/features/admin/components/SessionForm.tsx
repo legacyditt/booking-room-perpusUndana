@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
+import { createSession, updateSession } from "@/lib/api/sessions";
 
 interface SessionFormValues {
   name: string;
@@ -11,8 +13,12 @@ interface SessionFormValues {
 }
 
 interface SessionFormProps {
-  session?: SessionFormValues;
+  session?: SessionFormValues & { id: number };
 }
+
+const errorMessage = (error: unknown, fallback: string) =>
+  (error as { response?: { data?: { message?: string } } })?.response?.data
+    ?.message ?? fallback;
 
 export function SessionForm({ session }: SessionFormProps) {
   const router = useRouter();
@@ -36,15 +42,42 @@ export function SessionForm({ session }: SessionFormProps) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // TODO: Ganti dengan pemanggilan API ke backend yang sebenarnya
-    // const payload = { ...formData };
+    try {
+      const payload = {
+        name: formData.name,
+        startTime: formData.startTime,
+        finishTime: formData.finishTime,
+      };
 
-    // Simulasi loading API request
-    setTimeout(() => {
-      setIsSubmitting(false);
-      // Kembali ke halaman daftar sesi
+      if (isEdit) {
+        await updateSession(session!.id, payload);
+        toast.add({
+          type: "success",
+          title: "Sesi Diperbarui",
+          description: `Sesi ${payload.name} berhasil diperbarui.`,
+        });
+      } else {
+        await createSession(payload);
+        toast.add({
+          type: "success",
+          title: "Sesi Dibuat",
+          description: `Sesi ${payload.name} berhasil ditambahkan.`,
+        });
+      }
+
       router.push("/admin/sessions");
-    }, 1000);
+    } catch (error) {
+      toast.add({
+        type: "error",
+        title: isEdit ? "Gagal Memperbarui Sesi" : "Gagal Membuat Sesi",
+        description: errorMessage(
+          error,
+          "Terjadi kesalahan sistem. Silakan coba lagi.",
+        ),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

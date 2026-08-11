@@ -1,13 +1,20 @@
-"use client";
-
-import React from "react";
 import Link from "next/link";
-import { Plus } from "@phosphor-icons/react";
-import { SessionTable } from "@/features/admin/components/SessionTable";
-import { TablePagination } from "@/features/admin/components/TablePagination";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
+import { SessionsManagement } from "@/features/admin/components/SessionsManagement";
+import { getSessions } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import type { Session } from "@/types/booking";
 
-export default function AdminSessionsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function AdminSessionsPage() {
+  let sessions: Session[] = [];
+  try {
+    sessions = await getSessions();
+  } catch {
+    sessions = [];
+  }
+
   return (
     <div className="p-8 space-y-8">
       {/* ── Header Section ── */}
@@ -30,15 +37,7 @@ export default function AdminSessionsPage() {
 
       {/* ── Kontainer Utama (Tabel + Pagination) ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
-        {/* Area Tabel Data */}
-        <div className="flex-1 min-h-[400px]">
-          <SessionTable />
-        </div>
-
-        {/* Area Pagination */}
-        <div className="p-5 border-t border-[#E2E8F0] bg-white">
-          <TablePagination />
-        </div>
+        <SessionsManagement sessions={sessions} />
       </div>
     </div>
   );

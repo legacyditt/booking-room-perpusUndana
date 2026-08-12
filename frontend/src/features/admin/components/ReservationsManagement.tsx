@@ -6,7 +6,6 @@ import { ReservationTable } from "@/features/admin/components/ReservationTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
 import { updateBookingStatus } from "@/lib/api/bookings";
 import { Booking, BookingStatus } from "@/types/booking";
-import { isPremiumRoom } from "@/types/room";
 import { toast } from "@/components/ui/toast";
 
 const PAGE_SIZE = 5;
@@ -43,16 +42,16 @@ export function ReservationsManagement({
       const matchDate = !dateFilter || booking.date.slice(0, 10) === dateFilter;
       const matchType =
         typeFilter === "Semua" ||
-        (isPremiumRoom(booking.room) ? "premium" : "reguler") === typeFilter;
+        (booking.type === "ROOM" ? "sewa" : "reguler") === typeFilter;
       return matchSearch && matchStatus && matchDate && matchType;
     });
   }, [bookings, search, statusFilter, dateFilter, typeFilter]);
 
-  // Urutkan: ruangan premium selalu di atas. Urutan dalam grup tetap (createdAt desc).
+  // Urutkan: booking sewa selalu di atas. Urutan dalam grup tetap (createdAt desc).
   const grouped = useMemo(
     () =>
       [...filtered].sort(
-        (a, b) => Number(isPremiumRoom(b.room)) - Number(isPremiumRoom(a.room)),
+        (a, b) => Number(b.type === "ROOM") - Number(a.type === "ROOM"),
       ),
     [filtered],
   );

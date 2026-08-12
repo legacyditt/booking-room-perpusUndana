@@ -19,7 +19,7 @@ import {
 
 const PAGE_SIZE = 5;
 
-const roomType = (room: Room) => (room.bookingPrice ? "premium" : "reguler");
+const roomType = (room: Room) => (room.bookingPrice ? "sewa" : "reguler");
 
 interface RoomsManagementProps {
   rooms: Room[];

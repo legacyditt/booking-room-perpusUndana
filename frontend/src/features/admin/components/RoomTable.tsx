@@ -51,7 +51,7 @@ export function RoomTable({ rooms, onDelete }: RoomTableProps) {
 
         <TableBody>
           {rooms.map((room) => {
-            const isPremium = !!room.bookingPrice;
+            const isSewa = !!room.bookingPrice;
             const price = room.bookingPrice
               ? rupiahFormatter.format(Number(room.bookingPrice.price))
               : "Gratis";
@@ -73,12 +73,12 @@ export function RoomTable({ rooms, onDelete }: RoomTableProps) {
                 {/* Kolom Tipe */}
                 <TableCell className="px-5 py-4 text-center">
                   <div className="inline-flex items-center justify-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-100 border border-neutral-200 text-neutral-600 text-xs font-medium">
-                    {isPremium ? (
+                    {isSewa ? (
                       <Star className="w-3.5 h-3.5" weight="fill" />
                     ) : (
                       <BookOpen className="w-3.5 h-3.5" />
                     )}
-                    {isPremium ? "Premium" : "Reguler"}
+                    {isSewa ? "Sewa" : "Reguler"}
                   </div>
                 </TableCell>
 

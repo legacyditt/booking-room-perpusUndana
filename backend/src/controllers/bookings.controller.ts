@@ -278,3 +278,100 @@ export const deleteBooking = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const updateBooking = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { date, sessionId } = req.body;
+
+    if (!date || !sessionId) {
+      return res
+        .status(400)
+        .json({ message: "Date and sessionId are required" });
+    }
+
+    if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
+
+    // Cari data booking lama
+    const booking = await prisma.booking.findUnique({
+      where: { id: Number(id) },
+      include: { room: true },
+    });
+
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    if (booking.userId !== req.userId)
+      return res.status(403).json({ message: "Forbidden: not your booking" });
+    if (booking.status !== "PENDING" && booking.status !== "APPROVED") {
+      return res
+        .status(400)
+        .json({ message: "Only pending or approved bookings can be updated" });
+    }
+
+    const session = await prisma.bookingSession.findUnique({
+      where: { id: Number(sessionId) },
+    });
+    if (!session) return res.status(404).json({ message: "Session Not Found" });
+
+    const newDate = new Date(date);
+
+    // Cek apakah user benar-benar mengubah sesuatu
+    const isSameDate =
+      booking.date.toISOString().split("T")[0] ===
+      newDate.toISOString().split("T")[0];
+    const isSameSession = booking.sessionId === Number(sessionId);
+
+    if (isSameDate && isSameSession) {
+      return res
+        .status(200)
+        .json({ message: "No changes made", data: booking });
+    }
+
+    let updatedBooking;
+    try {
+      // Gunakan Transaction untuk mencegah Race Condition saat cek kapasitas
+      await prisma.$transaction(async (tx) => {
+        const count = await tx.booking.count({
+          where: {
+            roomId: booking.roomId,
+            sessionId: Number(sessionId),
+            date: newDate,
+            status: {
+              in: ["PENDING", "APPROVED"],
+            },
+          },
+        });
+
+        if (count >= booking.room.capacity) {
+          throw new Error("CAPACITY_FULL");
+        }
+
+        updatedBooking = await tx.booking.update({
+          where: { id: booking.id },
+          data: {
+            date: newDate,
+            sessionId: Number(sessionId),
+          },
+          include: {
+            room: { include: { bookingPrice: true } },
+            session: true,
+          },
+        });
+      });
+    } catch (e: any) {
+      if (e.message === "CAPACITY_FULL") {
+        return res
+          .status(400)
+          .json({ message: "Conflict: Jadwal tersebut sudah penuh dipesan" });
+      }
+      throw e;
+    }
+
+    return res.status(200).json({
+      message: "Booking updated successfully",
+      data: updatedBooking,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};

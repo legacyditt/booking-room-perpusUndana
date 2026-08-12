@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/features/admin/components/Sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { client } from "@/lib/api/client";
 
 export default async function AdminLayout({
@@ -22,14 +23,22 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen flex bg-neutral-50">
-      {/* Sidebar tetap di sisi kiri */}
+    <SidebarProvider>
       <Sidebar />
-      
-      {/* Konten Utama berada di sisi kanan */}
-      <main className="flex-1 overflow-auto">
-        {children}
+
+      {/* Konten Utama */}
+      <main className="flex-1 bg-neutral-50 flex flex-col min-h-screen">
+        {/* Tombol trigger sidebar (Khusus muncul di mobile) */}
+        <div className="p-4 md:hidden border-b border-border bg-white flex items-center gap-3">
+          <SidebarTrigger />
+          <span className="font-serif font-bold text-primary">
+            Library Admin
+          </span>
+        </div>
+
+        {/* Render halaman  */}
+        <div className="flex-1 overflow-auto">{children}</div>
       </main>
-    </div>
+    </SidebarProvider>
   );
 }

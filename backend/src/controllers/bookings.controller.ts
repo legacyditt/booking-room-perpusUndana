@@ -284,6 +284,12 @@ export const updateBooking = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { date, sessionId } = req.body;
 
+    if (!date || !sessionId) {
+      return res
+        .status(400)
+        .json({ message: "Date and sessionId are required" });
+    }
+
     if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
 
     // Cari data booking lama

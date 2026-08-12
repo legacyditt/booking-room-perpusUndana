@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { useSession, signOut } from "@/lib/api/auth-client";
 import { toast } from "@/components/ui/toast";
 import {
@@ -61,14 +62,24 @@ export function Sidebar() {
   return (
     <ShadcnSidebar>
       <SidebarHeader className="p-6">
-        <h1 className="font-serif text-3xl font-bold text-primary leading-tight">
-          Library
-          <br />
-          Admin
-        </h1>
-        <p className="text-sm text-neutral-500 mt-2">
-          Booking Ruangan Perpustakaan Undana
-        </p>
+        <div className="flex items-center gap-3.5">
+          <Image
+            src="/images/logo-undana.png"
+            alt="Logo Undana"
+            width={42}
+            height={42}
+            priority
+            className="object-contain shrink-0"
+          />
+          <div className="flex flex-col">
+            <h1 className="font-serif text-base font-bold text-primary leading-tight">
+              Booking Ruangan
+            </h1>
+            <p className="text-[11px] font-medium text-neutral-500 mt-0.5">
+              Perpustakaan Undana
+            </p>
+          </div>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>

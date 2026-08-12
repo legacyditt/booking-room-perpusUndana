@@ -226,7 +226,7 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       where: { id: Number(id) },
       data: { status },
       include: {
-        room: true,
+        room: { include: { bookingPrice: true } },
         session: true,
         user: true,
       },

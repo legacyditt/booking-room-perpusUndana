@@ -38,11 +38,13 @@ import { errorMessage } from "@/lib/api/errors";
 interface BookingDetailsFormProps {
   room: Room;
   sessions: Session[];
+  mode?: "reguler" | "sewa";
 }
 
 export function BookingDetailsForm({
   room,
   sessions,
+  mode = "reguler",
 }: BookingDetailsFormProps) {
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
@@ -66,6 +68,12 @@ export function BookingDetailsForm({
   const bookingPrice = room.bookingPrice;
   const isPremium = !!bookingPrice;
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
+
+  // Sewa = booking seluruh ruangan, bukan 1 kursi
+  const isSewa = mode === "sewa";
+  const isUnavailable = isSewa
+    ? (availability?.booked ?? 0) > 0
+    : availability?.remainingCapacity === 0;
 
   useEffect(() => {
     async function checkAvailability() {
@@ -101,6 +109,7 @@ export function BookingDetailsForm({
         roomId: room.id,
         sessionId: Number(selectedSession),
         date: format(date, "yyyy-MM-dd"),
+        type: isSewa ? "ROOM" : "SEAT",
       });
 
       toast.add({
@@ -145,8 +154,8 @@ export function BookingDetailsForm({
             </span>
           </div>
 
-          {/* Price Tag (Hanya untuk Premium) */}
-          {isPremium && (
+          {/* Price Tag (Hanya untuk Sewa) */}
+          {isSewa && (
             <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-md w-fit">
               <Tag className="w-4 h-4" weight="bold" />
               <span className="text-sm font-bold tracking-wide">
@@ -244,14 +253,20 @@ export function BookingDetailsForm({
                 </span>
               ) : availability ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-neutral">Ketersediaan Kursi:</span>
+                  <span className="text-sm font-bold text-neutral">
+                    {isSewa ? "Ketersediaan Ruangan:" : "Ketersediaan Kursi:"}
+                  </span>
                   <Badge
-                    variant={availability.remainingCapacity > 0 ? "default" : "destructive"}
+                    variant={isSewa ? (availability.booked === 0 ? "default" : "destructive") : availability.remainingCapacity > 0 ? "default" : "destructive"}
                     className="text-sm font-extrabold px-3 py-1.5 shadow-sm"
                   >
-                    {availability.remainingCapacity > 0
-                      ? `Tersedia ${availability.remainingCapacity} Kursi`
-                      : "Penuh"}
+                    {isSewa
+                      ? availability.booked === 0
+                        ? "Tersedia"
+                        : "Tidak Tersedia"
+                      : availability.remainingCapacity > 0
+                        ? `Tersedia ${availability.remainingCapacity} Kursi`
+                        : "Penuh"}
                   </Badge>
                 </div>
               ) : null}
@@ -262,7 +277,7 @@ export function BookingDetailsForm({
 
       {/* Action Area (Sticky Bottom di Mobile) */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-border/50 z-50 lg:static lg:p-0 lg:bg-transparent lg:border-0 lg:z-auto mt-2 flex flex-col gap-3 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)] lg:shadow-none">
-        {isPremium && (
+        {isSewa && (
           <p className="text-xs text-neutral/70 text-center hidden lg:block">
             *Diskon khusus tersedia untuk dosen & mahasiswa pascasarjana.
           </p>
@@ -270,19 +285,19 @@ export function BookingDetailsForm({
         <Button
           className={cn(
             "w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1",
-            availability?.remainingCapacity === 0 && "opacity-70"
+            isUnavailable && "opacity-70"
           )}
-          disabled={!date || !selectedSession || isLoading || isCheckingAvailability || availability?.remainingCapacity === 0}
+          disabled={!date || !selectedSession || isLoading || isCheckingAvailability || isUnavailable}
           onClick={handleBooking}
         >
           {isLoading ? (
             "Memproses..."
-          ) : availability?.remainingCapacity === 0 ? (
-            "Kapasitas Penuh"
+          ) : isUnavailable ? (
+            isSewa ? "Ruangan Tidak Tersedia" : "Kapasitas Penuh"
           ) : (
             <>
               <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
-              {isPremium ? "Book Now" : "Reservasi Sekarang"}
+              {isSewa ? "Sewa Ruangan" : isPremium ? "Book Now" : "Reservasi Sekarang"}
             </>
           )}
         </Button>

@@ -1,5 +1,5 @@
 import { client, unwrap } from "./client";
-import type { Booking, BookingStatus } from "@/types/booking";
+import type { Booking, BookingStatus, BookingType } from "@/types/booking";
 
 export function getUserBookings(cookie?: string): Promise<Booking[]> {
   const headers = cookie ? { cookie } : undefined;
@@ -20,6 +20,7 @@ export function createBooking(input: {
   roomId: number;
   sessionId: number;
   date: string;
+  type: BookingType;
 }): Promise<Booking> {
   return unwrap(client.post("/bookings", input));
 }

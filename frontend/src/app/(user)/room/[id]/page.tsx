@@ -9,12 +9,15 @@ import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ mode?: string }>;
 }
 
-export default async function BookingPage({ params }: PageProps) {
+export default async function BookingPage({ params, searchParams }: PageProps) {
   // Await params untuk mendapatkan ID dari URL
   const resolvedParams = await params;
   const { id } = resolvedParams;
+
+  const { mode = "reguler" } = await searchParams;
 
   let room;
   const cookie = (await getCookieHeader()).cookie;
@@ -50,7 +53,7 @@ export default async function BookingPage({ params }: PageProps) {
             
             {/* Bagian Kanan: Form Pemesanan */}
             <div className="sticky top-28">
-              <BookingDetailsForm room={room} sessions={sessions} />
+              <BookingDetailsForm room={room} sessions={sessions} mode={mode === "sewa" ? "sewa" : "reguler"} />
             </div>
           </div>
           

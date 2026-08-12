@@ -105,6 +105,7 @@ model Booking {
   userId    String        @map("user_id")
   date      DateTime
   status    BookingStatus @default(PENDING)
+  type      BookingType   @default(SEAT)
   createdAt DateTime      @default(now()) @map("created_at")
 
   room    Room           @relation(fields: [roomId], references: [id])
@@ -133,4 +134,9 @@ enum BookingStatus {
   APPROVED
   REJECTED
   CANCELLED
+}
+
+enum BookingType {
+  SEAT
+  ROOM
 }

@@ -29,7 +29,7 @@ export default async function HomePage() {
           <TabsContent value="reguler" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {rooms.map((room) => (
-                <RoomCard key={room.id} room={room} />
+                <RoomCard key={room.id} room={room} mode="reguler" />
               ))}
             </div>
           </TabsContent>
@@ -37,7 +37,7 @@ export default async function HomePage() {
           <TabsContent value="sewa" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {premiumRooms.map((room) => (
-                <RoomCard key={room.id} room={room} />
+                <RoomCard key={room.id} room={room} mode="sewa" />
               ))}
             </div>
           </TabsContent>

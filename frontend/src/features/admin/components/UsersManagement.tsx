@@ -151,7 +151,9 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
               onValueChange={(value) => value && setDialogRole(value)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {dialogRole === "admin" ? "Admin" : "Pengguna"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="user">Pengguna</SelectItem>

@@ -76,16 +76,16 @@ export function ReservationsManagement({
       const label = status === "APPROVED" ? "disetujui" : "ditolak";
       toast.add({
         type: "success",
-        title: `Pemesanan ${status === "APPROVED" ? "Disetujui" : "Ditolak"}`,
-        description: `Pemesanan #BKG-${id} berhasil ${label}.`,
+        title: `Pemesanan Berhasil ${status === "APPROVED" ? "Disetujui" : "Ditolak"}`,
+        description: `Pengajuan pemesanan #BKG-${id} telah ${status === "APPROVED" ? "disetujui" : "ditolak"}.`,
       });
     } catch (error) {
       toast.add({
         type: "error",
-        title: "Gagal Memperbarui Status",
+        title: "Tindakan Gagal Diproses",
         description: errorMessage(
           error,
-          "Terjadi kesalahan sistem. Silakan coba lagi.",
+          "Terjadi kesalahan saat memperbarui status pemesanan. Silakan coba beberapa saat lagi."
         ),
       });
     } finally {

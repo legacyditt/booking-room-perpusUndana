@@ -62,7 +62,19 @@ export function ReservationFilters({
             </label>
             <Select value={status} onValueChange={(v) => v && onStatusChange(v)}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih Status" />
+                <SelectValue>
+                  {status === "Semua"
+                    ? "Semua Status"
+                    : status === "PENDING"
+                      ? "Menunggu"
+                      : status === "APPROVED"
+                        ? "Disetujui"
+                        : status === "REJECTED"
+                          ? "Ditolak"
+                          : status === "CANCELLED"
+                            ? "Dibatalkan"
+                            : "Pilih Status"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Semua">Semua Status</SelectItem>
@@ -94,7 +106,15 @@ export function ReservationFilters({
             </label>
             <Select value={type} onValueChange={(v) => v && onTypeChange(v)}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih Tipe Ruangan" />
+                <SelectValue>
+                  {type === "Semua"
+                    ? "Semua Ruangan"
+                    : type === "reguler"
+                      ? "Reguler"
+                      : type === "sewa"
+                        ? "Sewa"
+                        : "Pilih Tipe Ruangan"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Semua">Semua Ruangan</SelectItem>

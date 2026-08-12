@@ -51,8 +51,8 @@ export function BookingDetailsForm({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // State for availability
-  const [availability, setAvailability] = useState<{ remainingCapacity: number; capacity: number; booked: number } | null>(null);
+   // State for availability map
+  const [availabilityMap, setAvailabilityMap] = useState<Record<string, { remainingCapacity: number; capacity: number; booked: number }>>({});
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
   
   const router = useRouter();
@@ -66,37 +66,55 @@ export function BookingDetailsForm({
 
   const bookingPrice = room.bookingPrice;
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
-
-  // Sewa = booking seluruh ruangan, bukan 1 kursi
   const isSewa = mode === "sewa";
-  const isUnavailable = isSewa
-    ? (availability?.booked ?? 0) > 0
-    : availability?.remainingCapacity === 0;
 
+  // Hitung ketersediaan sesi saat ini
+  const currentAvailability = selectedSession ? availabilityMap[selectedSession] : null;
+  const isUnavailable = selectedSession 
+    ? (isSewa
+        ? (currentAvailability?.booked ?? 0) > 0
+        : currentAvailability?.remainingCapacity === 0)
+    : false;
+
+  // Efek 1: Fetch 1x hit API daily-availability ke backend saat tanggal dipilih
   useEffect(() => {
-    async function checkAvailability() {
-      if (!date || !selectedSession) {
-        setAvailability(null);
+    async function checkDailyAvailability() {
+      if (!date) {
+        setAvailabilityMap({});
         return;
       }
       setIsCheckingAvailability(true);
       try {
-        // Date manipulation to prevent timezone issues, passing ISO date format (YYYY-MM-DD)
         const dateString = format(date, 'yyyy-MM-dd');
-        const response = await client.get(`/rooms/${room.id}/availability?date=${dateString}&sessionId=${selectedSession}`);
+        const response = await client.get(`/rooms/${room.id}/daily-availability?date=${dateString}`);
         if (response.data && response.data.data) {
-          setAvailability(response.data.data);
+          setAvailabilityMap(response.data.data);
         }
       } catch (error) {
         console.error("Failed to check availability:", error);
-        setAvailability(null);
+        setAvailabilityMap({});
       } finally {
         setIsCheckingAvailability(false);
       }
     }
     
-    checkAvailability();
-  }, [date, selectedSession, room.id]);
+    checkDailyAvailability();
+  }, [date, room.id]);
+
+  // Efek 2: Kosongkan opsi dropdown jika sesi yang sedang dipilih ternyata penuh di tanggal yang baru
+  useEffect(() => {
+    if (selectedSession && availabilityMap[selectedSession]) {
+      const sessionAvail = availabilityMap[selectedSession];
+      const isSessionFull = isSewa 
+        ? sessionAvail.booked > 0 
+        : sessionAvail.remainingCapacity === 0;
+        
+      if (isSessionFull) {
+        setSelectedSession("");
+      }
+    }
+  }, [availabilityMap, selectedSession, isSewa]);
+
 
   const handleBooking = async () => {
     if (!date || !selectedSession) return;
@@ -232,11 +250,29 @@ export function BookingDetailsForm({
               </div>
             </SelectTrigger>
             <SelectContent>
-              {sessions.map((s) => (
-                <SelectItem key={s.id} value={s.id.toString()} className="py-3">
-                  {s.name} ({s.startTime} - {s.finishTime})
-                </SelectItem>
-              ))}
+              {sessions.map((s) => {
+                const sId = s.id.toString();
+                const sessionAvail = availabilityMap[sId];
+                
+                // Cek apakah spesifik sesi ini penuh
+                const isSessionFull = sessionAvail 
+                  ? (isSewa 
+                      ? sessionAvail.booked > 0 
+                      : sessionAvail.remainingCapacity === 0)
+                  : false;
+
+                return (
+                  <SelectItem 
+                    key={s.id} 
+                    value={sId} 
+                    className={isSessionFull ? "opacity-50 line-through py-3" : "py-3"}
+                    disabled={isSessionFull}
+                  >
+                    {s.name} ({s.startTime} - {s.finishTime})
+                    {isSessionFull && " - (Penuh)"}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
@@ -249,21 +285,21 @@ export function BookingDetailsForm({
                 <span className="block text-sm font-medium text-neutral-500 animate-pulse text-center">
                   Mengecek ketersediaan kursi...
                 </span>
-              ) : availability ? (
+              ) : currentAvailability ? (
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-neutral">
                     {isSewa ? "Ketersediaan Ruangan:" : "Ketersediaan Kursi:"}
                   </span>
                   <Badge
-                    variant={isSewa ? (availability.booked === 0 ? "default" : "destructive") : availability.remainingCapacity > 0 ? "default" : "destructive"}
+                    variant={isSewa ? (currentAvailability.booked === 0 ? "default" : "destructive") : currentAvailability.remainingCapacity > 0 ? "default" : "destructive"}
                     className="text-sm font-extrabold px-3 py-1.5 shadow-sm"
                   >
                     {isSewa
-                      ? availability.booked === 0
+                      ? currentAvailability.booked === 0
                         ? "Tersedia"
                         : "Tidak Tersedia"
-                      : availability.remainingCapacity > 0
-                        ? `Tersedia ${availability.remainingCapacity} Kursi`
+                      : currentAvailability.remainingCapacity > 0
+                        ? `Tersedia ${currentAvailability.remainingCapacity} Kursi`
                         : "Penuh"}
                   </Badge>
                 </div>

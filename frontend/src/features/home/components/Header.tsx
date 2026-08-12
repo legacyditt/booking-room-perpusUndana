@@ -127,7 +127,7 @@ export function Header() {
               <DropdownMenuTrigger className="hidden sm:inline-flex items-center justify-center gap-2 text-neutral hover:text-primary transition-colors hover:bg-muted/50 px-3 rounded-md h-10 focus:outline-none">
                 <UserCircle className="h-6 w-6 text-primary" weight="fill" />
                 <span className="font-medium text-sm max-w-[120px] truncate">
-                  {session.user.name}
+                  {session.user.name.split(" ")[0]}
                 </span>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -211,7 +211,7 @@ export function Header() {
                   <UserCircle className="h-9 w-9 text-primary" weight="fill" />
                   <div className="flex flex-col overflow-hidden">
                     <span className="font-bold text-sm text-foreground truncate">
-                      {session.user.name}
+                      {session.user.name.split(" ")[0]}
                     </span>
                     <span className="text-xs text-neutral truncate">
                       {session.user.email}

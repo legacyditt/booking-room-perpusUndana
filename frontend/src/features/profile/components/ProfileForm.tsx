@@ -13,9 +13,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "@/components/ui/toast";
 
 export function ProfileForm() {
   const router = useRouter();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = () => {
+    setIsSaving(true);
+     setTimeout(() => {
+      setIsSaving(false);
+      toast.add({
+        type: "success",
+        title: "Perubahan Disimpan",
+        description: "Profil Anda telah berhasil diperbarui.",
+      });
+    }, 800);
+  };
 
   return (
     <div className="min-h-[100dvh] bg-[#FAFAF9] pb-24 pt-10 md:pt-16">
@@ -176,9 +191,11 @@ export function ProfileForm() {
             <div className="pt-6 flex justify-end">
               <Button 
                 type="button"
+                onClick={handleSave}
+                disabled={isSaving}
                 className="bg-[#1C1917] text-white hover:bg-[#1C1917]/90 h-12 px-8 rounded-none font-semibold shadow-none active:scale-[0.98] transition-transform"
               >
-                Simpan Perubahan
+                {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
               </Button>
             </div>
 

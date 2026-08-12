@@ -53,11 +53,11 @@ export function UserFilters({
           >
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
               <SelectValue>
-                {role === "Semua"
-                  ? "Semua Peran"
-                  : role === "admin"
-                    ? "Admin"
-                    : "Pengguna"}
+                {({
+                  Semua: "Semua Peran",
+                  admin: "Admin",
+                  user: "Pengguna"
+                }[role] ?? "Pilih Peran")}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -75,13 +75,12 @@ export function UserFilters({
           >
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
               <SelectValue>
-                {category === "Semua"
-                  ? "Semua Kategori"
-                  : category === "mahasiswa"
-                    ? "Mahasiswa"
-                    : category === "dosen"
-                      ? "Dosen"
-                      : "Umum"}
+                {({
+                  Semua: "Semua Kategori",
+                  mahasiswa: "Mahasiswa",
+                  dosen: "Dosen",
+                  umum: "Umum"
+                }[category] ?? "Pilih Kategori")}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>

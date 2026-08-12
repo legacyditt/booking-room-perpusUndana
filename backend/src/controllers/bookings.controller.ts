@@ -1,9 +1,39 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { Prisma } from "../generated/prisma/client";
 import {
   sendBookingCancellationEmail,
   sendBookingStatusUpdateEmail,
 } from "../lib/mailer";
+
+// ROOM = sewa seluruh ruangan (blokir jika ada booking apa pun),
+// SEAT = pesan 1 kursi (blokir jika sudah ada sewa ruangan atau kursi penuh).
+const assertSlotAvailable = async (
+  tx: Prisma.TransactionClient,
+  input: { roomId: number; sessionId: number; date: Date; capacity: number },
+  type: "SEAT" | "ROOM",
+  excludeBookingId?: number,
+) => {
+  const existing = await tx.booking.findMany({
+    where: {
+      roomId: input.roomId,
+      sessionId: input.sessionId,
+      date: input.date,
+      status: { in: ["PENDING", "APPROVED"] },
+      ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
+    },
+    select: { type: true },
+  });
+
+  const roomBlocked = existing.some((b) => b.type === "ROOM");
+  const seatCount = existing.filter((b) => b.type === "SEAT").length;
+
+  if (type === "ROOM") {
+    if (existing.length > 0) throw new Error("CAPACITY_FULL");
+  } else if (roomBlocked || seatCount >= input.capacity) {
+    throw new Error("CAPACITY_FULL");
+  }
+};
 
 export const getMyBookings = async (req: Request, res: Response) => {
   try {
@@ -77,8 +107,10 @@ export const getBookingById = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
-    const { roomId, sessionId, date } = req.body;
+    const { roomId, sessionId, date, type = "SEAT" } = req.body;
     if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
+
+    const bookingType: "SEAT" | "ROOM" = type === "ROOM" ? "ROOM" : "SEAT";
 
     const room = await prisma.room.findUnique({
       where: { id: Number(roomId) },
@@ -97,42 +129,35 @@ export const createBooking = async (req: Request, res: Response) => {
 
     let booking;
     try {
-      const [bookedCount, newBooking] = await prisma.$transaction(
-        async (tx) => {
-          const count = await tx.booking.count({
-            where: {
-              roomId: Number(roomId),
-              sessionId: Number(sessionId),
-              date: new Date(date),
-              status: {
-                in: ["PENDING", "APPROVED"],
-              },
-            },
-          });
+      await prisma.$transaction(async (tx) => {
+        await assertSlotAvailable(
+          tx,
+          {
+            roomId: Number(roomId),
+            sessionId: Number(sessionId),
+            date: new Date(date),
+            capacity: room.capacity,
+          },
+          bookingType,
+        );
 
-          if (count >= room.capacity) {
-            throw new Error("CAPACITY_FULL");
-          }
-
-          const b = await tx.booking.create({
-            data: {
-              roomId: Number(roomId),
-              sessionId: Number(sessionId),
-              userId: req.userId as string,
-              date: new Date(date),
-              status: needsApproval ? "PENDING" : "APPROVED",
+        booking = await tx.booking.create({
+          data: {
+            roomId: Number(roomId),
+            sessionId: Number(sessionId),
+            userId: req.userId as string,
+            date: new Date(date),
+            status: needsApproval ? "PENDING" : "APPROVED",
+            type: bookingType,
+          },
+          include: {
+            room: {
+              include: { bookingPrice: true },
             },
-            include: {
-              room: {
-                include: { bookingPrice: true },
-              },
-              session: true,
-            },
-          });
-          return [count, b];
-        },
-      );
-      booking = newBooking;
+            session: true,
+          },
+        });
+      });
     } catch (e: any) {
       if (e.message === "CAPACITY_FULL") {
         return res
@@ -330,20 +355,17 @@ export const updateBooking = async (req: Request, res: Response) => {
     try {
       // Gunakan Transaction untuk mencegah Race Condition saat cek kapasitas
       await prisma.$transaction(async (tx) => {
-        const count = await tx.booking.count({
-          where: {
+        await assertSlotAvailable(
+          tx,
+          {
             roomId: booking.roomId,
             sessionId: Number(sessionId),
             date: newDate,
-            status: {
-              in: ["PENDING", "APPROVED"],
-            },
+            capacity: booking.room.capacity,
           },
-        });
-
-        if (count >= booking.room.capacity) {
-          throw new Error("CAPACITY_FULL");
-        }
+          booking.type,
+          booking.id,
+        );
 
         updatedBooking = await tx.booking.update({
           where: { id: booking.id },

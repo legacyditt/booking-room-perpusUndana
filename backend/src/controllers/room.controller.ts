@@ -22,7 +22,7 @@ export const getRoomAvailability = async (req: Request, res: Response) => {
         const room = await prisma.room.findUnique({ where: { id: Number(id) } });
         if (!room) return res.status(404).json({ message: 'Room not found' });
 
-        const bookedCount = await prisma.booking.count({
+        const bookings = await prisma.booking.findMany({
             where: {
                 roomId: Number(id),
                 sessionId: Number(sessionId),
@@ -30,16 +30,21 @@ export const getRoomAvailability = async (req: Request, res: Response) => {
                 status: {
                     in: ['PENDING', 'APPROVED']
                 }
-            }
+            },
+            select: { type: true }
         });
 
-        const remainingCapacity = Math.max(0, room.capacity - bookedCount);
+        const roomBlocked = bookings.some((b) => b.type === 'ROOM');
+        const seatCount = bookings.filter((b) => b.type === 'SEAT').length;
+        const remainingCapacity = roomBlocked
+            ? 0
+            : Math.max(0, room.capacity - seatCount);
 
         return res.status(200).json({ 
             data: { 
                 remainingCapacity, 
                 capacity: room.capacity, 
-                booked: bookedCount 
+                booked: bookings.length 
             } 
         });
     } catch (error) {

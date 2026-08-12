@@ -7,9 +7,11 @@ import { Room } from "@/types/room";
 
 interface RoomCardProps {
   room: Room;
+  mode: "reguler" | "sewa";
 }
 
-export function RoomCard({ room }: RoomCardProps) {
+export function RoomCard({ room, mode }: RoomCardProps) {
+  const href = `/room/${room.id}${mode === "sewa" ? "?mode=sewa" : ""}`;
   return (
     <Card className="pt-0 overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
       <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
@@ -39,7 +41,7 @@ export function RoomCard({ room }: RoomCardProps) {
 
       <CardFooter className="pt-4 pb-6 px-6">
         <Link
-          href={`/room/${room.id}`}
+          href={href}
           className={buttonVariants({
             variant: "outlinePrimary",
             className: "w-full min-h-[44px]",

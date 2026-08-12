@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -45,7 +46,19 @@ export function ForgotPasswordForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-none shadow-none bg-transparent">
-        <CardHeader className="text-center pb-8">
+        <CardHeader className="text-center pb-8 flex flex-col items-center">
+          <div className="mb-6 flex justify-center">
+            <div className="flex h-20 w-20 items-center justify-center border border-black/5 bg-gradient-to-br from-white to-zinc-100 shadow-sm">
+              <Image
+                src="/images/logo-undana.png"
+                alt="Logo Undana"
+                width={52}
+                height={52}
+                priority
+                className="object-contain"
+              />
+            </div>
+          </div>
           <CardTitle className="font-serif text-3xl font-bold tracking-tight text-primary">
             Lupa Kata Sandi
           </CardTitle>

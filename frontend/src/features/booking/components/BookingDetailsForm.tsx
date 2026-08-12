@@ -265,7 +265,7 @@ export function BookingDetailsForm({
                   <SelectItem 
                     key={s.id} 
                     value={sId} 
-                    className={isSessionFull ? "opacity-50 line-through py-3" : "py-3"}
+                    className={isSessionFull ? "opacity-50 py-3" : "py-3"}
                     disabled={isSessionFull}
                   >
                     {s.name} ({s.startTime} - {s.finishTime})

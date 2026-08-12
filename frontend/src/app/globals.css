@@ -85,3 +85,7 @@
     @apply font-serif text-primary;
   }
 }
+
+html, body {
+  overflow-x: hidden;
+}

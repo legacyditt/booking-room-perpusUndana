@@ -85,8 +85,8 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
       setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
       toast.add({
         type: "success",
-        title: "Peran Diperbarui",
-        description: `Peran ${updated.name} kini ${roleLabel(updated.role)}.`,
+        title: "Hak Akses Diperbarui",
+        description: `Peran pengguna "${updated.name}" berhasil diubah menjadi ${roleLabel(updated.role)}.`,
       });
       setEditingUser(null);
     } catch (error) {
@@ -95,7 +95,7 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
           ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
       toast.add({
         type: "error",
-        title: "Gagal Mengubah Peran",
+        title: "Gagal Mengubah Hak Akses",
         description: message,
       });
     } finally {
@@ -151,7 +151,9 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
               onValueChange={(value) => value && setDialogRole(value)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue />
+                <SelectValue>
+                  {dialogRole === "admin" ? "Admin" : "Pengguna"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="user">Pengguna</SelectItem>

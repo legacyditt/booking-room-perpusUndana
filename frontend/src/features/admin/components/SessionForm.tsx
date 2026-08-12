@@ -53,15 +53,15 @@ export function SessionForm({ session }: SessionFormProps) {
         await updateSession(session!.id, payload);
         toast.add({
           type: "success",
-          title: "Sesi Diperbarui",
-          description: `Sesi ${payload.name} berhasil diperbarui.`,
+          title: "Perubahan Disimpan",
+          description: `Data sesi "${payload.name}" telah berhasil diperbarui ke dalam sistem.`,
         });
       } else {
         await createSession(payload);
         toast.add({
           type: "success",
-          title: "Sesi Dibuat",
-          description: `Sesi ${payload.name} berhasil ditambahkan.`,
+          title: "Sesi Berhasil Ditambahkan",
+          description: `Sesi "${payload.name}" kini sudah aktif dan tersedia untuk dipesan.`,
         });
       }
 
@@ -69,10 +69,12 @@ export function SessionForm({ session }: SessionFormProps) {
     } catch (error) {
       toast.add({
         type: "error",
-        title: isEdit ? "Gagal Memperbarui Sesi" : "Gagal Membuat Sesi",
+        title: isEdit ? "Gagal Memperbarui Data" : "Gagal Menambahkan Sesi",
         description: errorMessage(
           error,
-          "Terjadi kesalahan sistem. Silakan coba lagi.",
+          isEdit
+            ? "Terjadi kesalahan saat menyimpan perubahan. Silakan coba beberapa saat lagi."
+            : "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda."
         ),
       });
     } finally {

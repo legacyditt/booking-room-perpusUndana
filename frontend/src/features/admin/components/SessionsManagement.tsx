@@ -47,8 +47,8 @@ export function SessionsManagement({
       setSessions((prev) => prev.filter((s) => s.id !== sessionToDelete.id));
       toast.add({
         type: "success",
-        title: "Sesi Dihapus",
-        description: `Sesi ${sessionToDelete.name} berhasil dihapus.`,
+        title: "Sesi Berhasil Dihapus",
+        description: `Sesi "${sessionToDelete.name}" beserta seluruh datanya telah dihapus secara permanen.`,
       });
       setSessionToDelete(null);
     } catch (error) {
@@ -57,7 +57,7 @@ export function SessionsManagement({
           ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
       toast.add({
         type: "error",
-        title: "Gagal Menghapus Sesi",
+        title: "Tidak Dapat Menghapus Sesi",
         description: message,
       });
     } finally {

@@ -52,7 +52,13 @@ export function UserFilters({
             onValueChange={(value) => value && onRoleChange(value)}
           >
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue placeholder="Pilih Peran" />
+              <SelectValue>
+                {({
+                  Semua: "Semua Peran",
+                  admin: "Admin",
+                  user: "Pengguna"
+                }[role] ?? "Pilih Peran")}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Semua">Semua Peran</SelectItem>
@@ -68,7 +74,14 @@ export function UserFilters({
             onValueChange={(value) => value && onCategoryChange(value)}
           >
             <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue placeholder="Pilih Kategori" />
+              <SelectValue>
+                {({
+                  Semua: "Semua Kategori",
+                  mahasiswa: "Mahasiswa",
+                  dosen: "Dosen",
+                  umum: "Umum"
+                }[category] ?? "Pilih Kategori")}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Semua">Semua Kategori</SelectItem>

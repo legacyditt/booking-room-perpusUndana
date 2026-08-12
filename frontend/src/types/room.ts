@@ -15,7 +15,3 @@ export interface Room {
   imageUrl: string;
   bookingPrice?: BookingPrice | null;
 }
-
-// Ruangan premium = punya harga booking; reguler = gratis.
-export const isPremiumRoom = (room: Pick<Room, "bookingPrice">) =>
-  room.bookingPrice != null;

@@ -4,7 +4,6 @@ import React from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Booking, BookingStatus } from "@/types/booking";
-import { isPremiumRoom } from "@/types/room";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -73,7 +72,7 @@ export function ReservationTable({
           {bookings.map((booking) => {
             const { label, variant } = statusConfig[booking.status];
             const isUpdating = isUpdatingId === booking.id;
-            const isPremium = isPremiumRoom(booking.room);
+            const isSewa = booking.type === "ROOM";
 
             return (
               <TableRow
@@ -90,9 +89,9 @@ export function ReservationTable({
                     {booking.room.name}
                   </TableCell>
                   <TableCell className="px-5 py-4">
-                    {isPremium ? (
+                    {isSewa ? (
                       <Badge className="bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100 min-w-[70px] justify-center">
-                        Premium
+                        Sewa
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-neutral-500 min-w-[70px] justify-center">
@@ -115,7 +114,7 @@ export function ReservationTable({
                     </Badge>
                   </TableCell>
                   <TableCell className="px-5 py-4">
-                    {booking.status === "PENDING" && isPremium ? (
+                    {booking.status === "PENDING" && isSewa ? (
                       <div className="flex items-center justify-center gap-1.5">
                         <Button
                           size="sm"

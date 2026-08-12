@@ -64,9 +64,7 @@ export function BookingDetailsForm({
   });
   const formatRupiah = (angka: number) => rupiahFormatter.format(angka);
 
-  // Premium jika ruangan punya bookingPrice di tabel booking_prices
   const bookingPrice = room.bookingPrice;
-  const isPremium = !!bookingPrice;
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
 
   // Sewa = booking seluruh ruangan, bukan 1 kursi
@@ -297,7 +295,7 @@ export function BookingDetailsForm({
           ) : (
             <>
               <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
-              {isSewa ? "Sewa Ruangan" : isPremium ? "Book Now" : "Reservasi Sekarang"}
+              {isSewa ? "Sewa Ruangan" : "Reservasi Sekarang"}
             </>
           )}
         </Button>

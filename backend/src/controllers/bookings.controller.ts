@@ -114,7 +114,6 @@ export const createBooking = async (req: Request, res: Response) => {
 
     const room = await prisma.room.findUnique({
       where: { id: Number(roomId) },
-      include: { bookingPrice: true },
     });
     if (!room) return res.status(404).json({ message: "Room Not Found" });
 
@@ -123,9 +122,8 @@ export const createBooking = async (req: Request, res: Response) => {
     });
     if (!session) return res.status(404).json({ message: "Session Not Found" });
 
-    // Hanya ruangan premium yang butuh persetujuan admin.
-    // Ruangan reguler langsung disetujui.
-    const needsApproval = room.bookingPrice != null;
+    // SEAT (reguler) langsung disetujui; ROOM (sewa) butuh persetujuan admin.
+    const needsApproval = bookingType === "ROOM";
 
     let booking;
     try {

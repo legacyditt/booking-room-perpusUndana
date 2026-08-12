@@ -99,7 +99,7 @@ export function ReservationFilters({
               <SelectContent>
                 <SelectItem value="Semua">Semua Ruangan</SelectItem>
                 <SelectItem value="reguler">Reguler</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="sewa">Sewa</SelectItem>
               </SelectContent>
             </Select>
           </div>

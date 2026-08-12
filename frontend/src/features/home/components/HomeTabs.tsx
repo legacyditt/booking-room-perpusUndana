@@ -5,14 +5,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface HomeTabsProps {
   regulerCount: number;
-  premiumCount: number;
+  sewaCount: number;
   children: ReactNode;
 }
 
-export function HomeTabs({ regulerCount, premiumCount, children }: HomeTabsProps) {
+export function HomeTabs({ regulerCount, sewaCount, children }: HomeTabsProps) {
   const [roomType, setRoomType] = useState<"reguler" | "sewa">("reguler");
 
-  const count = roomType === "reguler" ? regulerCount + premiumCount : premiumCount;
+  const count = roomType === "reguler" ? regulerCount + sewaCount : sewaCount;
 
   return (
     <Tabs

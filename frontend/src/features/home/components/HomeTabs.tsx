@@ -10,14 +10,14 @@ interface HomeTabsProps {
 }
 
 export function HomeTabs({ regulerCount, premiumCount, children }: HomeTabsProps) {
-  const [roomType, setRoomType] = useState<"reguler" | "premium">("reguler");
+  const [roomType, setRoomType] = useState<"reguler" | "sewa">("reguler");
 
-  const count = roomType === "reguler" ? regulerCount : premiumCount;
+  const count = roomType === "reguler" ? regulerCount + premiumCount : premiumCount;
 
   return (
     <Tabs
       defaultValue="reguler"
-      onValueChange={(v) => setRoomType(v as "reguler" | "premium")}
+      onValueChange={(v) => setRoomType(v as "reguler" | "sewa")}
       className="w-full"
     >
       {/* Header Row: Judul, Tabs, dan Info Hasil */}
@@ -29,7 +29,7 @@ export function HomeTabs({ regulerCount, premiumCount, children }: HomeTabsProps
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full lg:w-auto mt-2 lg:mt-0">
           <TabsList className="grid w-full sm:w-auto grid-cols-2 sm:flex h-11 p-1">
             <TabsTrigger value="reguler">Reguler</TabsTrigger>
-            <TabsTrigger value="premium">Premium</TabsTrigger>
+            <TabsTrigger value="sewa">Sewa</TabsTrigger>
           </TabsList>
 
           <div className="hidden sm:block w-px h-6 bg-neutral/20" />

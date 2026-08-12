@@ -32,6 +32,19 @@ export function cancelBooking(id: number): Promise<Booking> {
   return unwrap(client.patch(`/bookings/${id}/cancel`));
 }
 
-export function updateBookingStatus(id: number, status: BookingStatus): Promise<Booking> {
+export function updateBookingStatus(
+  id: number,
+  status: BookingStatus,
+): Promise<Booking> {
   return unwrap(client.patch(`/bookings/${id}/status`, { status }));
+}
+
+export function updateBooking(
+  id: number,
+  input: {
+    date: string;
+    sessionId: number;
+  },
+): Promise<Booking> {
+  return unwrap(client.patch(`/bookings/${id}`, input));
 }

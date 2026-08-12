@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { format, formatDistanceToNow, isToday, parseISO, isBefore, startOfDay } from "date-fns";
+import {
+  format,
+  formatDistanceToNow,
+  isToday,
+  parseISO,
+  isBefore,
+  startOfDay,
+} from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -29,6 +36,7 @@ import { cancelBooking } from "@/lib/api/bookings";
 import { errorMessage } from "@/lib/api/errors";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
+import { EditBookingModal } from "./EditBookingModal";
 
 interface ReservationCardProps {
   booking: Booking;
@@ -73,7 +81,7 @@ export function ReservationCard({
         title: "Gagal Membatalkan",
         description: errorMessage(
           error,
-          "Terjadi kesalahan sistem. Silakan coba lagi."
+          "Terjadi kesalahan sistem. Silakan coba lagi.",
         ),
       });
       setIsCancelling(false);
@@ -141,7 +149,9 @@ export function ReservationCard({
           </div>
           <div className="flex items-center gap-3 text-neutral text-sm font-medium">
             <Clock className="w-4 h-4 text-neutral" />
-            <span>{session.startTime} - {session.finishTime}</span>
+            <span>
+              {session.startTime} - {session.finishTime}
+            </span>
           </div>
         </div>
       </CardContent>
@@ -150,17 +160,14 @@ export function ReservationCard({
       {!isPast && (
         <CardFooter className="p-4 sm:p-6 pt-3 sm:pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-border/20 bg-neutral/5">
           {booking.status === "APPROVED" && (
-          <>
-            <Link
-              href={`/room/${room.id}`}
-              className={buttonVariants({
-                variant: "outline",
-                className: "w-full font-bold border-border/80 text-primary min-h-[44px]",
-              })}
-            >
-              Ubah
-            </Link>
-            <Dialog>
+            <>
+              <EditBookingModal
+                booking={booking}
+                room={room}
+                currentSession={session}
+              />
+
+              <Dialog>
                 <DialogTrigger
                   render={
                     <Button
@@ -171,15 +178,67 @@ export function ReservationCard({
                     </Button>
                   }
                 />
+                <DialogContent className="sm:max-w-md">
+                  <ShadcnDialogHeader>
+                    <ShadcnDialogTitle className="text-base text-primary font-bold">
+                      Batalkan Peminjaman?
+                    </ShadcnDialogTitle>
+                    <DialogDescription className="text-sm">
+                      Tindakan ini tidak dapat dikembalikan. Peminjaman Anda
+                      untuk <span className="font-semibold">{room.name}</span>{" "}
+                      akan dibatalkan secara permanen.
+                    </DialogDescription>
+                  </ShadcnDialogHeader>
+                  <ShadcnDialogFooter className="mt-4 gap-2">
+                    <DialogClose
+                      render={
+                        <Button
+                          variant="outline"
+                          className="flex-1 sm:flex-none font-medium"
+                        >
+                          Kembali
+                        </Button>
+                      }
+                    />
+                    <DialogClose
+                      render={
+                        <Button
+                          variant="destructive"
+                          className="flex-1 sm:flex-none font-bold shadow-sm"
+                          onClick={handleCancel}
+                          disabled={isCancelling}
+                        >
+                          {isCancelling ? "Membatalkan..." : "Ya, Batalkan"}
+                        </Button>
+                      }
+                    />
+                  </ShadcnDialogFooter>
+                </DialogContent>
+              </Dialog>
+            </>
+          )}
+          {booking.status === "PENDING" && (
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    className="w-full sm:col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 min-h-[44px]"
+                  >
+                    Batalkan Permintaan
+                  </Button>
+                }
+              />
               <DialogContent className="sm:max-w-md">
                 <ShadcnDialogHeader>
                   <ShadcnDialogTitle className="text-base text-primary font-bold">
-                    Batalkan Peminjaman?
+                    Batalkan Permintaan?
                   </ShadcnDialogTitle>
                   <DialogDescription className="text-sm">
-                    Tindakan ini tidak dapat dikembalikan. Peminjaman Anda untuk{" "}
+                    Tindakan ini tidak dapat dikembalikan. Permintaan peminjaman
+                    Anda untuk{" "}
                     <span className="font-semibold">{room.name}</span> akan
-                    dibatalkan secara permanen.
+                    dibatalkan.
                   </DialogDescription>
                 </ShadcnDialogHeader>
                 <ShadcnDialogFooter className="mt-4 gap-2">
@@ -208,58 +267,7 @@ export function ReservationCard({
                 </ShadcnDialogFooter>
               </DialogContent>
             </Dialog>
-          </>
-        )}
-        {booking.status === "PENDING" && (
-          <Dialog>
-            <DialogTrigger
-              render={
-                <Button
-                  variant="outline"
-                  className="w-full sm:col-span-2 font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 min-h-[44px]"
-                >
-                  Batalkan Permintaan
-                </Button>
-              }
-            />
-            <DialogContent className="sm:max-w-md">
-              <ShadcnDialogHeader>
-                <ShadcnDialogTitle className="text-base text-primary font-bold">
-                  Batalkan Permintaan?
-                </ShadcnDialogTitle>
-                <DialogDescription className="text-sm">
-                  Tindakan ini tidak dapat dikembalikan. Permintaan peminjaman
-                  Anda untuk <span className="font-semibold">{room.name}</span>{" "}
-                  akan dibatalkan.
-                </DialogDescription>
-              </ShadcnDialogHeader>
-              <ShadcnDialogFooter className="mt-4 gap-2">
-                <DialogClose
-                  render={
-                    <Button
-                      variant="outline"
-                      className="flex-1 sm:flex-none font-medium"
-                    >
-                      Kembali
-                    </Button>
-                  }
-                />
-                <DialogClose
-                  render={
-                    <Button
-                      variant="destructive"
-                      className="flex-1 sm:flex-none font-bold shadow-sm"
-                      onClick={handleCancel}
-                      disabled={isCancelling}
-                    >
-                      {isCancelling ? "Membatalkan..." : "Ya, Batalkan"}
-                    </Button>
-                  }
-                />
-              </ShadcnDialogFooter>
-            </DialogContent>
-          </Dialog>
-        )}
+          )}
         </CardFooter>
       )}
     </Card>

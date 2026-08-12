@@ -76,8 +76,8 @@ export function RoomForm({ room }: RoomFormProps) {
         await syncPrice(room!.id, price);
         toast.add({
           type: "success",
-          title: "Ruangan Diperbarui",
-          description: `Ruangan ${payload.name} berhasil diperbarui.`,
+          title: "Perubahan Disimpan",
+          description: `Data ruang "${payload.name}" telah berhasil diperbarui ke dalam sistem.`,
         });
       } else {
         const created = await createRoom(payload);
@@ -86,8 +86,8 @@ export function RoomForm({ room }: RoomFormProps) {
         }
         toast.add({
           type: "success",
-          title: "Ruangan Dibuat",
-          description: `Ruangan ${payload.name} berhasil ditambahkan.`,
+          title: "Ruangan Berhasil Ditambahkan",
+          description: `Ruang "${payload.name}" kini sudah aktif dan tersedia untuk dipesan.`,
         });
       }
 
@@ -95,10 +95,12 @@ export function RoomForm({ room }: RoomFormProps) {
     } catch (error) {
       toast.add({
         type: "error",
-        title: isEdit ? "Gagal Memperbarui Ruangan" : "Gagal Membuat Ruangan",
+        title: isEdit ? "Gagal Memperbarui Data" : "Gagal Menambahkan Ruangan",
         description: errorMessage(
           error,
-          "Terjadi kesalahan sistem. Silakan coba lagi.",
+          isEdit
+            ? "Terjadi kesalahan saat menyimpan perubahan. Silakan coba beberapa saat lagi."
+            : "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda."
         ),
       });
     } finally {

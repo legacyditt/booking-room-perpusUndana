@@ -70,8 +70,8 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
       setRooms((prev) => prev.filter((r) => r.id !== roomToDelete.id));
       toast.add({
         type: "success",
-        title: "Ruangan Dihapus",
-        description: `Ruangan ${roomToDelete.name} berhasil dihapus.`,
+        title: "Ruangan Berhasil Dihapus",
+        description: `Ruang "${roomToDelete.name}" beserta seluruh datanya telah dihapus secara permanen.`,
       });
       setRoomToDelete(null);
     } catch (error) {
@@ -80,7 +80,7 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
           ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
       toast.add({
         type: "error",
-        title: "Gagal Menghapus Ruangan",
+        title: "Tidak Dapat Menghapus Ruangan",
         description: message,
       });
     } finally {

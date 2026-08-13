@@ -1,12 +1,19 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { getRoomImageUrl } from "../lib/storage";
 
 export const getAllRooms = async (req: Request, res: Response) => {
   try {
     const rooms = await prisma.room.findMany({
       include: { bookingPrice: true },
     });
-    return res.status(200).json({ data: rooms });
+    const data = await Promise.all(
+      rooms.map(async (room) => ({
+        ...room,
+        imageUrlDisplay: await getRoomImageUrl(room.imageUrl),
+      })),
+    );
+    return res.status(200).json({ data });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }
@@ -65,7 +72,9 @@ export const getRoomById = async (req: Request, res: Response) => {
       include: { bookingPrice: true },
     });
     if (!room) return res.status(404).json({ message: "Room not found" });
-    return res.status(200).json({ data: room });
+    return res
+      .status(200)
+      .json({ data: { ...room, imageUrlDisplay: await getRoomImageUrl(room.imageUrl) } });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });
   }

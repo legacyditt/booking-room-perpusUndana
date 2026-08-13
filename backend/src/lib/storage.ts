@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import path from "path";
-import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const endpoint = process.env.S3_ENDPOINT;
@@ -49,4 +49,10 @@ export async function getRoomImageUrl(imageUrl: string): Promise<string> {
     new GetObjectCommand({ Bucket: bucket, Key: imageUrl }),
     { expiresIn: PRESIGN_EXPIRES_IN },
   );
+}
+
+export async function deleteRoomImage(imageUrl: string): Promise<void> {
+  if (!imageUrl || imageUrl.startsWith("http")) return;
+
+  await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: imageUrl }));
 }

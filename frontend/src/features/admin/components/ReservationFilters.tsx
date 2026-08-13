@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass, DownloadSimple, DownloadSimpleIcon } from "@phosphor-icons/react";
+import { MagnifyingGlass, DownloadSimple } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -121,7 +121,7 @@ export function ReservationFilters({
 
         {/* Tombol Export Filter */}
         <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
-          <DownloadSimpleIcon className="w-4 h-4" />
+          <DownloadSimple className="w-4 h-4" />
           Ekspor
         </Button>
       </div>

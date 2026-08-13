@@ -10,6 +10,7 @@ interface SessionFormValues {
   name: string;
   startTime: string;
   finishTime: string;
+  isSewaOnly?: boolean;
 }
 
 interface SessionFormProps {
@@ -30,12 +31,16 @@ export function SessionForm({ session }: SessionFormProps) {
       name: "",
       startTime: "",
       finishTime: "",
+      isSewaOnly: false,
     }
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -47,6 +52,7 @@ export function SessionForm({ session }: SessionFormProps) {
         name: formData.name,
         startTime: formData.startTime,
         finishTime: formData.finishTime,
+        isSewaOnly: formData.isSewaOnly,
       };
 
       if (isEdit) {
@@ -133,6 +139,21 @@ export function SessionForm({ session }: SessionFormProps) {
             onChange={handleChange}
             className="w-full border border-neutral-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           />
+        </div>
+
+        {/* Checkbox Khusus Sewa */}
+        <div className="flex items-center gap-3 mt-2">
+          <input
+            id="isSewaOnly"
+            name="isSewaOnly"
+            type="checkbox"
+            checked={formData.isSewaOnly || false}
+            onChange={handleChange}
+            className="w-4 h-4 text-primary bg-neutral-100 border-neutral-300 rounded focus:ring-primary focus:ring-2 cursor-pointer"
+          />
+          <label htmlFor="isSewaOnly" className="text-sm font-medium text-neutral-700 cursor-pointer select-none">
+            Khusus Sewa Ruangan <span className="text-neutral-500 font-normal text-xs ml-1">(Hanya tampil pada ruangan tipe sewa)</span>
+          </label>
         </div>
 
       </div>

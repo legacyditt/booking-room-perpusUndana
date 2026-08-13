@@ -8,6 +8,7 @@ export interface Session {
   name: string;
   startTime: string;
   finishTime: string;
+  isSewaOnly?: boolean;
   createdBy?: { name: string };
   updatedBy?: { name: string };
 }

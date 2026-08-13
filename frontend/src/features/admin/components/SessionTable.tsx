@@ -53,6 +53,9 @@ export function SessionTable({ sessions, onDelete }: SessionTableProps) {
               DURASI
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+              BERLAKU UNTUK
+            </TableHead>
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               DIBUAT OLEH
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
@@ -95,6 +98,19 @@ export function SessionTable({ sessions, onDelete }: SessionTableProps) {
                 >
                   {formatDuration(session.startTime, session.finishTime)}
                 </Badge>
+              </TableCell>
+
+              {/* Kolom Berlaku Untuk */}
+              <TableCell className="px-5 py-4 text-center">
+                {session.isSewaOnly ? (
+                  <Badge className="bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100 justify-center">
+                    Khusus Sewa
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="justify-center">
+                    Reguler & Sewa
+                  </Badge>
+                )}
               </TableCell>
 
               {/* Kolom Dibuat Oleh */}

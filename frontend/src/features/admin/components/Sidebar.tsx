@@ -64,7 +64,7 @@ export function Sidebar() {
       <SidebarHeader className="p-6">
         <div className="flex items-center gap-3.5">
           <Image
-            src="/images/logo-undana.png"
+            src="/images/undana.png"
             alt="Logo Undana"
             width={42}
             height={42}

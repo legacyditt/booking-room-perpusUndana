@@ -120,7 +120,7 @@ export function ReservationFilters({
         </div>
 
         {/* Tombol Export Filter */}
-        <Button variant="outline" className="w-full xl:w-auto flex gap-2">
+        <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
           <DownloadSimple className="w-4 h-4" />
           Ekspor
         </Button>

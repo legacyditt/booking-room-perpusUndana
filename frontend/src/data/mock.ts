@@ -16,15 +16,15 @@ export const mockAdminStats: AdminStat[] = [
     subtext: "Perlu perhatian",
   },
   {
-    id: "active-users",
-    label: "Pengguna Aktif",
-    value: 12,
-    subtext: "Sedang menggunakan ruangan",
+    id: "approved-this-month",
+    label: "Booking Disetujui Bulan Ini",
+    value: 42,
+    subtext: "Agustus 2026",
   },
   {
-    id: "room-occupancy",
-    label: "Tingkat Okupansi Ruangan",
-    value: "75%",
-    progress: 75,
+    id: "total-rooms",
+    label: "Total Ruangan Tersedia",
+    value: 4,
+    subtext: "Siap untuk dipesan",
   },
 ];

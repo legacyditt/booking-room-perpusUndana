@@ -12,6 +12,7 @@ import {
   Clock,
   Users,
   SignOut,
+  Shield,
 } from "@phosphor-icons/react/dist/ssr";
 
 import {
@@ -36,6 +37,7 @@ const navItems = [
   { name: "Kelola Ruangan", href: "/admin/rooms", icon: Door },
   { name: "Kelola Sesi", href: "/admin/sessions", icon: Clock },
   { name: "Kelola Pengguna", href: "/admin/users", icon: Users },
+  { name: "Kelola Admin", href: "/admin/admins", icon: Shield },
 ];
 
 export function Sidebar() {

@@ -1,4 +1,4 @@
-import { PencilSimple } from "@phosphor-icons/react/dist/ssr";
+import { PencilSimple, Trash } from "@phosphor-icons/react/dist/ssr";
 import { AdminUser } from "@/types/admin";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -32,10 +32,19 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
 
 interface UserTableProps {
   users: AdminUser[];
-  onEdit: (user: AdminUser) => void;
+  onEdit?: (user: AdminUser) => void;
+  onDelete?: (user: AdminUser) => void;
+  hideCategoryColumn?: boolean;
+  actionType?: "edit" | "delete";
 }
 
-export function UserTable({ users, onEdit }: UserTableProps) {
+export function UserTable({
+  users,
+  onEdit,
+  onDelete,
+  hideCategoryColumn = false,
+  actionType = "edit",
+}: UserTableProps) {
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -50,9 +59,11 @@ export function UserTable({ users, onEdit }: UserTableProps) {
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               TANGGAL BERGABUNG
             </TableHead>
-            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
-              KATEGORI
-            </TableHead>
+            {!hideCategoryColumn && (
+              <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+                KATEGORI
+              </TableHead>
+            )}
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               AKSI
             </TableHead>
@@ -93,27 +104,41 @@ export function UserTable({ users, onEdit }: UserTableProps) {
                 </TableCell>
 
                 {/* Kolom Kategori */}
-                <TableCell className="px-5 py-4 text-center">
-                  <Badge
-                    variant={category.variant}
-                    className="min-w-[100px] justify-center"
-                  >
-                    {category.label}
-                  </Badge>
-                </TableCell>
+                {!hideCategoryColumn && (
+                  <TableCell className="px-5 py-4 text-center">
+                    <Badge
+                      variant={category.variant}
+                      className="min-w-[100px] justify-center"
+                    >
+                      {category.label}
+                    </Badge>
+                  </TableCell>
+                )}
 
-                {/* Kolom Aksi (Ubah Peran) */}
+                {/* Kolom Aksi */}
                 <TableCell className="px-5 py-4">
                   <div className="flex items-center justify-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-neutral-400 hover:text-primary w-8 h-8"
-                      title="Ubah Peran Pengguna"
-                      onClick={() => onEdit(user)}
-                    >
-                      <PencilSimple weight="bold" size={18} />
-                    </Button>
+                    {actionType === "edit" ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-neutral-400 hover:text-primary w-8 h-8"
+                        title="Ubah Peran Pengguna"
+                        onClick={() => onEdit?.(user)}
+                      >
+                        <PencilSimple weight="bold" size={18} />
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 w-8 h-8"
+                        title="Hapus Admin"
+                        onClick={() => onDelete?.(user)}
+                      >
+                        <Trash weight="bold" size={18} />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

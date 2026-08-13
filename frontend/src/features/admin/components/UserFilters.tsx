@@ -1,8 +1,9 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { MagnifyingGlass, Plus } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -18,6 +19,10 @@ interface UserFiltersProps {
   onRoleChange: (value: string) => void;
   category: string;
   onCategoryChange: (value: string) => void;
+  hideRoleFilter?: boolean;
+  hideCategoryFilter?: boolean;
+  showAddAdminButton?: boolean;
+  onAddAdmin?: () => void;
 }
 
 export function UserFilters({
@@ -27,6 +32,10 @@ export function UserFilters({
   onRoleChange,
   category,
   onCategoryChange,
+  hideRoleFilter = false,
+  hideCategoryFilter = false,
+  showAddAdminButton = false,
+  onAddAdmin,
 }: UserFiltersProps) {
   return (
     <div className="p-5 border-b border-[#E2E8F0] bg-white flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -46,51 +55,64 @@ export function UserFilters({
 
       {/* ── Kanan: Filter Dropdowns & Sort ── */}
       <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-        <div className="flex items-center gap-2">
-          <Select
-            value={role}
-            onValueChange={(value) => value && onRoleChange(value)}
+        {showAddAdminButton && (
+          <Button 
+            onClick={onAddAdmin} 
+            className="h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-medium flex items-center gap-2"
           >
-            <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue>
-                {({
-                  Semua: "Semua Peran",
-                  admin: "Admin",
-                  user: "Pengguna"
-                }[role] ?? "Pilih Peran")}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Semua">Semua Peran</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="user">Pengguna</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <Plus weight="bold" size={16} />
+            Tambah Admin
+          </Button>
+        )}
+        {!hideRoleFilter && (
+          <div className="flex items-center gap-2">
+            <Select
+              value={role}
+              onValueChange={(value) => value && onRoleChange(value)}
+            >
+              <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
+                <SelectValue>
+                  {({
+                    Semua: "Semua Peran",
+                    admin: "Admin",
+                    user: "Pengguna"
+                  }[role] ?? "Pilih Peran")}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Semua">Semua Peran</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="user">Pengguna</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-        <div className="flex items-center gap-2">
-          <Select
-            value={category}
-            onValueChange={(value) => value && onCategoryChange(value)}
-          >
-            <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue>
-                {({
-                  Semua: "Semua Kategori",
-                  mahasiswa: "Mahasiswa",
-                  dosen: "Dosen",
-                  umum: "Umum"
-                }[category] ?? "Pilih Kategori")}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Semua">Semua Kategori</SelectItem>
-              <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
-              <SelectItem value="dosen">Dosen</SelectItem>
-              <SelectItem value="umum">Umum</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {!hideCategoryFilter && (
+          <div className="flex items-center gap-2">
+            <Select
+              value={category}
+              onValueChange={(value) => value && onCategoryChange(value)}
+            >
+              <SelectTrigger className="w-[160px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
+                <SelectValue>
+                  {({
+                    Semua: "Semua Kategori",
+                    mahasiswa: "Mahasiswa",
+                    dosen: "Dosen",
+                    umum: "Umum"
+                  }[category] ?? "Pilih Kategori")}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Semua">Semua Kategori</SelectItem>
+                <SelectItem value="mahasiswa">Mahasiswa</SelectItem>
+                <SelectItem value="dosen">Dosen</SelectItem>
+                <SelectItem value="umum">Umum</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
     </div>
   );

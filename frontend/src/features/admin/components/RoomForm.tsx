@@ -58,6 +58,16 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "");
+    setFormData((prev) => ({ ...prev, price: rawValue }));
+  };
+
+  const formatRupiah = (value: string) => {
+    if (!value) return "";
+    return "Rp " + value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   const syncPrice = async (roomId: number, price: number) => {
     if (!isEdit) return;
 
@@ -179,11 +189,10 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
           <input
             id="price"
             name="price"
-            type="number"
-            min="0"
-            value={formData.price}
-            onChange={handleChange}
-            placeholder="Contoh: 50000"
+            type="text"
+            value={formatRupiah(formData.price)}
+            onChange={handlePriceChange}
+            placeholder="Rp 50.000"
             className="w-full border border-neutral-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           />
           <p className="text-xs text-neutral-500">

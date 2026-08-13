@@ -37,7 +37,9 @@ export function ForgotPasswordForm({
       await requestPasswordReset(email);
       setIsSuccess(true);
     } catch (err) {
-      setError(errorMessage(err, "Gagal mengirim tautan reset. Coba lagi nanti."));
+      setError(
+        errorMessage(err, "Gagal mengirim tautan reset. Coba lagi nanti."),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -47,13 +49,13 @@ export function ForgotPasswordForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="border-none shadow-none bg-transparent">
         <CardHeader className="text-center pb-8 flex flex-col items-center">
-          <div className="mb-6 flex justify-center">
-            <div className="flex h-20 w-20 items-center justify-center border border-black/5 bg-gradient-to-br from-white to-zinc-100 shadow-sm">
+          <div className="m-6 flex justify-center">
+            <div className="flex h-20 w-20 items-center justify-center">
               <Image
                 src="/images/logo-undana.png"
                 alt="Logo Undana"
-                width={52}
-                height={52}
+                width={150}
+                height={150}
                 priority
                 className="object-contain"
               />

@@ -28,10 +28,6 @@ export default async function AdminReservationsPage() {
             Tinjau dan kelola jadwal pemesanan ruangan perpustakaan.
           </p>
         </div>
-        <Button className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-2">
-          <DownloadIcon className="w-4 h-4" />
-          Ekspor Laporan
-        </Button>
       </div>
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}

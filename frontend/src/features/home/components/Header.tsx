@@ -105,15 +105,6 @@ export function Header() {
 
         {/* Actions - Desktop Search/Login & Mobile Menu Trigger */}
         <div className="flex items-center gap-2 sm:gap-4">
-          <div className="relative hidden sm:block">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral" />
-            <Input
-              type="search"
-              placeholder="Cari..."
-              className="w-56 pl-9 bg-white border-border focus-visible:ring-primary shadow-sm"
-            />
-          </div>
-
           {isPending ? (
             <Button
               disabled
@@ -124,9 +115,9 @@ export function Header() {
             </Button>
           ) : session ? (
             <DropdownMenu>
-              <DropdownMenuTrigger className="hidden sm:inline-flex items-center justify-center gap-2 text-neutral hover:text-primary transition-colors hover:bg-muted/50 px-3 rounded-md h-10 focus:outline-none">
-                <UserCircle className="h-6 w-6 text-primary" weight="fill" />
-                <span className="font-medium text-sm max-w-[120px] truncate">
+              <DropdownMenuTrigger className="hidden sm:inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 h-9 transition-all duration-200 shadow-sm focus:outline-none">
+                <UserCircle className="h-5 w-5" weight="fill" />
+                <span className="font-semibold text-sm max-w-[120px] truncate">
                   {session.user.name?.split(" ")[0] ?? "User"}
                 </span>
               </DropdownMenuTrigger>

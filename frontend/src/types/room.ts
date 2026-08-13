@@ -13,5 +13,6 @@ export interface Room {
   name: string;
   capacity: number;
   imageUrl: string;
+  imageUrlDisplay?: string;
   bookingPrice?: BookingPrice | null;
 }

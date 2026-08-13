@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ImageSquare, UploadSimple } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { createRoom, updateRoom } from "@/lib/api/rooms";
+import { createRoom, updateRoom, uploadRoomImage } from "@/lib/api";
 import {
   createBookingPrice,
   updateBookingPrice,
@@ -20,16 +21,21 @@ interface RoomFormValues {
 
 interface RoomFormProps {
   room?: RoomFormValues & { id: number; hasBookingPrice: boolean };
+  imageUrlDisplay?: string;
 }
 
 const errorMessage = (error: unknown, fallback: string) =>
   (error as { response?: { data?: { message?: string } } })?.response?.data
     ?.message ?? fallback;
 
-export function RoomForm({ room }: RoomFormProps) {
+export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
   const router = useRouter();
   const isEdit = Boolean(room);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>(
+    imageUrlDisplay ?? room?.imageUrl ?? ""
+  );
 
   const [formData, setFormData] = useState<RoomFormValues>(
     room ?? {
@@ -43,6 +49,13 @@ export function RoomForm({ room }: RoomFormProps) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
   };
 
   const syncPrice = async (roomId: number, price: number) => {
@@ -64,10 +77,16 @@ export function RoomForm({ room }: RoomFormProps) {
     setIsSubmitting(true);
 
     try {
+      let imageUrl = formData.imageUrl;
+      if (imageFile) {
+        const { key } = await uploadRoomImage(imageFile);
+        imageUrl = key;
+      }
+
       const payload = {
         name: formData.name,
         capacity: Number(formData.capacity),
-        imageUrl: formData.imageUrl,
+        imageUrl,
       };
       const price = Number(formData.price) || 0;
 
@@ -167,20 +186,60 @@ export function RoomForm({ room }: RoomFormProps) {
           </p>
         </div>
 
-        {/* URL Gambar */}
+        {/* Gambar Ruangan */}
         <div className="space-y-2">
-          <label htmlFor="imageUrl" className="text-sm font-semibold text-primary">
-            URL Gambar Ruangan
+          <label htmlFor="image" className="text-sm font-semibold text-primary">
+            Gambar Ruangan
           </label>
-          <input
-            id="imageUrl"
-            name="imageUrl"
-            type="url"
-            value={formData.imageUrl}
-            onChange={handleChange}
-            placeholder="Contoh: https://example.com/image.jpg"
-            className="w-full border border-neutral-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
-          />
+          <div className="flex items-start gap-4">
+            <label
+              htmlFor="image"
+              className={`relative flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed transition-colors cursor-pointer overflow-hidden ${
+                previewUrl
+                  ? "w-40 h-28"
+                  : "w-full h-32 hover:border-primary/50 hover:bg-primary/5"
+              } border-neutral-300 bg-neutral-50`}
+            >
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt="Pratinjau gambar ruangan"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-neutral-500">
+                  <UploadSimple className="w-8 h-8" weight="duotone" />
+                  <span className="text-sm">Pilih file gambar</span>
+                  <span className="text-xs">JPG, PNG maks. 5MB</span>
+                </div>
+              )}
+            </label>
+            <div className="flex flex-col gap-2">
+              <input
+                id="image"
+                name="image"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById("image")?.click()}
+                disabled={isSubmitting}
+                className="font-semibold text-neutral-600 min-h-[44px]"
+              >
+                {previewUrl ? "Ganti Gambar" : "Pilih Gambar"}
+              </Button>
+              {previewUrl && (
+                <p className="text-xs text-neutral-500 flex items-center gap-1.5">
+                  <ImageSquare className="w-4 h-4" />
+                  {imageFile ? imageFile.name : "Gambar tersimpan"}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
 
       </div>

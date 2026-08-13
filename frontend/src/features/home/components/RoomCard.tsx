@@ -16,7 +16,7 @@ export function RoomCard({ room, mode }: RoomCardProps) {
     <Card className="pt-0 overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
       <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
         <img
-          src={room.imageUrl}
+          src={room.imageUrlDisplay ?? room.imageUrl}
           alt={room.name}
           className="h-full w-full object-cover"
           onError={(e) => {

@@ -57,9 +57,9 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
       <div className="container mx-auto max-w-7xl flex h-16 sm:h-20 items-center justify-between px-4 md:px-8">
         {/* Brand Logo & Name */}
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href="/" className="flex items-center shrink-0 gap-2 sm:gap-0">
           {/* Logo Undana */}
-          <div className="flex  relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
+          <div className="flex relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
             <Image
               src="/images/undana.png"
               alt="Logo Universitas Nusa Cendana"

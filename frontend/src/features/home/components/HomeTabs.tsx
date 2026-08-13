@@ -27,9 +27,19 @@ export function HomeTabs({ regulerCount, sewaCount, children }: HomeTabsProps) {
         </h1>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full lg:w-auto mt-2 lg:mt-0">
-          <TabsList className="grid w-full sm:w-auto grid-cols-2 sm:flex h-11 p-1">
-            <TabsTrigger value="reguler">Reguler</TabsTrigger>
-            <TabsTrigger value="sewa">Sewa</TabsTrigger>
+          <TabsList className="grid w-full sm:w-[250px] grid-cols-2 h-12 p-0 bg-neutral-100 border border-neutral-200 shadow-inner overflow-hidden">
+            <TabsTrigger 
+              value="reguler" 
+              className="h-full w-full flex items-center justify-center text-sm sm:text-base font-bold transition-all data-active:bg-primary data-active:text-primary-foreground data-active:hover:text-primary-foreground data-active:shadow-md text-neutral-500 hover:text-neutral-700"
+            >
+              Reguler
+            </TabsTrigger>
+            <TabsTrigger 
+              value="sewa" 
+              className="h-full w-full flex items-center justify-center text-sm sm:text-base font-bold transition-all data-active:bg-primary data-active:text-primary-foreground data-active:hover:text-primary-foreground data-active:shadow-md text-neutral-500 hover:text-neutral-700"
+            >
+              Sewa
+            </TabsTrigger>
           </TabsList>
 
           <div className="hidden sm:block w-px h-6 bg-neutral/20" />

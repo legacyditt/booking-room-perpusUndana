@@ -10,14 +10,14 @@ interface AuthLogoProps {
 
 export function AuthLogo({ size = 100 }: AuthLogoProps) {
   return (
-    <div className="flex gap-8 items-center justify-center">
+    <div className="flex gap-6 sm:gap-8 items-center justify-center">
       <Image
         src="/images/undana.png"
         alt="Logo Undana"
         width={size}
         height={size}
         priority
-        className="object-contain"
+        className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
       />
       <Image
         src="/images/logo-kkn.png"
@@ -25,7 +25,7 @@ export function AuthLogo({ size = 100 }: AuthLogoProps) {
         width={size}
         height={size}
         priority
-        className="object-contain"
+        className="w-20 h-20 sm:w-24 sm:h-24 object-contain"
       />
     </div>
   );

@@ -53,6 +53,12 @@ export function SessionTable({ sessions, onDelete }: SessionTableProps) {
               DURASI
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+              DIBUAT OLEH
+            </TableHead>
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+              DIEDIT OLEH
+            </TableHead>
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               AKSI
             </TableHead>
           </TableRow>
@@ -89,6 +95,16 @@ export function SessionTable({ sessions, onDelete }: SessionTableProps) {
                 >
                   {formatDuration(session.startTime, session.finishTime)}
                 </Badge>
+              </TableCell>
+
+              {/* Kolom Dibuat Oleh */}
+              <TableCell className="px-5 py-4 text-neutral-600 text-center">
+                {session.createdBy?.name || "-"}
+              </TableCell>
+
+              {/* Kolom Diedit Oleh */}
+              <TableCell className="px-5 py-4 text-neutral-600 text-center">
+                {session.updatedBy?.name || "-"}
               </TableCell>
 
               {/* Kolom Aksi: Edit + Hapus */}

@@ -44,6 +44,12 @@ export function RoomTable({ rooms, onDelete }: RoomTableProps) {
               HARGA / SESI
             </TableHead>
             <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+              DIBUAT OLEH
+            </TableHead>
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+              DIEDIT OLEH
+            </TableHead>
+            <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
               AKSI
             </TableHead>
           </TableRow>
@@ -93,6 +99,16 @@ export function RoomTable({ rooms, onDelete }: RoomTableProps) {
                 {/* Kolom Harga */}
                 <TableCell className="px-5 py-4 text-neutral-600 text-center">
                   {price}
+                </TableCell>
+
+                {/* Kolom Dibuat Oleh */}
+                <TableCell className="px-5 py-4 text-neutral-600 text-center">
+                  {room.createdBy?.name || "-"}
+                </TableCell>
+
+                {/* Kolom Diedit Oleh */}
+                <TableCell className="px-5 py-4 text-neutral-600 text-center">
+                  {room.updatedBy?.name || "-"}
                 </TableCell>
 
                 {/* Kolom Aksi (Edit & Hapus) */}

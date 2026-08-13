@@ -15,4 +15,6 @@ export interface Room {
   imageUrl: string;
   imageUrlDisplay?: string;
   bookingPrice?: BookingPrice | null;
+  createdBy?: { name: string };
+  updatedBy?: { name: string };
 }

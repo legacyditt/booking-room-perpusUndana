@@ -8,6 +8,8 @@ export interface Session {
   name: string;
   startTime: string;
   finishTime: string;
+  createdBy?: { name: string };
+  updatedBy?: { name: string };
 }
 
 export interface Booking {

@@ -22,4 +22,5 @@ export interface Booking {
   room: Room;
   session: Session;
   user?: { name: string };
+  admin?: { name: string };
 }

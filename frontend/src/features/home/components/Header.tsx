@@ -12,11 +12,12 @@ import {
   SignOut,
 } from "@phosphor-icons/react/dist/ssr";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession, signOut } from "@/lib/api/auth-client";
@@ -115,29 +116,35 @@ export function Header() {
               Loading...
             </Button>
           ) : session ? (
-            <div className="hidden sm:flex items-center gap-4">
-              <div className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 h-9 shadow-sm">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="hidden sm:inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-4 h-9 transition-all duration-200 shadow-sm focus:outline-none">
                 <UserCircle className="h-5 w-5" weight="fill" />
                 <span className="font-semibold text-sm max-w-[120px] truncate">
                   {session.user.name?.split(" ")[0] ?? "User"}
                 </span>
-              </div>
-              <div className="w-px h-6 bg-neutral/20" />
-              <TooltipProvider delay={100}>
-                <Tooltip>
-                  <TooltipTrigger
-                    onClick={handleLogout}
-                    className="inline-flex items-center justify-center w-9 h-9 bg-red-50 hover:bg-red-100 text-red-600 shadow-sm transition-colors"
-                    aria-label="Logout"
-                  >
-                    <SignOut className="h-5 w-5" weight="bold" />
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" sideOffset={4} className="font-semibold text-xs px-2 py-1">
-                    Logout
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-48 bg-white border-border shadow-md rounded-md p-1"
+              >
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-sm hover:bg-muted p-2 text-sm font-medium"
+                  onClick={() => {
+                    window.location.href = "/profile";
+                  }}
+                >
+                  Edit Profil
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-border my-1" />
+                <DropdownMenuItem
+                  className="cursor-pointer rounded-sm hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50 p-2 text-sm font-medium flex items-center justify-between"
+                  onClick={handleLogout}
+                >
+                  <span>Logout</span>
+                  <SignOut className="h-4 w-4" weight="bold" />
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <div className="w-10 h-10" />
           )}
@@ -214,7 +221,7 @@ export function Header() {
                     variant="outline"
                     className="w-full h-10 justify-center font-semibold text-sm shadow-sm border-border"
                   >
-                    Edit Profile
+                    Edit Profil
                   </Button>
                 </Link>
                 <Button

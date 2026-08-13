@@ -20,6 +20,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { AuthLogo } from "./AuthLogo";
 import {
   Select,
   SelectContent,
@@ -136,16 +137,7 @@ export function SignupForm({
       <Card className="border-none shadow-none bg-transparent">
         <CardHeader className="text-center pb-8 flex flex-col items-center">
           <div className="m-6 flex justify-center">
-            <div className="flex h-20 w-20 items-center justify-center">
-              <Image
-                src="/images/logo-undana.png"
-                alt="Logo Undana"
-                width={150}
-                height={150}
-                priority
-                className="object-contain"
-              />
-            </div>
+            <AuthLogo size={80} />
           </div>
           <CardTitle className="font-serif text-3xl font-bold tracking-tight text-primary">
             Daftar Akun

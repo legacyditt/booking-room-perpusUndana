@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { UserFilters } from "@/features/admin/components/UserFilters";
 import { UserTable } from "@/features/admin/components/UserTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
@@ -24,15 +25,27 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { Input } from "@/components/ui/input";
+
 const PAGE_SIZE = 5;
 
 const roleLabel = (role: string) => (role === "admin" ? "Admin" : "Pengguna");
 
 interface UsersManagementProps {
   users: AdminUser[];
+  hideRoleFilter?: boolean;
+  hideCategory?: boolean;
+  actionType?: "edit" | "delete";
+  showAddAdminButton?: boolean;
 }
 
-export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
+export function UsersManagement({
+  users: initialUsers,
+  hideRoleFilter = false,
+  hideCategory = false,
+  actionType = "edit",
+  showAddAdminButton = false,
+}: UsersManagementProps) {
   const [users, setUsers] = useState(initialUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("Semua");
@@ -42,6 +55,9 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [dialogRole, setDialogRole] = useState("user");
   const [isSaving, setIsSaving] = useState(false);
+
+  const [isAddingAdmin, setIsAddingAdmin] = useState(false);
+  const [adminEmails, setAdminEmails] = useState<string[]>([""]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -103,6 +119,54 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
     }
   };
 
+  const handleAddAdmin = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmails = adminEmails.filter(
+      (email) => email.trim() !== "" && emailRegex.test(email)
+    );
+    if (validEmails.length === 0) {
+      if (adminEmails.some(e => e.trim() !== "")) {
+        toast.add({
+          type: "error",
+          title: "Format Email Tidak Valid",
+          description: "Pastikan format email yang Anda masukkan benar.",
+        });
+      }
+      return;
+    }
+    setIsSaving(true);
+    // Simulasi tambah admin (karena hanya FE)
+    setTimeout(() => {
+      const newAdmins: AdminUser[] = validEmails.map((email) => ({
+        id: Math.random().toString(),
+        name: "Admin Baru",
+        email: email.trim(),
+        role: "admin",
+        status: "umum", // Status dummy untuk type safety
+        createdAt: new Date().toISOString(),
+      }));
+      setUsers((prev) => [...newAdmins, ...prev]);
+      setIsSaving(false);
+      setIsAddingAdmin(false);
+      setAdminEmails([""]);
+      toast.add({
+        type: "success",
+        title: `${newAdmins.length} Admin Berhasil Ditambahkan`,
+        description: `Admin baru telah ditambahkan dengan password default (admin123).`,
+      });
+    }, 500);
+  };
+
+  const handleDeleteAdmin = (user: AdminUser) => {
+    // Simulasi hapus admin (karena hanya FE)
+    setUsers((prev) => prev.filter((u) => u.id !== user.id));
+    toast.add({
+      type: "success",
+      title: "Admin Dihapus",
+      description: `Admin "${user.name}" telah dihapus.`,
+    });
+  };
+
   return (
     <>
       <UserFilters
@@ -112,11 +176,21 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
         onRoleChange={setRoleFilter}
         category={categoryFilter}
         onCategoryChange={setCategoryFilter}
+        hideRoleFilter={hideRoleFilter}
+        hideCategoryFilter={hideCategory}
+        showAddAdminButton={showAddAdminButton}
+        onAddAdmin={() => setIsAddingAdmin(true)}
       />
 
       {/* Area Tabel Data */}
       <div className="flex-1 min-h-[400px]">
-        <UserTable users={pagedUsers} onEdit={openEditDialog} />
+        <UserTable
+          users={pagedUsers}
+          onEdit={openEditDialog}
+          onDelete={handleDeleteAdmin}
+          hideCategoryColumn={hideCategory}
+          actionType={actionType}
+        />
       </div>
 
       {/* Area Pagination */}
@@ -176,6 +250,83 @@ export function UsersManagement({ users: initialUsers }: UsersManagementProps) {
               disabled={isSaving || dialogRole === editingUser?.role}
             >
               {isSaving ? "Menyimpan..." : "Simpan"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Tambah Admin */}
+      <Dialog open={isAddingAdmin} onOpenChange={setIsAddingAdmin}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Tambah Admin Baru</DialogTitle>
+            <DialogDescription>
+              Masukkan email untuk menambahkan admin baru. Password default adalah <strong>admin123</strong>. Admin dapat mengganti password setelah login.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-neutral-700">Email Admin</label>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setAdminEmails([...adminEmails, ""])}
+                  className="h-7 text-xs flex items-center gap-1"
+                >
+                  <Plus size={14} weight="bold" />
+                  Tambah
+                </Button>
+              </div>
+              
+              <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+                {adminEmails.map((email, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <Input
+                      type="email"
+                      placeholder="contoh@undana.ac.id"
+                      value={email}
+                      onChange={(e) => {
+                        const newEmails = [...adminEmails];
+                        newEmails[index] = e.target.value;
+                        setAdminEmails(newEmails);
+                      }}
+                    />
+                    {adminEmails.length > 1 && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          const newEmails = [...adminEmails];
+                          newEmails.splice(index, 1);
+                          setAdminEmails(newEmails);
+                        }}
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 shrink-0"
+                      >
+                        <Trash size={18} weight="bold" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsAddingAdmin(false)}
+              disabled={isSaving}
+            >
+              Batal
+            </Button>
+            <Button
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleAddAdmin}
+              disabled={isSaving || adminEmails.every(e => e.trim() === "")}
+            >
+              {isSaving ? "Menambahkan..." : "Tambah Admin"}
             </Button>
           </DialogFooter>
         </DialogContent>

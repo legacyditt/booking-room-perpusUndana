@@ -54,6 +54,8 @@ export function SignupForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [idNumber, setIdNumber] = useState("");
+  const [institution, setInstitution] = useState("");
+  const [studyProgram, setStudyProgram] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -224,6 +226,42 @@ export function SignupForm({
                     required
                     value={idNumber}
                     onChange={(e) => setIdNumber(e.target.value)}
+                    className="bg-white/60 focus:bg-white transition-colors"
+                  />
+                </Field>
+              )}
+
+              {/* Instansi (Khusus Umum) */}
+              {status === "umum" && (
+                <Field>
+                  <FieldLabel htmlFor="institution" className="font-medium">
+                    Instansi
+                  </FieldLabel>
+                  <Input
+                    id="institution"
+                    type="text"
+                    placeholder="Nama Instansi, Sekolah, atau Pekerjaan"
+                    required
+                    value={institution}
+                    onChange={(e) => setInstitution(e.target.value)}
+                    className="bg-white/60 focus:bg-white transition-colors"
+                  />
+                </Field>
+              )}
+
+              {/* Program Studi (Khusus Mahasiswa & Dosen) */}
+              {(status === "mahasiswa" || status === "dosen") && (
+                <Field>
+                  <FieldLabel htmlFor="studyProgram" className="font-medium">
+                    Program Studi
+                  </FieldLabel>
+                  <Input
+                    id="studyProgram"
+                    type="text"
+                    placeholder="Contoh: Ilmu Komputer"
+                    required
+                    value={studyProgram}
+                    onChange={(e) => setStudyProgram(e.target.value)}
                     className="bg-white/60 focus:bg-white transition-colors"
                   />
                 </Field>

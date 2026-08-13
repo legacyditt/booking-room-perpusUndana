@@ -8,6 +8,9 @@ export interface Session {
   name: string;
   startTime: string;
   finishTime: string;
+  isSewaOnly?: boolean;
+  createdBy?: { name: string };
+  updatedBy?: { name: string };
 }
 
 export interface Booking {
@@ -22,4 +25,5 @@ export interface Booking {
   room: Room;
   session: Session;
   user?: { name: string };
+  admin?: { name: string };
 }

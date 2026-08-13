@@ -19,6 +19,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -50,11 +57,17 @@ export function BookingDetailsForm({
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
-   // State for availability map
-  const [availabilityMap, setAvailabilityMap] = useState<Record<string, { remainingCapacity: number; capacity: number; booked: number }>>({});
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+
+  // State for availability map
+  const [availabilityMap, setAvailabilityMap] = useState<
+    Record<
+      string,
+      { remainingCapacity: number; capacity: number; booked: number }
+    >
+  >({});
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
-  
+
   const router = useRouter();
 
   const rupiahFormatter = new Intl.NumberFormat("id-ID", {
@@ -69,11 +82,13 @@ export function BookingDetailsForm({
   const isSewa = mode === "sewa";
 
   // Hitung ketersediaan sesi saat ini
-  const currentAvailability = selectedSession ? availabilityMap[selectedSession] : null;
-  const isUnavailable = selectedSession 
-    ? (isSewa
-        ? (currentAvailability?.booked ?? 0) > 0
-        : currentAvailability?.remainingCapacity === 0)
+  const currentAvailability = selectedSession
+    ? availabilityMap[selectedSession]
+    : null;
+  const isUnavailable = selectedSession
+    ? isSewa
+      ? (currentAvailability?.booked ?? 0) > 0
+      : currentAvailability?.remainingCapacity === 0
     : false;
 
   // Efek 1: Fetch 1x hit API daily-availability ke backend saat tanggal dipilih
@@ -85,8 +100,10 @@ export function BookingDetailsForm({
       }
       setIsCheckingAvailability(true);
       try {
-        const dateString = format(date, 'yyyy-MM-dd');
-        const response = await client.get(`/rooms/${room.id}/daily-availability?date=${dateString}`);
+        const dateString = format(date, "yyyy-MM-dd");
+        const response = await client.get(
+          `/rooms/${room.id}/daily-availability?date=${dateString}`,
+        );
         if (response.data && response.data.data) {
           setAvailabilityMap(response.data.data);
         }
@@ -97,7 +114,7 @@ export function BookingDetailsForm({
         setIsCheckingAvailability(false);
       }
     }
-    
+
     checkDailyAvailability();
   }, [date, room.id]);
 
@@ -105,16 +122,15 @@ export function BookingDetailsForm({
   useEffect(() => {
     if (selectedSession && availabilityMap[selectedSession]) {
       const sessionAvail = availabilityMap[selectedSession];
-      const isSessionFull = isSewa 
-        ? sessionAvail.booked > 0 
+      const isSessionFull = isSewa
+        ? sessionAvail.booked > 0
         : sessionAvail.remainingCapacity === 0;
-        
+
       if (isSessionFull) {
         setSelectedSession("");
       }
     }
   }, [availabilityMap, selectedSession, isSewa]);
-
 
   const handleBooking = async () => {
     if (!date || !selectedSession) return;
@@ -138,15 +154,19 @@ export function BookingDetailsForm({
       setDate(undefined);
       setSelectedSession("");
 
-      // Arahkan user ke halaman riwayat pemesanan
-      router.push("/reservations");
+      if (isSewa) {
+        setShowPaymentDialog(true);
+      } else {
+        // Arahkan user ke halaman riwayat pemesanan jika reguler
+        router.push("/reservations");
+      }
     } catch (error) {
       toast.add({
         type: "error",
         title: "Pemesanan Gagal",
         description: errorMessage(
           error,
-          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi."
+          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
         ),
       });
     } finally {
@@ -253,18 +273,18 @@ export function BookingDetailsForm({
               {sessions.map((s) => {
                 const sId = s.id.toString();
                 const sessionAvail = availabilityMap[sId];
-                
+
                 // Cek apakah spesifik sesi ini penuh
-                const isSessionFull = sessionAvail 
-                  ? (isSewa 
-                      ? sessionAvail.booked > 0 
-                      : sessionAvail.remainingCapacity === 0)
+                const isSessionFull = sessionAvail
+                  ? isSewa
+                    ? sessionAvail.booked > 0
+                    : sessionAvail.remainingCapacity === 0
                   : false;
 
                 return (
-                  <SelectItem 
-                    key={s.id} 
-                    value={sId} 
+                  <SelectItem
+                    key={s.id}
+                    value={sId}
                     className={isSessionFull ? "opacity-50 py-3" : "py-3"}
                     disabled={isSessionFull}
                   >
@@ -291,7 +311,15 @@ export function BookingDetailsForm({
                     {isSewa ? "Ketersediaan Ruangan:" : "Ketersediaan Kursi:"}
                   </span>
                   <Badge
-                    variant={isSewa ? (currentAvailability.booked === 0 ? "default" : "destructive") : currentAvailability.remainingCapacity > 0 ? "default" : "destructive"}
+                    variant={
+                      isSewa
+                        ? currentAvailability.booked === 0
+                          ? "default"
+                          : "destructive"
+                        : currentAvailability.remainingCapacity > 0
+                          ? "default"
+                          : "destructive"
+                    }
                     className="text-sm font-extrabold px-3 py-1.5 shadow-sm"
                   >
                     {isSewa
@@ -319,15 +347,25 @@ export function BookingDetailsForm({
         <Button
           className={cn(
             "w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1",
-            isUnavailable && "opacity-70"
+            isUnavailable && "opacity-70",
           )}
-          disabled={!date || !selectedSession || isLoading || isCheckingAvailability || isUnavailable}
+          disabled={
+            !date ||
+            !selectedSession ||
+            isLoading ||
+            isCheckingAvailability ||
+            isUnavailable
+          }
           onClick={handleBooking}
         >
           {isLoading ? (
             "Memproses..."
           ) : isUnavailable ? (
-            isSewa ? "Ruangan Tidak Tersedia" : "Kapasitas Penuh"
+            isSewa ? (
+              "Ruangan Tidak Tersedia"
+            ) : (
+              "Kapasitas Penuh"
+            )
           ) : (
             <>
               <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
@@ -336,6 +374,43 @@ export function BookingDetailsForm({
           )}
         </Button>
       </div>
+      {/* Dialog Pembayaran untuk Mode Sewa */}
+      <Dialog
+        open={showPaymentDialog}
+        onOpenChange={(open) => {
+          setShowPaymentDialog(open);
+          if (!open) {
+            router.push("/reservations");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md p-6 bg-white border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-serif text-primary">
+              Instruksi Pembayaran
+            </DialogTitle>
+            <DialogDescription className="text-sm text-neutral/80 mt-2">
+              Pesanan ruangan Anda telah berhasil dicatat. Untuk melanjutkan
+              proses sewa, silakan lakukan pembayaran dan konfirmasi melalui
+              nomor admin di bawah ini.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 pt-4 pb-2">
+            <div className="bg-primary/5 p-4 border border-primary/20 text-center">
+              <span className="block text-xs font-bold text-neutral uppercase tracking-wider mb-1">
+                Nomor WhatsApp Admin
+              </span>
+              <span className="text-xl font-bold text-primary">
+                0812-3456-7890
+              </span>
+            </div>
+            <p className="text-xs text-center text-neutral/70">
+              *Tunjukkan bukti pesanan (pada menu Pemesanan Saya) dan bukti
+              transfer saat menghubungi admin.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

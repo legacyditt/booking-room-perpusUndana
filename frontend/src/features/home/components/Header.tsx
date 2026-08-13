@@ -9,10 +9,8 @@ import {
   List,
   X,
   UserCircle,
+  SignOut,
 } from "@phosphor-icons/react/dist/ssr";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useSession, signOut } from "@/lib/api/auth-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +18,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useSession, signOut } from "@/lib/api/auth-client";
+
 import {
   Dialog,
   DialogContent,
@@ -57,9 +59,9 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background shadow-sm">
       <div className="container mx-auto max-w-7xl flex h-16 sm:h-20 items-center justify-between px-4 md:px-8">
         {/* Brand Logo & Name */}
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href="/" className="flex items-center shrink-0 gap-2 sm:gap-0">
           {/* Logo Undana */}
-          <div className="flex  relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
+          <div className="flex relative w-12 h-12 sm:w-16 sm:h-16 shrink-0">
             <Image
               src="/images/undana.png"
               alt="Logo Universitas Nusa Cendana"
@@ -131,14 +133,15 @@ export function Header() {
                     window.location.href = "/profile";
                   }}
                 >
-                  Edit Profile
+                  Edit Profil
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border my-1" />
                 <DropdownMenuItem
-                  className="cursor-pointer rounded-sm hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50 p-2 text-sm font-medium"
+                  className="cursor-pointer rounded-sm hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50 p-2 text-sm font-medium flex items-center justify-between"
                   onClick={handleLogout}
                 >
-                  Logout
+                  <span>Logout</span>
+                  <SignOut className="h-4 w-4" weight="bold" />
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -218,7 +221,7 @@ export function Header() {
                     variant="outline"
                     className="w-full h-10 justify-center font-semibold text-sm shadow-sm border-border"
                   >
-                    Edit Profile
+                    Edit Profil
                   </Button>
                 </Link>
                 <Button

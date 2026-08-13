@@ -106,12 +106,19 @@ export function ReservationTable({
                     {booking.session.startTime} - {booking.session.finishTime}
                   </TableCell>
                   <TableCell className="px-5 py-4">
-                    <Badge
-                      variant={variant}
-                      className="min-w-[90px] justify-center"
-                    >
-                      {label}
-                    </Badge>
+                    <div className="flex flex-col items-center justify-center gap-1">
+                      <Badge
+                        variant={variant}
+                        className="min-w-[90px] justify-center"
+                      >
+                        {label}
+                      </Badge>
+                      {(booking.status === "APPROVED" || booking.status === "REJECTED") && booking.admin?.name && (
+                        <span className="text-[10px] text-neutral-500">
+                          Oleh: {booking.admin.name}
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="px-5 py-4">
                     {booking.status === "PENDING" && isSewa ? (

@@ -34,7 +34,7 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(
-    imageUrlDisplay ?? room?.imageUrl ?? ""
+    imageUrlDisplay ?? room?.imageUrl ?? "",
   );
 
   const [formData, setFormData] = useState<RoomFormValues>(
@@ -43,7 +43,7 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
       capacity: "",
       imageUrl: "",
       price: "",
-    }
+    },
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,6 +56,16 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
     if (!file) return;
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "");
+    setFormData((prev) => ({ ...prev, price: rawValue }));
+  };
+
+  const formatRupiah = (value: string) => {
+    if (!value) return "";
+    return "Rp " + value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
   const syncPrice = async (roomId: number, price: number) => {
@@ -119,7 +129,7 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
           error,
           isEdit
             ? "Terjadi kesalahan saat menyimpan perubahan. Silakan coba beberapa saat lagi."
-            : "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda."
+            : "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda.",
         ),
       });
     } finally {
@@ -128,9 +138,11 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-xl border border-[#E2E8F0] shadow-sm space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white p-6 sm:p-8 rounded-xl border border-[#E2E8F0] shadow-sm space-y-6"
+    >
       <div className="space-y-4">
-        
         {/* Nama Ruangan */}
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm font-semibold text-primary">
@@ -150,7 +162,10 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
 
         {/* Kapasitas */}
         <div className="space-y-2">
-          <label htmlFor="capacity" className="text-sm font-semibold text-primary">
+          <label
+            htmlFor="capacity"
+            className="text-sm font-semibold text-primary"
+          >
             Kapasitas (Orang) <span className="text-red-500">*</span>
           </label>
           <input
@@ -174,11 +189,10 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
           <input
             id="price"
             name="price"
-            type="number"
-            min="0"
-            value={formData.price}
-            onChange={handleChange}
-            placeholder="Contoh: 50000"
+            type="text"
+            value={formatRupiah(formData.price)}
+            onChange={handlePriceChange}
+            placeholder="Rp 50.000"
             className="w-full border border-neutral-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
           />
           <p className="text-xs text-neutral-500">
@@ -223,15 +237,6 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
                 onChange={handleImageChange}
                 className="hidden"
               />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById("image")?.click()}
-                disabled={isSubmitting}
-                className="font-semibold text-neutral-600 min-h-[44px]"
-              >
-                {previewUrl ? "Ganti Gambar" : "Pilih Gambar"}
-              </Button>
               {previewUrl && (
                 <p className="text-xs text-neutral-500 flex items-center gap-1.5">
                   <ImageSquare className="w-4 h-4" />
@@ -241,7 +246,6 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
             </div>
           </div>
         </div>
-
       </div>
 
       <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-[#E2E8F0]">

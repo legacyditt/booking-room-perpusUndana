@@ -42,6 +42,15 @@ export function ProfileForm() {
     confirmPassword !== "";
 
   const handleSave = () => {
+    if (password && password.length < 6) {
+      toast.add({
+        type: "error",
+        title: "Gagal Disimpan",
+        description: "Kata sandi baru minimal harus 6 karakter.",
+      });
+      return;
+    }
+
     if (password && password !== confirmPassword) {
       toast.add({
         type: "error",

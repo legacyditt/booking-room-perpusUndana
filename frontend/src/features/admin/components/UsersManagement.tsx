@@ -120,17 +120,29 @@ export function UsersManagement({
   };
 
   const handleAddAdmin = async () => {
-    const validEmails = adminEmails.filter(email => email.trim() !== "");
-    if (validEmails.length === 0) return;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const validEmails = adminEmails.filter(
+      (email) => email.trim() !== "" && emailRegex.test(email)
+    );
+    if (validEmails.length === 0) {
+      if (adminEmails.some(e => e.trim() !== "")) {
+        toast.add({
+          type: "error",
+          title: "Format Email Tidak Valid",
+          description: "Pastikan format email yang Anda masukkan benar.",
+        });
+      }
+      return;
+    }
     setIsSaving(true);
     // Simulasi tambah admin (karena hanya FE)
     setTimeout(() => {
-      const newAdmins: AdminUser[] = validEmails.map(email => ({
+      const newAdmins: AdminUser[] = validEmails.map((email) => ({
         id: Math.random().toString(),
         name: "Admin Baru",
         email: email.trim(),
         role: "admin",
-        status: "dosen", // Status default admin
+        status: "umum", // Status dummy untuk type safety
         createdAt: new Date().toISOString(),
       }));
       setUsers((prev) => [...newAdmins, ...prev]);

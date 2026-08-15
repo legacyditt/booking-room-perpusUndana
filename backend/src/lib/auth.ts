@@ -14,6 +14,7 @@ export const auth = betterAuth({
       status: { type: "string", required: true },
       idNumber: { type: "string", required: true },
       whatsapp: { type: "string", required: true },
+      affiliation: { type: "string", required: false },
       role: { type: "string", required: false, defaultValue: "user" },
     },
   },

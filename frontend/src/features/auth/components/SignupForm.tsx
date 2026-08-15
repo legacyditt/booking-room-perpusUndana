@@ -90,6 +90,12 @@ export function SignupForm({
         status: status,
         idNumber: idNumber,
         whatsapp: whatsapp,
+        affiliation:
+          status === "umum"
+            ? institution
+            : status === "mahasiswa" || status === "dosen"
+              ? studyProgram
+              : "",
       });
 
       if (authError) {

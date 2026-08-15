@@ -9,29 +9,69 @@ import { logActivity } from "../lib/activityLog";
 
 // ROOM = sewa seluruh ruangan (blokir jika ada booking apa pun),
 // SEAT = pesan 1 kursi (blokir jika sudah ada sewa ruangan atau kursi penuh).
+const DEFAULT_WORKING_DAYS = ["senin", "selasa", "rabu", "kamis", "jumat"];
+
+const assertWorkingDay = async (date: Date) => {
+  const row = await prisma.workingDays.findUnique({ where: { id: 1 } });
+  const days = row ? row.days.split(",") : DEFAULT_WORKING_DAYS;
+  const day = date.toLocaleDateString("id-ID", { weekday: "long" }).toLowerCase();
+  if (!days.includes(day)) {
+    throw new Error("NOT_WORKING_DAY");
+  }
+};
+
+const toMin = (time: string) => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+};
+
 const assertSlotAvailable = async (
   tx: Prisma.TransactionClient,
   input: { roomId: number; sessionId: number; date: Date; capacity: number },
   type: "SEAT" | "ROOM",
   excludeBookingId?: number,
 ) => {
+  const session = await tx.bookingSession.findUnique({
+    where: { id: input.sessionId },
+    select: { startTime: true, finishTime: true },
+  });
+  if (!session) throw new Error("SESSION_NOT_FOUND");
+
+  const [newStart, newFinish] = [
+    toMin(session.startTime),
+    toMin(session.finishTime),
+  ];
+  const overlaps = (start: string, finish: string) =>
+    newStart < toMin(finish) && toMin(start) < newFinish;
+
+  // Tarik semua booking ruangan+date (semua sesi) untuk deteksi bentrok antar sesi.
   const existing = await tx.booking.findMany({
     where: {
       roomId: input.roomId,
-      sessionId: input.sessionId,
       date: input.date,
       status: { in: ["PENDING", "APPROVED"] },
       ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
     },
-    select: { type: true },
+    select: {
+      type: true,
+      session: { select: { startTime: true, finishTime: true } },
+    },
   });
 
-  const roomBlocked = existing.some((b) => b.type === "ROOM");
-  const seatCount = existing.filter((b) => b.type === "SEAT").length;
+  const roomBlocked = existing.some(
+    (b) =>
+      b.type === "ROOM" && overlaps(b.session.startTime, b.session.finishTime),
+  );
+  const seatOverlap = existing.filter(
+    (b) =>
+      b.type === "SEAT" && overlaps(b.session.startTime, b.session.finishTime),
+  ).length;
 
   if (type === "ROOM") {
-    if (existing.length > 0) throw new Error("CAPACITY_FULL");
-  } else if (roomBlocked || seatCount >= input.capacity) {
+    if (roomBlocked || seatOverlap > 0) throw new Error("SESSION_OVERLAP");
+  } else if (roomBlocked) {
+    throw new Error("SESSION_OVERLAP");
+  } else if (seatOverlap >= input.capacity) {
     throw new Error("CAPACITY_FULL");
   }
 };
@@ -124,6 +164,23 @@ export const createBooking = async (req: Request, res: Response) => {
     });
     if (!session) return res.status(404).json({ message: "Session Not Found" });
 
+    if (type === "SEAT" && session.isRentOnly) {
+      return res
+        .status(400)
+        .json({ message: "Sesi ini khusus sewa ruangan, tidak dapat dipesan reguler" });
+    }
+
+    try {
+      await assertWorkingDay(new Date(date));
+    } catch (e: any) {
+      if (e.message === "NOT_WORKING_DAY") {
+        return res
+          .status(400)
+          .json({ message: "Tanggal pemesanan harus hari kerja" });
+      }
+      throw e;
+    }
+
     // SEAT (reguler) langsung disetujui; ROOM (sewa) butuh persetujuan admin.
     const needsApproval = bookingType === "ROOM";
 
@@ -163,6 +220,12 @@ export const createBooking = async (req: Request, res: Response) => {
         return res
           .status(400)
           .json({ message: "Conflict: Room is fully booked for this session" });
+      }
+      if (e.message === "SESSION_OVERLAP") {
+        return res.status(400).json({
+          message:
+            "Waktu sesi bentrok dengan pemesanan lain pada tanggal ini",
+        });
       }
       throw e; // Akan ditangkap oleh catch(error)
     }
@@ -349,6 +412,23 @@ export const updateBooking = async (req: Request, res: Response) => {
     });
     if (!session) return res.status(404).json({ message: "Session Not Found" });
 
+    if (booking.type === "SEAT" && session.isRentOnly) {
+      return res
+        .status(400)
+        .json({ message: "Sesi ini khusus sewa ruangan, tidak dapat dipesan reguler" });
+    }
+
+    try {
+      await assertWorkingDay(new Date(date));
+    } catch (e: any) {
+      if (e.message === "NOT_WORKING_DAY") {
+        return res
+          .status(400)
+          .json({ message: "Tanggal pemesanan harus hari kerja" });
+      }
+      throw e;
+    }
+
     const newDate = new Date(date);
 
     // Cek apakah user benar-benar mengubah sesuatu
@@ -396,6 +476,12 @@ export const updateBooking = async (req: Request, res: Response) => {
         return res
           .status(400)
           .json({ message: "Conflict: Jadwal tersebut sudah penuh dipesan" });
+      }
+      if (e.message === "SESSION_OVERLAP") {
+        return res.status(400).json({
+          message:
+            "Waktu sesi bentrok dengan pemesanan lain pada tanggal ini",
+        });
       }
       throw e;
     }

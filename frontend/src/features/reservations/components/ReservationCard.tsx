@@ -34,6 +34,7 @@ import {
 import { toast } from "@/components/ui/toast";
 import { cancelBooking } from "@/lib/api/bookings";
 import { errorMessage } from "@/lib/api/errors";
+import { isSeatApproved } from "@/lib/booking-status";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 import { EditBookingModal } from "./EditBookingModal";
@@ -107,6 +108,7 @@ export function ReservationCard({
     label: booking.status || "UNKNOWN",
     variant: "secondary",
   };
+  const displayLabel = isSeatApproved(booking) ? "Dipesan" : currentStatus.label;
 
   return (
     <Card className="flex flex-col h-full hover:shadow-md transition-shadow border-border/80 shadow-sm rounded-xl overflow-hidden">
@@ -135,7 +137,7 @@ export function ReservationCard({
             variant={currentStatus.variant}
             className="font-bold text-[10px] tracking-wider uppercase px-3 py-1"
           >
-            {currentStatus.label}
+            {displayLabel}
           </Badge>
         </div>
       </CardHeader>

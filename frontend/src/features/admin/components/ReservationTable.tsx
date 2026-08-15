@@ -4,6 +4,7 @@ import React from "react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Booking, BookingStatus } from "@/types/booking";
+import { isSeatApproved } from "@/lib/booking-status";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -73,6 +74,10 @@ export function ReservationTable({
             const { label, variant } = statusConfig[booking.status];
             const isUpdating = isUpdatingId === booking.id;
             const isSewa = booking.type === "ROOM";
+            const displayLabel = isSeatApproved(booking) ? "Dipesan" : label;
+            const displayVariant = isSeatApproved(booking)
+              ? "secondary"
+              : variant;
 
             return (
               <TableRow
@@ -108,10 +113,10 @@ export function ReservationTable({
                   <TableCell className="px-5 py-4">
                     <div className="flex flex-col items-center justify-center gap-1">
                       <Badge
-                        variant={variant}
+                        variant={displayVariant}
                         className="min-w-[90px] justify-center"
                       >
-                        {label}
+                        {displayLabel}
                       </Badge>
                       {(booking.status === "APPROVED" || booking.status === "REJECTED") && booking.decidedBy?.name && (
                         <span className="text-[10px] text-neutral-500">

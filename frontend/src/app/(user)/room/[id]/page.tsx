@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
 import { RoomImageGallery } from "@/features/booking/components/RoomImageGallery";
 import { BookingDetailsForm } from "@/features/booking/components/BookingDetailsForm";
-import { getRoom, getSessions } from "@/lib/api";
+import { getRoom, getSessions, getWorkingDays } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
@@ -29,6 +29,13 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
 
   const sessions = await getSessions(cookie);
 
+  let workingDays: string[] = ["senin", "selasa", "rabu", "kamis", "jumat"];
+  try {
+    workingDays = (await getWorkingDays(cookie)).days;
+  } catch {
+    // Fallback ke hari kerja default bila endpoint gagal.
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -53,7 +60,7 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
             
             {/* Bagian Kanan: Form Pemesanan */}
             <div className="sticky top-28">
-              <BookingDetailsForm room={room} sessions={sessions} mode={mode === "sewa" ? "sewa" : "reguler"} />
+              <BookingDetailsForm room={room} sessions={sessions} workingDays={workingDays} mode={mode === "sewa" ? "sewa" : "reguler"} />
             </div>
           </div>
           

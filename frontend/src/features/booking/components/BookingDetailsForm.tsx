@@ -45,12 +45,14 @@ import { errorMessage } from "@/lib/api/errors";
 interface BookingDetailsFormProps {
   room: Room;
   sessions: Session[];
+  workingDays?: string[];
   mode?: "reguler" | "sewa";
 }
 
 export function BookingDetailsForm({
   room,
   sessions,
+  workingDays = ["senin", "selasa", "rabu", "kamis", "jumat"],
   mode = "reguler",
 }: BookingDetailsFormProps) {
   const [date, setDate] = useState<Date | undefined>();
@@ -80,6 +82,11 @@ export function BookingDetailsForm({
   const bookingPrice = room.bookingPrice;
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
   const isSewa = mode === "sewa";
+
+  // Sesi khusus sewa (isRentOnly) hanya tampil di mode sewa
+  const availableSessions = sessions.filter(
+    (s) => isSewa || !s.isRentOnly,
+  );
 
   // Hitung ketersediaan sesi saat ini
   const currentAvailability = selectedSession
@@ -234,7 +241,13 @@ export function BookingDetailsForm({
                   setDate(selectedDate);
                   setIsCalendarOpen(false);
                 }}
-                disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+                disabled={[
+                  { before: new Date(new Date().setHours(0, 0, 0, 0)) },
+                  (calendarDate) =>
+                    !workingDays.includes(
+                      format(calendarDate, "EEEE", { locale: id }).toLowerCase(),
+                    ),
+                ]}
                 locale={id}
               />
             </PopoverContent>
@@ -258,7 +271,7 @@ export function BookingDetailsForm({
                 >
                   {selectedSession
                     ? (() => {
-                        const s = sessions.find(
+                        const s = availableSessions.find(
                           (s) => s.id.toString() === selectedSession,
                         );
                         return s
@@ -270,7 +283,7 @@ export function BookingDetailsForm({
               </div>
             </SelectTrigger>
             <SelectContent>
-              {sessions.map((s) => {
+              {availableSessions.map((s) => {
                 const sId = s.id.toString();
                 const sessionAvail = availabilityMap[sId];
 

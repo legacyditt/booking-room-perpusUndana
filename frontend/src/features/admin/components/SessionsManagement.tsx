@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SessionTable } from "@/features/admin/components/SessionTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
 import { deleteSession } from "@/lib/api/sessions";
+import { getWorkingDays, updateWorkingDays } from "@/lib/api/working-days";
 import { Session } from "@/types/booking";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -58,23 +59,42 @@ export function SessionsManagement({
   ]);
   const [isSavingDays, setIsSavingDays] = useState(false);
 
+  useEffect(() => {
+    getWorkingDays()
+      .then((data) => setWorkingDays(data.days))
+      .catch(() => {
+        // default senin-jumat tetap dipakai bila gagal load
+      });
+  }, []);
+
   const toggleDay = (id: string) => {
     setWorkingDays((prev) =>
       prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
     );
   };
 
-  const handleSaveWorkingDays = () => {
+  const handleSaveWorkingDays = async () => {
     setIsSavingDays(true);
-    // Simulasi penyimpanan API
-    setTimeout(() => {
-      setIsSavingDays(false);
+    try {
+      await updateWorkingDays(workingDays);
       toast.add({
         type: "success",
         title: "Pengaturan Hari Kerja Disimpan",
-        description: "Pembaruan hari kerja telah berhasil disimpan ke dalam sistem.",
+        description:
+          "Pembaruan hari kerja telah berhasil disimpan ke dalam sistem.",
       });
-    }, 800);
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+      toast.add({
+        type: "error",
+        title: "Gagal Menyimpan Hari Kerja",
+        description: message,
+      });
+    } finally {
+      setIsSavingDays(false);
+    }
   };
 
   const handleDelete = async () => {

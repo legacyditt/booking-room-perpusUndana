@@ -1,5 +1,5 @@
 import { client, unwrap } from "./client";
-import type { AdminUser } from "@/types/admin";
+import type { AdminActivity, AdminUser } from "@/types/admin";
 
 export function getUsers(cookie?: string): Promise<AdminUser[]> {
   const headers = cookie ? { cookie } : undefined;
@@ -8,4 +8,26 @@ export function getUsers(cookie?: string): Promise<AdminUser[]> {
 
 export function updateUserRole(id: string, role: string): Promise<AdminUser> {
   return unwrap(client.patch(`/users/${id}/role`, { role }));
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await client.delete(`/users/${id}`);
+}
+
+export function getAdminActivities(
+  cookie?: string,
+  params?: Record<string, string>,
+): Promise<AdminActivity[]> {
+  const headers = cookie ? { cookie } : undefined;
+  return unwrap(client.get("/admin-activity", { headers, params }));
+}
+
+export async function createAdmins(
+  emails: string[],
+): Promise<{ data: AdminUser[]; failed: string[] }> {
+  const res = await client.post<{ data: AdminUser[]; failed: string[] }>(
+    "/users/admin",
+    { emails },
+  );
+  return res.data;
 }

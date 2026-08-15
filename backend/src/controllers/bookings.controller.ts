@@ -5,6 +5,7 @@ import {
   sendBookingCancellationEmail,
   sendBookingStatusUpdateEmail,
 } from "../lib/mailer";
+import { logActivity } from "../lib/activityLog";
 
 // ROOM = sewa seluruh ruangan (blokir jika ada booking apa pun),
 // SEAT = pesan 1 kursi (blokir jika sudah ada sewa ruangan atau kursi penuh).
@@ -66,6 +67,7 @@ export const getAllBookings = async (req: Request, res: Response) => {
         },
         session: true,
         user: { select: { name: true } },
+        decidedBy: { select: { name: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -247,11 +249,12 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
 
     const booking = await prisma.booking.update({
       where: { id: Number(id) },
-      data: { status },
+      data: { status, decidedById: req.userId as string },
       include: {
         room: { include: { bookingPrice: true } },
         session: true,
         user: true,
+        decidedBy: { select: { name: true } },
       },
     });
 
@@ -263,6 +266,17 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
         status,
       ).catch((err) => console.error(err));
     }
+
+    const actionByStatus: Record<string, string> = {
+      APPROVED: "APPROVE_BOOKING",
+      REJECTED: "REJECT_BOOKING",
+      CANCELLED: "CANCEL_BOOKING",
+    };
+    await logActivity(
+      req.userId as string,
+      actionByStatus[status],
+      `Booking #${booking.id} · ${booking.room.name} · ${booking.user?.name ?? ""}`,
+    );
 
     return res.status(200).json({
       message: `Booking ${status.toLowerCase()} successfully`,

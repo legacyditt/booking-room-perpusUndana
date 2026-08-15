@@ -18,3 +18,12 @@ export interface AdminUser {
   status: string;
   createdAt: string;
 }
+
+export interface AdminActivity {
+  id: number;
+  adminId: string;
+  action: string;
+  detail: string | null;
+  createdAt: string;
+  admin: { name: string };
+}

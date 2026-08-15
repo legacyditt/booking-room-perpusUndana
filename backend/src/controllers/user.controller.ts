@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
+import { auth } from "../lib/auth";
 import prisma from "../lib/prisma";
+import { Prisma } from "../generated/prisma/client";
+import { logActivity } from "../lib/activityLog";
 
 const userSelect = {
     id: true,
@@ -9,6 +12,8 @@ const userSelect = {
     status: true,
     createdAt: true,
 } as const;
+
+type AdminUser = Prisma.UserGetPayload<{ select: typeof userSelect }>;
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
@@ -40,7 +45,117 @@ export const updateUserRole = async (req: Request, res: Response) => {
             data: { role },
             select: userSelect,
         });
+        await logActivity(req.userId as string, "UPDATE_USER_ROLE", `${user.name} (${user.email}) → ${role}`);
         return res.status(200).json({ message: "Role updated successfully", data: user });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+
+        if (id === req.userId) {
+            return res.status(403).json({ message: 'Tidak dapat menghapus akun sendiri' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id },
+            select: { id: true, name: true },
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+        }
+
+        const bookingCount = await prisma.booking.count({ where: { userId: id } });
+        if (bookingCount > 0) {
+            return res.status(400).json({
+                message: 'Tidak dapat dihapus karena memiliki riwayat pemesanan',
+            });
+        }
+
+        await prisma.$transaction([
+            prisma.session.deleteMany({ where: { userId: id } }),
+            prisma.account.deleteMany({ where: { userId: id } }),
+            prisma.adminActivityLog.deleteMany({ where: { adminId: id } }),
+            prisma.user.delete({ where: { id } }),
+        ]);
+
+        await logActivity(req.userId as string, "DELETE_USER", `User: ${user.name}`);
+        return res.status(200).json({ message: "User deleted successfully", data: { id } });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+export const createAdmins = async (req: Request, res: Response) => {
+    try {
+        const emails: string[] = Array.isArray(req.body?.emails)
+            ? req.body.emails
+            : [];
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const uniqueEmails: string[] = [
+            ...new Set(
+                emails.map((email) => email.trim().toLowerCase()).filter((email) => emailRegex.test(email))
+            ),
+        ];
+
+        if (uniqueEmails.length === 0) {
+            return res.status(400).json({ message: "Email tidak valid atau kosong" });
+        }
+
+        const password = "admin123";
+        const data: AdminUser[] = [];
+        const failed: string[] = [];
+
+        let adminNumber =
+            (await prisma.user.count({ where: { role: "admin" } })) + 1;
+
+        for (const email of uniqueEmails) {
+            try {
+                const existing = await prisma.user.findUnique({ where: { email } });
+                if (existing) {
+                    if (existing.role !== "admin") {
+                        const updated = await prisma.user.update({
+                            where: { id: existing.id },
+                            data: { role: "admin" },
+                            select: userSelect,
+                        });
+                        data.push(updated);
+                    }
+                    continue;
+                }
+
+                const { user } = await auth.api.signUpEmail({
+                    body: {
+                        email,
+                        password,
+                        name: `Admin ${adminNumber++}`,
+                        role: "admin",
+                        status: "umum",
+                        idNumber: "",
+                        whatsapp: "",
+                    },
+                });
+                data.push({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role ?? "admin",
+                    status: user.status ?? "umum",
+                    createdAt: user.createdAt,
+                });
+            } catch (error) {
+                console.log(error);
+                failed.push(email);
+            }
+        }
+
+        await logActivity(req.userId as string, "CREATE_ADMINS", `Emails: ${uniqueEmails.join(", ")}`);
+        return res.status(200).json({ data, failed });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ message: 'Internal server error' });

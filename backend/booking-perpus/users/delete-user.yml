@@ -1,0 +1,38 @@
+info:
+  name: Delete User
+  type: http
+  seq: 2
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/users/:id"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Menghapus user/admin berdasarkan ID.
+
+  **Auth:** memerlukan role admin. Pastikan sudah login (session cookie tersimpan) sebelum menjalankan request ini.
+
+  **Path Parameters:**
+  - `id` (string, required) — ID user/admin yang akan dihapus (ganti placeholder `:id` dengan ID asli).
+
+  **Response 200:**
+  ```json
+  {
+    "message": "User deleted successfully",
+    "data": { "id": "..." }
+  }
+  ```
+
+  **Response 400:** user memiliki riwayat pemesanan (booking), tidak dapat dihapus.
+  **Response 403:** tidak dapat menghapus akun sendiri.
+  **Response 404:** user tidak ditemukan.

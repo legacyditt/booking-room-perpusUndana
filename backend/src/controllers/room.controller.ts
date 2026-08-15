@@ -1,11 +1,16 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
 import { getRoomImageUrl, deleteRoomImage } from "../lib/storage";
+import { logActivity } from "../lib/activityLog";
 
 export const getAllRooms = async (req: Request, res: Response) => {
   try {
     const rooms = await prisma.room.findMany({
-      include: { bookingPrice: true },
+      include: {
+        bookingPrice: true,
+        createdBy: { select: { name: true } },
+        updatedBy: { select: { name: true } },
+      },
     });
     const data = await Promise.all(
       rooms.map(async (room) => ({
@@ -69,7 +74,11 @@ export const getRoomById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const room = await prisma.room.findUnique({
       where: { id: Number(id) },
-      include: { bookingPrice: true },
+      include: {
+        bookingPrice: true,
+        createdBy: { select: { name: true } },
+        updatedBy: { select: { name: true } },
+      },
     });
     if (!room) return res.status(404).json({ message: "Room not found" });
     return res
@@ -142,11 +151,13 @@ export const createRoom = async (req: Request, res: Response) => {
         name,
         capacity,
         imageUrl,
+        createdById: req.userId,
       },
     });
+    await logActivity(req.userId as string, "CREATE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(201)
-      .json({ messsage: "Room Created Successfully", data: room });
+      .json({ message: "Room Created Successfully", data: room });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -170,6 +181,7 @@ export const updateRooms = async (req: Request, res: Response) => {
         name,
         capacity,
         imageUrl,
+        updatedById: req.userId,
       },
     });
 
@@ -177,6 +189,7 @@ export const updateRooms = async (req: Request, res: Response) => {
       await deleteRoomImage(existingRoom.imageUrl);
     }
 
+    await logActivity(req.userId as string, "UPDATE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(200)
       .json({ message: "Room Updated Successfully", data: room });
@@ -191,6 +204,7 @@ export const deleteRoom = async (req: Request, res: Response) => {
     const { id } = req.params;
     const room = await prisma.room.delete({ where: { id: Number(id) } });
     await deleteRoomImage(room.imageUrl);
+    await logActivity(req.userId as string, "DELETE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(200)
       .json({ message: "Room Deleted Successfully", data: room });

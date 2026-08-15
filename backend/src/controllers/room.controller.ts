@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
 import { getRoomImageUrl, deleteRoomImage } from "../lib/storage";
+import { logActivity } from "../lib/activityLog";
 
 export const getAllRooms = async (req: Request, res: Response) => {
   try {
@@ -153,6 +154,7 @@ export const createRoom = async (req: Request, res: Response) => {
         createdById: req.userId,
       },
     });
+    await logActivity(req.userId as string, "CREATE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(201)
       .json({ message: "Room Created Successfully", data: room });
@@ -187,6 +189,7 @@ export const updateRooms = async (req: Request, res: Response) => {
       await deleteRoomImage(existingRoom.imageUrl);
     }
 
+    await logActivity(req.userId as string, "UPDATE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(200)
       .json({ message: "Room Updated Successfully", data: room });
@@ -201,6 +204,7 @@ export const deleteRoom = async (req: Request, res: Response) => {
     const { id } = req.params;
     const room = await prisma.room.delete({ where: { id: Number(id) } });
     await deleteRoomImage(room.imageUrl);
+    await logActivity(req.userId as string, "DELETE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(200)
       .json({ message: "Room Deleted Successfully", data: room });

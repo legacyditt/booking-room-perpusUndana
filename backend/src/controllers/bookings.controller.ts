@@ -5,6 +5,7 @@ import {
   sendBookingCancellationEmail,
   sendBookingStatusUpdateEmail,
 } from "../lib/mailer";
+import { logActivity } from "../lib/activityLog";
 
 // ROOM = sewa seluruh ruangan (blokir jika ada booking apa pun),
 // SEAT = pesan 1 kursi (blokir jika sudah ada sewa ruangan atau kursi penuh).
@@ -263,6 +264,17 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
         status,
       ).catch((err) => console.error(err));
     }
+
+    const actionByStatus: Record<string, string> = {
+      APPROVED: "APPROVE_BOOKING",
+      REJECTED: "REJECT_BOOKING",
+      CANCELLED: "CANCEL_BOOKING",
+    };
+    await logActivity(
+      req.userId as string,
+      actionByStatus[status],
+      `Booking #${booking.id} · ${booking.room.name} · ${booking.user?.name ?? ""}`,
+    );
 
     return res.status(200).json({
       message: `Booking ${status.toLowerCase()} successfully`,

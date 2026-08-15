@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../lib/prisma";
+import { logActivity } from "../lib/activityLog";
 
 export const getAllSessions = async (req: Request, res: Response) => {
     try {
@@ -45,6 +46,7 @@ export const createSession = async (req: Request, res: Response) => {
                 createdById: req.userId,
             }
         });
+        await logActivity(req.userId as string, "CREATE_SESSION", `Sesi: ${session.name}`);
         return res.status(201).json({ message: "Session created successfully", data: session });
     } catch (error) {
         console.log(error);
@@ -70,6 +72,7 @@ export const updateSession = async (req: Request, res: Response) => {
                 updatedById: req.userId,
             }
         });
+        await logActivity(req.userId as string, "UPDATE_SESSION", `Sesi: ${session.name}`);
         return res.status(200).json({ message: "Session updated successfully", data: session });
     } catch (error) {
         console.log(error);
@@ -81,6 +84,7 @@ export const deleteSession = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const session = await prisma.bookingSession.delete({ where: { id: Number(id) } }); // Berubah
+        await logActivity(req.userId as string, "DELETE_SESSION", `Sesi: ${session.name}`);
         return res.status(200).json({ message: "Session deleted successfully", data: session });
     } catch (error) {
         if ((error as { code?: string }).code === "P2003") {

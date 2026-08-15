@@ -14,6 +14,7 @@ import {
   SignOut,
   Shield,
   UserCircle,
+  ListMagnifyingGlass,
 } from "@phosphor-icons/react/dist/ssr";
 
 import {
@@ -39,6 +40,11 @@ const navItems = [
   { name: "Kelola Sesi", href: "/admin/sessions", icon: Clock },
   { name: "Kelola Pengguna", href: "/admin/users", icon: Users },
   { name: "Kelola Admin", href: "/admin/admins", icon: Shield },
+  {
+    name: "Aktivitas Admin",
+    href: "/admin/activities",
+    icon: ListMagnifyingGlass,
+  },
   { name: "Edit Profil", href: "/admin/profile", icon: UserCircle },
 ];
 

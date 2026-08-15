@@ -1,0 +1,46 @@
+info:
+  name: Get Admin Activities
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/admin-activity?adminId=&action=&startDate=&endDate="
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengambil log aktivitas admin.
+
+  **Auth:** memerlukan role admin. Pastikan sudah login (session cookie tersimpan) sebelum menjalankan request ini.
+
+  **Query Parameters (semua opsional):**
+  - `adminId` (string) — filter berdasarkan ID admin.
+  - `action` (string) — filter berdasarkan tipe aksi. Contoh: `LOGIN`, `CREATE_ROOM`, `UPDATE_ROOM`, `DELETE_ROOM`, `CREATE_SESSION`, `UPDATE_SESSION`, `DELETE_SESSION`, `APPROVE_BOOKING`, `REJECT_BOOKING`, `CANCEL_BOOKING`, `UPDATE_USER_ROLE`, `CREATE_ADMINS`, `DELETE_USER`.
+  - `startDate` (date) — ambil log sejak tanggal ini (inklusif).
+  - `endDate` (date) — ambil log sampai tanggal ini (inklusif, hingga akhir hari).
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": 1,
+        "adminId": "admin-uuid-1",
+        "action": "APPROVE_BOOKING",
+        "detail": "Booking #12 · Aula Utama · Delano Manafe",
+        "createdAt": "2026-08-15T04:00:00.000Z",
+        "admin": { "name": "Admin Perpustakaan" }
+      }
+    ]
+  }
+  ```
+  Diurutkan dari log terbaru (`createdAt desc`).

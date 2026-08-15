@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { auth } from "../lib/auth";
 import prisma from "../lib/prisma";
 import { Prisma } from "../generated/prisma/client";
+import { logActivity } from "../lib/activityLog";
 
 const userSelect = {
     id: true,
@@ -44,6 +45,7 @@ export const updateUserRole = async (req: Request, res: Response) => {
             data: { role },
             select: userSelect,
         });
+        await logActivity(req.userId as string, "UPDATE_USER_ROLE", `${user.name} (${user.email}) → ${role}`);
         return res.status(200).json({ message: "Role updated successfully", data: user });
     } catch (error) {
         console.log(error);
@@ -81,6 +83,7 @@ export const deleteUser = async (req: Request, res: Response) => {
             prisma.user.delete({ where: { id } }),
         ]);
 
+        await logActivity(req.userId as string, "DELETE_USER", `User: ${user.name}`);
         return res.status(200).json({ message: "User deleted successfully", data: { id } });
     } catch (error) {
         console.log(error);
@@ -151,6 +154,7 @@ export const createAdmins = async (req: Request, res: Response) => {
             }
         }
 
+        await logActivity(req.userId as string, "CREATE_ADMINS", `Emails: ${uniqueEmails.join(", ")}`);
         return res.status(200).json({ data, failed });
     } catch (error) {
         console.log(error);

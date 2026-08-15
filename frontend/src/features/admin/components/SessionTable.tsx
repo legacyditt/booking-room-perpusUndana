@@ -102,7 +102,7 @@ export function SessionTable({ sessions, onDelete }: SessionTableProps) {
 
               {/* Kolom Berlaku Untuk */}
               <TableCell className="px-5 py-4 text-center">
-                {session.isSewaOnly ? (
+                {session.isRentOnly ? (
                   <Badge className="bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-100 justify-center">
                     Khusus Sewa
                   </Badge>

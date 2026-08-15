@@ -24,6 +24,18 @@ export const getAllRooms = async (req: Request, res: Response) => {
   }
 };
 
+const toMin = (time: string) => {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+};
+
+const overlaps = (
+  aStart: string,
+  aFinish: string,
+  bStart: string,
+  bFinish: string,
+) => toMin(aStart) < toMin(bFinish) && toMin(bStart) < toMin(aFinish);
+
 export const getRoomAvailability = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -38,20 +50,36 @@ export const getRoomAvailability = async (req: Request, res: Response) => {
     const room = await prisma.room.findUnique({ where: { id: Number(id) } });
     if (!room) return res.status(404).json({ message: "Room not found" });
 
+    const session = await prisma.bookingSession.findUnique({
+      where: { id: Number(sessionId) },
+      select: { startTime: true, finishTime: true },
+    });
+    if (!session) return res.status(404).json({ message: "Session not found" });
+
     const bookings = await prisma.booking.findMany({
       where: {
         roomId: Number(id),
-        sessionId: Number(sessionId),
         date: new Date(date as string),
         status: {
           in: ["PENDING", "APPROVED"],
         },
       },
-      select: { type: true },
+      select: {
+        type: true,
+        session: { select: { startTime: true, finishTime: true } },
+      },
     });
 
-    const roomBlocked = bookings.some((b) => b.type === "ROOM");
-    const seatCount = bookings.filter((b) => b.type === "SEAT").length;
+    const overlapping = bookings.filter((b) =>
+      overlaps(
+        session.startTime,
+        session.finishTime,
+        b.session.startTime,
+        b.session.finishTime,
+      ),
+    );
+    const roomBlocked = overlapping.some((b) => b.type === "ROOM");
+    const seatCount = overlapping.filter((b) => b.type === "SEAT").length;
     const remainingCapacity = roomBlocked
       ? 0
       : Math.max(0, room.capacity - seatCount);
@@ -60,7 +88,7 @@ export const getRoomAvailability = async (req: Request, res: Response) => {
       data: {
         remainingCapacity,
         capacity: room.capacity,
-        booked: bookings.length,
+        booked: overlapping.length,
       },
     });
   } catch (error) {
@@ -113,18 +141,26 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
           in: ["PENDING", "APPROVED"],
         },
       },
-      select: { type: true, sessionId: true },
+      select: {
+        type: true,
+        session: { select: { startTime: true, finishTime: true } },
+      },
     });
 
-    // Mapping ketersediaan untuk setiap sesi
+    // Mapping ketersediaan untuk setiap sesi (berbasis overlap antar sesi)
     const availabilityMap: Record<string, any> = {};
 
     sessions.forEach((session) => {
-      const sessionBookings = bookings.filter(
-        (b) => b.sessionId === session.id,
+      const overlapping = bookings.filter((b) =>
+        overlaps(
+          session.startTime,
+          session.finishTime,
+          b.session.startTime,
+          b.session.finishTime,
+        ),
       );
-      const roomBlocked = sessionBookings.some((b) => b.type === "ROOM");
-      const seatCount = sessionBookings.filter((b) => b.type === "SEAT").length;
+      const roomBlocked = overlapping.some((b) => b.type === "ROOM");
+      const seatCount = overlapping.filter((b) => b.type === "SEAT").length;
       const remainingCapacity = roomBlocked
         ? 0
         : Math.max(0, room.capacity - seatCount);
@@ -132,7 +168,7 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
       availabilityMap[session.id] = {
         remainingCapacity,
         capacity: room.capacity,
-        booked: sessionBookings.length,
+        booked: overlapping.length,
       };
     });
 

@@ -83,6 +83,11 @@ export function BookingDetailsForm({
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
   const isSewa = mode === "sewa";
 
+  // Sesi khusus sewa (isRentOnly) hanya tampil di mode sewa
+  const availableSessions = sessions.filter(
+    (s) => isSewa || !s.isRentOnly,
+  );
+
   // Hitung ketersediaan sesi saat ini
   const currentAvailability = selectedSession
     ? availabilityMap[selectedSession]
@@ -266,7 +271,7 @@ export function BookingDetailsForm({
                 >
                   {selectedSession
                     ? (() => {
-                        const s = sessions.find(
+                        const s = availableSessions.find(
                           (s) => s.id.toString() === selectedSession,
                         );
                         return s
@@ -278,7 +283,7 @@ export function BookingDetailsForm({
               </div>
             </SelectTrigger>
             <SelectContent>
-              {sessions.map((s) => {
+              {availableSessions.map((s) => {
                 const sId = s.id.toString();
                 const sessionAvail = availabilityMap[sId];
 

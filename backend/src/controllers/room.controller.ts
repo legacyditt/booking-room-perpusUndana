@@ -5,7 +5,11 @@ import { getRoomImageUrl, deleteRoomImage } from "../lib/storage";
 export const getAllRooms = async (req: Request, res: Response) => {
   try {
     const rooms = await prisma.room.findMany({
-      include: { bookingPrice: true },
+      include: {
+        bookingPrice: true,
+        createdBy: { select: { name: true } },
+        updatedBy: { select: { name: true } },
+      },
     });
     const data = await Promise.all(
       rooms.map(async (room) => ({
@@ -69,7 +73,11 @@ export const getRoomById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const room = await prisma.room.findUnique({
       where: { id: Number(id) },
-      include: { bookingPrice: true },
+      include: {
+        bookingPrice: true,
+        createdBy: { select: { name: true } },
+        updatedBy: { select: { name: true } },
+      },
     });
     if (!room) return res.status(404).json({ message: "Room not found" });
     return res
@@ -142,11 +150,12 @@ export const createRoom = async (req: Request, res: Response) => {
         name,
         capacity,
         imageUrl,
+        createdById: req.userId,
       },
     });
     return res
       .status(201)
-      .json({ messsage: "Room Created Successfully", data: room });
+      .json({ message: "Room Created Successfully", data: room });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -170,6 +179,7 @@ export const updateRooms = async (req: Request, res: Response) => {
         name,
         capacity,
         imageUrl,
+        updatedById: req.userId,
       },
     });
 

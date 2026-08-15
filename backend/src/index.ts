@@ -10,6 +10,7 @@ import bookingPriceRoute from "./routes/bookingPrice.routes";
 import userRoute from "./routes/user.routes";
 import authRoute from "./routes/auth.routes";
 import uploadRoute from "./routes/upload.routes";
+import workingDaysRoute from "./routes/workingDays.routes";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -43,6 +44,7 @@ app.use("/bookings", bookingsRoute);
 app.use("/booking-prices", bookingPriceRoute);
 app.use("/users", userRoute);
 app.use("/uploads", uploadRoute);
+app.use("/working-days", workingDaysRoute);
 
 app.listen(Number(port), "0.0.0.0", () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

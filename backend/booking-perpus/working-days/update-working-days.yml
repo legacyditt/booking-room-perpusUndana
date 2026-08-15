@@ -1,0 +1,45 @@
+info:
+  name: Update Working Days
+  type: http
+  seq: 2
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/working-days"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "days": ["senin", "selasa", "rabu", "kamis", "jumat"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Menyimpan pengaturan hari kerja (single row, id 1).
+
+  **Auth:** memerlukan role admin.
+
+  **Request Body (application/json):**
+  - `days` (array of string, required) — id hari valid:
+    `senin`, `selasa`, `rabu`, `kamis`, `jumat`, `sabtu`, `minggu`. Array tidak boleh kosong.
+
+  **Response 200:**
+  ```json
+  {
+    "message": "Working days updated successfully",
+    "data": {
+      "days": ["senin", "selasa", "rabu", "kamis", "jumat"]
+    }
+  }
+  ```
+
+  **Response 400:** jika `days` kosong atau berisi hari tidak valid.

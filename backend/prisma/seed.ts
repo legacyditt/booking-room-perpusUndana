@@ -29,6 +29,12 @@ async function main() {
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
 
+  await prisma.workingDays.upsert({
+    where: { id: 1 },
+    create: { id: 1, days: "senin,selasa,rabu,kamis,jumat" },
+    update: { days: "senin,selasa,rabu,kamis,jumat" },
+  });
+
   // Menggunakan fungsi bawaan dari BetterAuth untuk hashing
   const adminPasswordHash = await hashPassword("admin_PERPUSTAKAAN123");
   const userPasswordHash = await hashPassword("delano_MAHASISWA123");

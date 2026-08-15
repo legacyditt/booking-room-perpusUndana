@@ -11,13 +11,23 @@ export function getSession(id: number, cookie?: string): Promise<Session> {
   return unwrap(client.get(`/sessions/${id}`, { headers }));
 }
 
-export function createSession(input: { name: string; startTime: string; finishTime: string }): Promise<Session> {
+export function createSession(input: {
+  name: string;
+  startTime: string;
+  finishTime: string;
+  isSewaOnly?: boolean;
+}): Promise<Session> {
   return unwrap(client.post("/sessions", input));
 }
 
 export function updateSession(
   id: number,
-  input: { name: string; startTime: string; finishTime: string }
+  input: {
+    name: string;
+    startTime: string;
+    finishTime: string;
+    isSewaOnly?: boolean;
+  }
 ): Promise<Session> {
   return unwrap(client.put(`/sessions/${id}`, input));
 }

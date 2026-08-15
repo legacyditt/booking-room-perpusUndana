@@ -1,0 +1,31 @@
+info:
+  name: Get Working Days
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/working-days"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengambil daftar hari kerja perpustakaan.
+
+  **Auth:** memerlukan session login.
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "days": ["senin", "selasa", "rabu", "kamis", "jumat"]
+    }
+  }
+  ```
+
+  Jika belum pernah disimpan, mengembalikan default `senin`–`jumat`.

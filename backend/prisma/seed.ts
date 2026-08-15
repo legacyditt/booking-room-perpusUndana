@@ -1,8 +1,87 @@
 import prisma from "../src/lib/prisma";
 import { hashPassword } from "@better-auth/utils/password";
-import { Role, BookingStatus } from "../src/generated/prisma/enums";
+import { BookingStatus } from "../src/generated/prisma/enums";
 
-const userPassword = "password123";
+const userPassword = "delano_MAHASISWA123";
+const adminPassword = "admin_PERPUSTAKAAN123";
+
+const usersData = [
+  {
+    id: "admin-uuid-1",
+    name: "Admin Perpustakaan",
+    email: "adminperpus@gmail.com",
+    role: "admin",
+    status: "dosen",
+    idNumber: "111122223333",
+    whatsapp: "081234567890",
+    affiliation: "Ilmu Komputer",
+  },
+  {
+    id: "admin-uuid-2",
+    name: "Rio Seran",
+    email: "rioseran@gmail.com",
+    role: "admin",
+    status: "dosen",
+    idNumber: "111122223334",
+    whatsapp: "08120000003",
+    affiliation: "Ilmu Komputer",
+  },
+  {
+    id: "admin-uuid-3",
+    name: "Pier Nedebang",
+    email: "piernedebang@gmail.com",
+    role: "admin",
+    status: "dosen",
+    idNumber: "111122223335",
+    whatsapp: "08120000004",
+    affiliation: "Ilmu Komputer",
+  },
+  {
+    id: "user-uuid-1",
+    name: "Delano Manafe",
+    email: "delanomanafe05@gmail.com",
+    role: "user",
+    status: "mahasiswa",
+    idNumber: "220000001",
+    whatsapp: "08120000001",
+    affiliation: "Ilmu Komputer",
+  },
+  {
+    id: "user-uuid-2",
+    name: "Samuel",
+    email: "samuel@gmail.com",
+    role: "user",
+    status: "mahasiswa",
+    idNumber: "220000002",
+    whatsapp: "08120000002",
+    affiliation: "Ilmu Komputer",
+  },
+];
+
+type SeedUser = (typeof usersData)[number];
+
+async function seedUser(u: SeedUser, passwordHash: string) {
+  await prisma.user.create({
+    data: {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
+      status: u.status,
+      idNumber: u.idNumber,
+      whatsapp: u.whatsapp,
+      affiliation: u.affiliation,
+      accounts: {
+        create: {
+          id: `acc-${u.id}`,
+          accountId: u.email,
+          providerId: "credential",
+          password: passwordHash,
+        },
+      },
+    },
+  });
+}
 
 const roomsData = [
   { name: "Aula Besar", capacity: 10, imageUrl: "https://picsum.photos/id/48/5000/3333" },
@@ -36,53 +115,15 @@ async function main() {
   });
 
   // Menggunakan fungsi bawaan dari BetterAuth untuk hashing
-  const adminPasswordHash = await hashPassword("admin_PERPUSTAKAAN123");
-  const userPasswordHash = await hashPassword("delano_MAHASISWA123");
+  const adminPasswordHash = await hashPassword(adminPassword);
+  const userPasswordHash = await hashPassword(userPassword);
 
-  // 1. Create Admin
-  const adminId = "admin-uuid-1";
-  await prisma.user.create({
-    data: {
-      id: adminId,
-      name: "Admin Perpustakaan",
-      email: "adminperpus@gmail.com",
-      role: "admin",
-      status: "dosen",
-      idNumber: "111122223333",
-      whatsapp: "081234567890",
-      accounts: {
-        create: {
-          id: "acc-admin-1",
-          accountId: "adminperpus@gmail.com",
-          providerId: "credential",
-          password: adminPasswordHash,
-        },
-      },
-    },
-  });
+  for (const u of usersData) {
+    await seedUser(u, u.role === "admin" ? adminPasswordHash : userPasswordHash);
+  }
 
-  // 2. Create Regular User
   const userId = "user-uuid-1";
-  await prisma.user.create({
-    data: {
-      id: userId,
-      name: "Delano Manafe",
-      email: "delanomanafe05@gmail.com",
-      role: "user",
-      status: "mahasiswa",
-      idNumber: "220000001",
-      whatsapp: "08120000001",
-      accounts: {
-        create: {
-          id: "acc-user-1",
-          accountId: "delanomanafe05@gmail.com",
-          providerId: "credential",
-          password: userPasswordHash,
-        },
-      },
-    },
-  });
-  
+
   const members = [{ id: userId }];
 
   await prisma.room.createMany({ data: roomsData });

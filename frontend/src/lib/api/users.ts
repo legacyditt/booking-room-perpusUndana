@@ -9,3 +9,13 @@ export function getUsers(cookie?: string): Promise<AdminUser[]> {
 export function updateUserRole(id: string, role: string): Promise<AdminUser> {
   return unwrap(client.patch(`/users/${id}/role`, { role }));
 }
+
+export async function createAdmins(
+  emails: string[],
+): Promise<{ data: AdminUser[]; failed: string[] }> {
+  const res = await client.post<{ data: AdminUser[]; failed: string[] }>(
+    "/users/admin",
+    { emails },
+  );
+  return res.data;
+}

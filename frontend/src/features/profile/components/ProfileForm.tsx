@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   EnvelopeSimple,
@@ -17,36 +17,48 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { toast } from "@/components/ui/toast";
+import { authClient, useSession } from "@/lib/api/auth-client";
+
+const statusLabel = (status?: string) =>
+  status ? status.charAt(0).toUpperCase() + status.slice(1) : "-";
 
 export function ProfileForm() {
   const router = useRouter();
-  
-  // Data Awal (Simulasi dari DB)
-  const initialData = {
-    name: "Delano Manafe",
-    studyProgram: "Ilmu Komputer",
-  };
+  const { data: session, refetch } = useSession();
+  const user = session?.user;
 
-  const [name, setName] = useState(initialData.name);
-  const [studyProgram, setStudyProgram] = useState(initialData.studyProgram);
+  const [name, setName] = useState(user?.name ?? "");
+  const [studyProgram, setStudyProgram] = useState(user?.affiliation ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+      setStudyProgram(user.affiliation ?? "");
+    }
+  }, [user?.name, user?.affiliation]);
+
+  const affiliationLabel = user?.status === "umum" ? "Instansi" : "Program Studi";
+
   const hasChanges =
-    name !== initialData.name ||
-    studyProgram !== initialData.studyProgram ||
+    name !== (user?.name ?? "") ||
+    studyProgram !== (user?.affiliation ?? "") ||
+    currentPassword !== "" ||
     password !== "" ||
     confirmPassword !== "";
 
-  const handleSave = () => {
-    if (password && password.length < 6) {
+  const handleSave = async () => {
+    if (password && password.length < 8) {
       toast.add({
         type: "error",
         title: "Gagal Disimpan",
-        description: "Kata sandi baru minimal harus 6 karakter.",
+        description: "Kata sandi baru minimal harus 8 karakter.",
       });
       return;
     }
@@ -60,19 +72,55 @@ export function ProfileForm() {
       return;
     }
 
+    if (password && !currentPassword) {
+      toast.add({
+        type: "error",
+        title: "Gagal Disimpan",
+        description: "Kata sandi saat ini wajib diisi untuk mengganti kata sandi.",
+      });
+      return;
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      // Reset password fields setelah berhasil
+    try {
+      if (name !== user?.name || studyProgram !== user?.affiliation) {
+        const { error } = await authClient.updateUser({
+          name,
+          affiliation: studyProgram,
+        });
+        if (error) throw error;
+      }
+
+      if (password) {
+        const { error } = await authClient.changePassword({
+          currentPassword,
+          newPassword: password,
+        });
+        if (error) throw error;
+      }
+
+      setCurrentPassword("");
       setPassword("");
       setConfirmPassword("");
-      
+      refetch();
+
       toast.add({
         type: "success",
         title: "Perubahan Disimpan",
         description: "Profil Anda telah berhasil diperbarui.",
       });
-    }, 800);
+    } catch (error) {
+      const message =
+        (error as { message?: string })?.message ??
+        "Terjadi kesalahan sistem. Silakan coba lagi.";
+      toast.add({
+        type: "error",
+        title: "Gagal Disimpan",
+        description: message,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -103,7 +151,7 @@ export function ProfileForm() {
           {/* FORM AREA */}
           <div className="flex flex-col gap-10 bg-white p-6 md:p-10 rounded-xl border border-border shadow-sm">
             
-            {/* Bagian 1: Informasi Pribadi (Mahasiswa) */}
+            {/* Bagian 1: Informasi Pribadi */}
             <section className="space-y-6">
               <div className="border-b border-[#D6D3D1] pb-2">
                 <h2 className="text-lg font-bold text-[#1C1917]">Informasi Pribadi</h2>
@@ -136,17 +184,17 @@ export function ProfileForm() {
                     <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="email"
-                      defaultValue="delanomanafe@undana.ac.id"
+                      defaultValue={user?.email}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
                   </div>
                 </div>
 
-                {/* Program Studi (Bisa di-edit) */}
+                {/* Program Studi / Instansi (Bisa di-edit) */}
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
-                    Program Studi
+                    {affiliationLabel}
                   </label>
                   <div className="relative">
                     <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
@@ -154,6 +202,7 @@ export function ProfileForm() {
                       type="text"
                       value={studyProgram}
                       onChange={(e) => setStudyProgram(e.target.value)}
+                      placeholder={user?.status === "umum" ? "Nama instansi" : "Nama program studi"}
                       className="pl-9 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
                     />
                   </div>
@@ -168,7 +217,7 @@ export function ProfileForm() {
                     <Student className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="text"
-                      defaultValue="Mahasiswa"
+                      defaultValue={statusLabel(user?.status)}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -184,7 +233,7 @@ export function ProfileForm() {
                     <IdentificationCard className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="text"
-                      defaultValue="199001012020121001"
+                      defaultValue={user?.idNumber}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -200,7 +249,7 @@ export function ProfileForm() {
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="tel"
-                      defaultValue="081234567890"
+                      defaultValue={user?.whatsapp}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -217,6 +266,30 @@ export function ProfileForm() {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+                    Kata Sandi Saat Ini
+                  </label>
+                  <div className="relative">
+                    <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+                    <Input
+                      type={showCurrentPassword ? "text" : "password"}
+                      placeholder="Wajib untuk ganti sandi"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                      aria-label={showCurrentPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                    >
+                      {showCurrentPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
                     Kata Sandi Baru

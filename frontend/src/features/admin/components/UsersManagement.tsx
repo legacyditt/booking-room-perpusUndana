@@ -5,7 +5,7 @@ import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { UserFilters } from "@/features/admin/components/UserFilters";
 import { UserTable } from "@/features/admin/components/UserTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
-import { updateUserRole } from "@/lib/api/users";
+import { createAdmins, updateUserRole } from "@/lib/api/users";
 import { AdminUser } from "@/types/admin";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -135,26 +135,37 @@ export function UsersManagement({
       return;
     }
     setIsSaving(true);
-    // Simulasi tambah admin (karena hanya FE)
-    setTimeout(() => {
-      const newAdmins: AdminUser[] = validEmails.map((email) => ({
-        id: Math.random().toString(),
-        name: "Admin Baru",
-        email: email.trim(),
-        role: "admin",
-        status: "umum", // Status dummy untuk type safety
-        createdAt: new Date().toISOString(),
-      }));
-      setUsers((prev) => [...newAdmins, ...prev]);
-      setIsSaving(false);
+    try {
+      const { data, failed } = await createAdmins(validEmails);
+      setUsers((prev) => [...data, ...prev]);
       setIsAddingAdmin(false);
       setAdminEmails([""]);
+      if (data.length > 0) {
+        toast.add({
+          type: "success",
+          title: `${data.length} Admin Berhasil Ditambahkan`,
+          description: `Admin baru memiliki password default (admin123).`,
+        });
+      }
+      if (failed.length > 0) {
+        toast.add({
+          type: "error",
+          title: `${failed.length} Email Gagal Diproses`,
+          description: `Email yang gagal: ${failed.join(", ")}`,
+        });
+      }
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
       toast.add({
-        type: "success",
-        title: `${newAdmins.length} Admin Berhasil Ditambahkan`,
-        description: `Admin baru telah ditambahkan dengan password default (admin123).`,
+        type: "error",
+        title: "Gagal Menambahkan Admin",
+        description: message,
       });
-    }, 500);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDeleteAdmin = (user: AdminUser) => {

@@ -1,0 +1,54 @@
+info:
+  name: Create Admins
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/users/admin"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "emails": ["adminbaru@gmail.com"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Membuat satu atau lebih akun admin dari daftar email.
+
+  **Auth:** memerlukan role admin. Pastikan sudah login (session cookie tersimpan) sebelum menjalankan request ini.
+
+  **Request Body (application/json):**
+  - `emails` (array of string, required) — daftar email. Format email divalidasi, lalu di-dedupe (trim + lowercase).
+    - Email yang **belum terdaftar** → dibuat akun baru (role `admin`, nama `Admin {N}` sesuai jumlah admin yang sudah ada di DB, password default `admin123`).
+    - Email yang **sudah terdaftar sebagai user** → role di-upgrade menjadi `admin` (nama tidak diubah).
+
+  **Response 200:**
+  ```json
+  {
+    "data": [
+      {
+        "id": "...",
+        "name": "Admin 4",
+        "email": "adminbaru@gmail.com",
+        "role": "admin",
+        "status": "umum",
+        "createdAt": "2026-08-15T00:00:00.000Z"
+      }
+    ],
+    "failed": []
+  }
+  ```
+  `failed` berisi email yang gagal diproses (misal error signup).
+
+  **Response 400:** jika `emails` kosong atau tidak ada format email valid.

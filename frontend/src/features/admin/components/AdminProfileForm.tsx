@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   User,
   EnvelopeSimple,
@@ -12,32 +12,39 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
+import { authClient, useSession } from "@/lib/api/auth-client";
 
 export function AdminProfileForm() {
-  // Data Awal (Simulasi dari DB)
-  const initialData = {
-    name: "Admin User",
-    email: "admin@undana.ac.id",
-  };
+  const { data: session, refetch } = useSession();
+  const user = session?.user;
 
-  const [name, setName] = useState(initialData.name);
+  const [name, setName] = useState(user?.name ?? "");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+    }
+  }, [user?.name]);
+
   const hasChanges =
-    name !== initialData.name ||
+    name !== (user?.name ?? "") ||
+    currentPassword !== "" ||
     password !== "" ||
     confirmPassword !== "";
 
-  const handleSave = () => {
-    if (password && password.length < 6) {
+  const handleSave = async () => {
+    if (password && password.length < 8) {
       toast.add({
         type: "error",
         title: "Gagal Disimpan",
-        description: "Kata sandi baru minimal harus 6 karakter.",
+        description: "Kata sandi baru minimal harus 8 karakter.",
       });
       return;
     }
@@ -51,19 +58,52 @@ export function AdminProfileForm() {
       return;
     }
 
+    if (password && !currentPassword) {
+      toast.add({
+        type: "error",
+        title: "Gagal Disimpan",
+        description: "Kata sandi saat ini wajib diisi untuk mengganti kata sandi.",
+      });
+      return;
+    }
+
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      // Reset password fields setelah berhasil
+    try {
+      if (name !== user?.name) {
+        const { error } = await authClient.updateUser({ name });
+        if (error) throw error;
+      }
+
+      if (password) {
+        const { error } = await authClient.changePassword({
+          currentPassword,
+          newPassword: password,
+        });
+        if (error) throw error;
+      }
+
+      setCurrentPassword("");
       setPassword("");
       setConfirmPassword("");
-      
+      refetch();
+
       toast.add({
         type: "success",
         title: "Profil Admin Diperbarui",
         description: "Informasi profil dan/atau kata sandi Anda berhasil disimpan.",
       });
-    }, 800);
+    } catch (error) {
+      const message =
+        (error as { message?: string })?.message ??
+        "Terjadi kesalahan sistem. Silakan coba lagi.";
+      toast.add({
+        type: "error",
+        title: "Gagal Disimpan",
+        description: message,
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -94,7 +134,7 @@ export function AdminProfileForm() {
             </div>
           </div>
 
-          {/* Email (Disabled - sesuai instruksi admin hanya tambah email, jadi login pakai email) */}
+          {/* Email (Disabled) */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
               Email Akun
@@ -103,7 +143,7 @@ export function AdminProfileForm() {
               <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 type="email"
-                defaultValue={initialData.email}
+                defaultValue={user?.email}
                 disabled
                 className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
               />
@@ -137,6 +177,30 @@ export function AdminProfileForm() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+              Kata Sandi Saat Ini
+            </label>
+            <div className="relative">
+              <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
+              <Input
+                type={showCurrentPassword ? "text" : "password"}
+                placeholder="Wajib untuk ganti sandi"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                aria-label={showCurrentPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              >
+                {showCurrentPassword ? <EyeSlash size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
           <div className="flex flex-col gap-2">
             <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
               Kata Sandi Baru

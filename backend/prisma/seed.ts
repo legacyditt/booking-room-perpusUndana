@@ -156,6 +156,7 @@ async function main() {
         userId: user.id,
         date: bookingDate,
         status: BookingStatus.APPROVED,
+        decidedById: "admin-uuid-1",
       })),
       {
         roomId: roomById.get("Ruang Rapat 1")!.id,
@@ -163,6 +164,7 @@ async function main() {
         userId: members[0].id,
         date: bookingDate,
         status: BookingStatus.APPROVED,
+        decidedById: "admin-uuid-1",
       },
       {
         roomId: roomById.get("Ruang Diskusi")!.id,
@@ -170,6 +172,7 @@ async function main() {
         userId: members[0].id,
         date: bookingDate,
         status: BookingStatus.REJECTED,
+        decidedById: "admin-uuid-1",
       },
     ],
   });

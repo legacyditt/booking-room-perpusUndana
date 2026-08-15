@@ -21,17 +21,7 @@ const errorMessage = (error: unknown, fallback: string) =>
 export function ReservationsManagement({
   bookings: initialBookings,
 }: ReservationsManagementProps) {
-  // Inject dummy admin name for testing purposes on APPROVED/REJECTED bookings
-  const dummyBookings = useMemo(() => {
-    return initialBookings.map((b) => {
-      if (b.status === "APPROVED" || b.status === "REJECTED") {
-        return { ...b, admin: { name: "Admin Perpustakaan (Dummy)" } };
-      }
-      return b;
-    });
-  }, [initialBookings]);
-
-  const [bookings, setBookings] = useState(dummyBookings);
+  const [bookings, setBookings] = useState(initialBookings);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [dateFilter, setDateFilter] = useState("");
@@ -82,10 +72,6 @@ export function ReservationsManagement({
     setIsUpdatingId(id);
     try {
       const updated = await updateBookingStatus(id, status);
-      // Inject dummy admin to updated result for testing
-      if (updated.status === "APPROVED" || updated.status === "REJECTED") {
-        updated.admin = { name: "Admin Perpustakaan (Dummy)" };
-      }
       setBookings((prev) => prev.map((b) => (b.id === id ? updated : b)));
       const label = status === "APPROVED" ? "disetujui" : "ditolak";
       toast.add({

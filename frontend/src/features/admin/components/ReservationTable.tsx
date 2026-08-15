@@ -113,9 +113,9 @@ export function ReservationTable({
                       >
                         {label}
                       </Badge>
-                      {(booking.status === "APPROVED" || booking.status === "REJECTED") && booking.admin?.name && (
+                      {(booking.status === "APPROVED" || booking.status === "REJECTED") && booking.decidedBy?.name && (
                         <span className="text-[10px] text-neutral-500">
-                          Oleh: {booking.admin.name}
+                          Oleh: {booking.decidedBy.name}
                         </span>
                       )}
                     </div>

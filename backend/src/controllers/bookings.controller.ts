@@ -67,6 +67,7 @@ export const getAllBookings = async (req: Request, res: Response) => {
         },
         session: true,
         user: { select: { name: true } },
+        decidedBy: { select: { name: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -248,11 +249,12 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
 
     const booking = await prisma.booking.update({
       where: { id: Number(id) },
-      data: { status },
+      data: { status, decidedById: req.userId as string },
       include: {
         room: { include: { bookingPrice: true } },
         session: true,
         user: true,
+        decidedBy: { select: { name: true } },
       },
     });
 

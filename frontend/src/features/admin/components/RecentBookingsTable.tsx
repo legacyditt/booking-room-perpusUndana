@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Booking, BookingStatus } from "@/types/booking";
+import { isSeatApproved } from "@/lib/booking-status";
 
 // ── Pemetaan status booking ke variant Badge & label ─────────────────────────
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
@@ -68,6 +69,10 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
         <TableBody>
           {bookings.map((booking) => {
             const { label, variant } = statusConfig[booking.status];
+            const displayLabel = isSeatApproved(booking) ? "Dipesan" : label;
+            const displayVariant = isSeatApproved(booking)
+              ? "secondary"
+              : variant;
 
             return (
               <TableRow
@@ -88,10 +93,10 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
                 </TableCell>
                 <TableCell className="px-6 py-4">
                   <Badge
-                    variant={variant}
+                    variant={displayVariant}
                     className="min-w-[90px] justify-center"
                   >
-                    {label}
+                    {displayLabel}
                   </Badge>
                 </TableCell>
               </TableRow>

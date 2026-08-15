@@ -9,6 +9,17 @@ import { logActivity } from "../lib/activityLog";
 
 // ROOM = sewa seluruh ruangan (blokir jika ada booking apa pun),
 // SEAT = pesan 1 kursi (blokir jika sudah ada sewa ruangan atau kursi penuh).
+const DEFAULT_WORKING_DAYS = ["senin", "selasa", "rabu", "kamis", "jumat"];
+
+const assertWorkingDay = async (date: Date) => {
+  const row = await prisma.workingDays.findUnique({ where: { id: 1 } });
+  const days = row ? row.days.split(",") : DEFAULT_WORKING_DAYS;
+  const day = date.toLocaleDateString("id-ID", { weekday: "long" }).toLowerCase();
+  if (!days.includes(day)) {
+    throw new Error("NOT_WORKING_DAY");
+  }
+};
+
 const assertSlotAvailable = async (
   tx: Prisma.TransactionClient,
   input: { roomId: number; sessionId: number; date: Date; capacity: number },
@@ -123,6 +134,17 @@ export const createBooking = async (req: Request, res: Response) => {
       where: { id: Number(sessionId) },
     });
     if (!session) return res.status(404).json({ message: "Session Not Found" });
+
+    try {
+      await assertWorkingDay(new Date(date));
+    } catch (e: any) {
+      if (e.message === "NOT_WORKING_DAY") {
+        return res
+          .status(400)
+          .json({ message: "Tanggal pemesanan harus hari kerja" });
+      }
+      throw e;
+    }
 
     // SEAT (reguler) langsung disetujui; ROOM (sewa) butuh persetujuan admin.
     const needsApproval = bookingType === "ROOM";
@@ -348,6 +370,17 @@ export const updateBooking = async (req: Request, res: Response) => {
       where: { id: Number(sessionId) },
     });
     if (!session) return res.status(404).json({ message: "Session Not Found" });
+
+    try {
+      await assertWorkingDay(new Date(date));
+    } catch (e: any) {
+      if (e.message === "NOT_WORKING_DAY") {
+        return res
+          .status(400)
+          .json({ message: "Tanggal pemesanan harus hari kerja" });
+      }
+      throw e;
+    }
 
     const newDate = new Date(date);
 

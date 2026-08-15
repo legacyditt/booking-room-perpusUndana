@@ -45,12 +45,14 @@ import { errorMessage } from "@/lib/api/errors";
 interface BookingDetailsFormProps {
   room: Room;
   sessions: Session[];
+  workingDays?: string[];
   mode?: "reguler" | "sewa";
 }
 
 export function BookingDetailsForm({
   room,
   sessions,
+  workingDays = ["senin", "selasa", "rabu", "kamis", "jumat"],
   mode = "reguler",
 }: BookingDetailsFormProps) {
   const [date, setDate] = useState<Date | undefined>();
@@ -234,7 +236,13 @@ export function BookingDetailsForm({
                   setDate(selectedDate);
                   setIsCalendarOpen(false);
                 }}
-                disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)) }}
+                disabled={[
+                  { before: new Date(new Date().setHours(0, 0, 0, 0)) },
+                  (calendarDate) =>
+                    !workingDays.includes(
+                      format(calendarDate, "EEEE", { locale: id }).toLowerCase(),
+                    ),
+                ]}
                 locale={id}
               />
             </PopoverContent>

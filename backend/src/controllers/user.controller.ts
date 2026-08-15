@@ -51,6 +51,43 @@ export const updateUserRole = async (req: Request, res: Response) => {
     }
 }
 
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+
+        if (id === req.userId) {
+            return res.status(403).json({ message: 'Tidak dapat menghapus akun sendiri' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id },
+            select: { id: true, name: true },
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'Pengguna tidak ditemukan' });
+        }
+
+        const bookingCount = await prisma.booking.count({ where: { userId: id } });
+        if (bookingCount > 0) {
+            return res.status(400).json({
+                message: 'Tidak dapat dihapus karena memiliki riwayat pemesanan',
+            });
+        }
+
+        await prisma.$transaction([
+            prisma.session.deleteMany({ where: { userId: id } }),
+            prisma.account.deleteMany({ where: { userId: id } }),
+            prisma.adminActivityLog.deleteMany({ where: { adminId: id } }),
+            prisma.user.delete({ where: { id } }),
+        ]);
+
+        return res.status(200).json({ message: "User deleted successfully", data: { id } });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
 export const createAdmins = async (req: Request, res: Response) => {
     try {
         const emails: string[] = Array.isArray(req.body?.emails)

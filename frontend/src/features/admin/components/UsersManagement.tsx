@@ -5,7 +5,7 @@ import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { UserFilters } from "@/features/admin/components/UserFilters";
 import { UserTable } from "@/features/admin/components/UserTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
-import { createAdmins, updateUserRole } from "@/lib/api/users";
+import { createAdmins, deleteUser, updateUserRole } from "@/lib/api/users";
 import { AdminUser } from "@/types/admin";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,9 @@ export function UsersManagement({
 
   const [isAddingAdmin, setIsAddingAdmin] = useState(false);
   const [adminEmails, setAdminEmails] = useState<string[]>([""]);
+
+  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -169,13 +172,33 @@ export function UsersManagement({
   };
 
   const handleDeleteAdmin = (user: AdminUser) => {
-    // Simulasi hapus admin (karena hanya FE)
-    setUsers((prev) => prev.filter((u) => u.id !== user.id));
-    toast.add({
-      type: "success",
-      title: "Admin Dihapus",
-      description: `Admin "${user.name}" telah dihapus.`,
-    });
+    setUserToDelete(user);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteUser(userToDelete.id);
+      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      toast.add({
+        type: "success",
+        title: "Admin Dihapus",
+        description: `Admin "${userToDelete.name}" telah dihapus.`,
+      });
+      setUserToDelete(null);
+    } catch (error) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+      toast.add({
+        type: "error",
+        title: "Gagal Menghapus Admin",
+        description: message,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -338,6 +361,41 @@ export function UsersManagement({
               disabled={isSaving || adminEmails.every(e => e.trim() === "")}
             >
               {isSaving ? "Menambahkan..." : "Tambah Admin"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Konfirmasi Hapus Admin */}
+      <Dialog
+        open={!!userToDelete}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) setUserToDelete(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Admin</DialogTitle>
+            <DialogDescription>
+              Anda yakin ingin menghapus admin{" "}
+              <strong>{userToDelete?.name}</strong> ({userToDelete?.email})?
+              Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setUserToDelete(null)}
+              disabled={isDeleting}
+            >
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Menghapus..." : "Hapus"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { SessionsManagement } from "@/features/admin/components/SessionsManagement";
-import { getSessions } from "@/lib/api";
+import { getSessions, getWorkingDays } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
 import { Button } from "@/components/ui/button";
 import type { Session } from "@/types/booking";
 
 export const dynamic = "force-dynamic";
+
+const DEFAULT_WORKING_DAYS = ["senin", "selasa", "rabu", "kamis", "jumat"];
 
 export default async function AdminSessionsPage() {
   let sessions: Session[] = [];
@@ -14,6 +16,13 @@ export default async function AdminSessionsPage() {
     sessions = await getSessions((await getCookieHeader()).cookie);
   } catch {
     sessions = [];
+  }
+
+  let workingDays: string[] = DEFAULT_WORKING_DAYS;
+  try {
+    workingDays = (await getWorkingDays((await getCookieHeader()).cookie)).days;
+  } catch {
+    workingDays = DEFAULT_WORKING_DAYS;
   }
 
   return (
@@ -38,7 +47,10 @@ export default async function AdminSessionsPage() {
 
       {/* ── Kontainer Utama (Tabel + Pagination) ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
-        <SessionsManagement sessions={sessions} />
+        <SessionsManagement
+          sessions={sessions}
+          initialWorkingDays={workingDays}
+        />
       </div>
     </div>
   );

@@ -27,7 +27,12 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
     notFound(); // Otomatis render halaman jika ID tidak ada
   }
 
-  const sessions = await getSessions(cookie);
+  let sessions: Awaited<ReturnType<typeof getSessions>> = [];
+  try {
+    sessions = await getSessions(cookie);
+  } catch {
+    // Fallback ke daftar sesi kosong bila endpoint gagal.
+  }
 
   let workingDays: string[] = ["senin", "selasa", "rabu", "kamis", "jumat"];
   try {

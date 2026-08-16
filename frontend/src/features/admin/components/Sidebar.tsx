@@ -15,6 +15,7 @@ import {
   Shield,
   UserCircle,
   ListMagnifyingGlass,
+  ChartBar,
 } from "@phosphor-icons/react/dist/ssr";
 
 import {
@@ -45,6 +46,7 @@ const navItems = [
     href: "/admin/activities",
     icon: ListMagnifyingGlass,
   },
+  { name: "Laporan", href: "/admin/reports", icon: ChartBar },
   { name: "Edit Profil", href: "/admin/profile", icon: UserCircle },
 ];
 

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { SessionTable } from "@/features/admin/components/SessionTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
 import { deleteSession } from "@/lib/api/sessions";
-import { getWorkingDays, updateWorkingDays } from "@/lib/api/working-days";
+import { updateWorkingDays } from "@/lib/api/working-days";
 import { Session } from "@/types/booking";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -31,10 +31,12 @@ const DAYS = [
 
 interface SessionsManagementProps {
   sessions: Session[];
+  initialWorkingDays?: string[];
 }
 
 export function SessionsManagement({
   sessions: initialSessions,
+  initialWorkingDays = ["senin", "selasa", "rabu", "kamis", "jumat"],
 }: SessionsManagementProps) {
   const [sessions, setSessions] = useState(initialSessions);
   const [page, setPage] = useState(1);
@@ -49,23 +51,9 @@ export function SessionsManagement({
     safePage * PAGE_SIZE,
   );
 
-  // State untuk pengaturan hari kerja
-  const [workingDays, setWorkingDays] = useState<string[]>([
-    "senin",
-    "selasa",
-    "rabu",
-    "kamis",
-    "jumat",
-  ]);
+  // State untuk pengaturan hari kerja (diambil server-side, tanpa flash default)
+  const [workingDays, setWorkingDays] = useState<string[]>(initialWorkingDays);
   const [isSavingDays, setIsSavingDays] = useState(false);
-
-  useEffect(() => {
-    getWorkingDays()
-      .then((data) => setWorkingDays(data.days))
-      .catch(() => {
-        // default senin-jumat tetap dipakai bila gagal load
-      });
-  }, []);
 
   const toggleDay = (id: string) => {
     setWorkingDays((prev) =>

@@ -103,8 +103,11 @@ export function BookingDetailsForm({
     async function checkDailyAvailability() {
       if (!date) {
         setAvailabilityMap({});
+        setIsCheckingAvailability(false);
         return;
       }
+      // Kosongkan peta ketersediaan dulu agar data tanggal lama tidak tampil
+      setAvailabilityMap({});
       setIsCheckingAvailability(true);
       try {
         const dateString = format(date, "yyyy-MM-dd");
@@ -262,6 +265,7 @@ export function BookingDetailsForm({
           <Select
             value={selectedSession}
             onValueChange={(val) => setSelectedSession(val || "")}
+            disabled={!date || isCheckingAvailability}
           >
             <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
               <div className="flex items-center gap-3 flex-1 text-left">
@@ -283,29 +287,39 @@ export function BookingDetailsForm({
               </div>
             </SelectTrigger>
             <SelectContent>
-              {availableSessions.map((s) => {
-                const sId = s.id.toString();
-                const sessionAvail = availabilityMap[sId];
+              {!date ? (
+                <SelectItem value="__no-date__" disabled>
+                  Pilih tanggal terlebih dahulu
+                </SelectItem>
+              ) : isCheckingAvailability ? (
+                <SelectItem value="__loading__" disabled>
+                  Memuat ketersediaan sesi...
+                </SelectItem>
+              ) : (
+                availableSessions.map((s) => {
+                  const sId = s.id.toString();
+                  const sessionAvail = availabilityMap[sId];
 
-                // Cek apakah spesifik sesi ini penuh
-                const isSessionFull = sessionAvail
-                  ? isSewa
-                    ? sessionAvail.booked > 0
-                    : sessionAvail.remainingCapacity === 0
-                  : false;
+                  // Cek apakah spesifik sesi ini penuh
+                  const isSessionFull = sessionAvail
+                    ? isSewa
+                      ? sessionAvail.booked > 0
+                      : sessionAvail.remainingCapacity === 0
+                    : false;
 
-                return (
-                  <SelectItem
-                    key={s.id}
-                    value={sId}
-                    className={isSessionFull ? "opacity-50 py-3" : "py-3"}
-                    disabled={isSessionFull}
-                  >
-                    {s.name} ({s.startTime} - {s.finishTime})
-                    {isSessionFull && " - (Penuh)"}
-                  </SelectItem>
-                );
-              })}
+                  return (
+                    <SelectItem
+                      key={s.id}
+                      value={sId}
+                      className={isSessionFull ? "opacity-50 py-3" : "py-3"}
+                      disabled={isSessionFull}
+                    >
+                      {s.name} ({s.startTime} - {s.finishTime})
+                      {isSessionFull && " - (Penuh)"}
+                    </SelectItem>
+                  );
+                })
+              )}
             </SelectContent>
           </Select>
         </div>

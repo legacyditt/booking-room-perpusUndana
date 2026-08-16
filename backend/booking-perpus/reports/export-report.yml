@@ -29,4 +29,4 @@ docs: |-
 
   **Isi workbook (2 sheet):**
   - **Sheet 1 — `LAPORAN KUNJUNGAN TAHUN <TAHUN>`**: log kunjungan (1 baris = 1 booking). Kolom: NIM, NAMA MAHASISWA, HAK AKSES, PROGRAM STUDI, DURASI (Sesi | JAM : MENIT).
-  - **Sheet 2 — `TOTAL`**: ringkasan — total kunjungan, top 10 mahasiswa kunjungan terbanyak (`"N kali"`), top 10 mahasiswa jam kunjungan terlama (`"N sesi"` / `"N kali"`).
+  - **Sheet 2 — `TOTAL`**: ringkasan — top 10 mahasiswa jam kunjungan terlama (kolom PERINGKAT, NIM, NAMA, PROGRAM STUDI, TOTAL SESI KUNJUNGAN `"N sesi"`, JUMLAH KUNJUNGAN `"N kali"`).

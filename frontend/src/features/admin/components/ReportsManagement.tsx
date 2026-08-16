@@ -182,19 +182,8 @@ export function ReportsManagement({ initialSummary }: ReportsManagementProps) {
         </Card>
       </div>
 
-      {/* ── Dua Tabel Top 10 ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-neutral-200 shadow-none rounded-xl">
-          <CardHeader className="px-6 py-5 border-b border-neutral-100">
-            <CardTitle className="text-base font-serif font-semibold text-primary">
-              Top 10 Kunjungan Terbanyak
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <TopCountTable rows={summary.topByCount} loading={loading} />
-          </CardContent>
-        </Card>
-
+      {/* ── Tabel Top 10 ── */}
+      <div className="grid grid-cols-1 gap-6">
         <Card className="border-neutral-200 shadow-none rounded-xl">
           <CardHeader className="px-6 py-5 border-b border-neutral-100">
             <CardTitle className="text-base font-serif font-semibold text-primary">
@@ -207,53 +196,6 @@ export function ReportsManagement({ initialSummary }: ReportsManagementProps) {
         </Card>
       </div>
     </div>
-  );
-}
-
-function TopCountTable({
-  rows,
-  loading,
-}: {
-  rows: ReportSummary["topByCount"];
-  loading: boolean;
-}) {
-  return (
-    <Table className="whitespace-nowrap">
-      <TableHeader className="bg-[#FAFAFA] border-b border-[#E2E8F0]">
-        <TableRow className="hover:bg-transparent">
-          <TableHead className="px-5 py-3 font-semibold text-neutral-600 h-auto text-center">#</TableHead>
-          <TableHead className="px-5 py-3 font-semibold text-neutral-600 h-auto">NIM</TableHead>
-          <TableHead className="px-5 py-3 font-semibold text-neutral-600 h-auto">NAMA</TableHead>
-          <TableHead className="px-5 py-3 font-semibold text-neutral-600 h-auto">PROGRAM STUDI</TableHead>
-          <TableHead className="px-5 py-3 font-semibold text-neutral-600 h-auto text-center">JUMLAH</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {loading ? (
-          <TableRow>
-            <TableCell colSpan={5} className="py-10 text-center text-neutral-400">
-              Memuat data…
-            </TableCell>
-          </TableRow>
-        ) : rows.length === 0 ? (
-          <TableRow>
-            <TableCell colSpan={5} className="py-10 text-center text-neutral-400">
-              Tidak ada data kunjungan.
-            </TableCell>
-          </TableRow>
-        ) : (
-          rows.map((row, i) => (
-            <TableRow key={row.nim} className="hover:bg-neutral-50/50 transition-colors border-[#E2E8F0]">
-              <TableCell className="px-5 py-3 text-center text-neutral-500">{i + 1}</TableCell>
-              <TableCell className="px-5 py-3 font-medium text-primary">{row.nim}</TableCell>
-              <TableCell className="px-5 py-3 text-neutral-700">{row.name}</TableCell>
-              <TableCell className="px-5 py-3 text-neutral-600">{row.programStudi ?? "—"}</TableCell>
-              <TableCell className="px-5 py-3 text-center font-medium text-neutral-700">{row.count}</TableCell>
-            </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
   );
 }
 

@@ -272,39 +272,13 @@ export const exportReport = async (req: Request, res: Response) => {
     center(sheet2Title);
     sheet2.getRow(1).height = 26;
 
-    // Blok 1: Top 10 kunjungan terbanyak
-    const topCount = buildTopByCount(bookings);
-    let rowIdx = 3;
-    const blok2Title = sheet2.getCell(rowIdx, 1);
-    blok2Title.value = "Top 10 Mahasiswa dengan Kunjungan Terbanyak";
-    blok2Title.font = { bold: true, size: 12 };
-    blok2Title.fill = TITLE_FILL;
-    sheet2.mergeCells(rowIdx, 1, rowIdx, 5);
-    rowIdx += 1;
-
-    const h2 = sheet2.getRow(rowIdx);
-    h2.values = ["PERINGKAT", "NIM", "NAMA", "PROGRAM STUDI", "BANYAK KUNJUNGAN"];
-    setTableHeader(h2);
-    rowIdx += 1;
-
-    topCount.forEach((t, i) => {
-      const row = sheet2.getRow(rowIdx);
-      row.values = [i + 1, t.nim, t.name, t.programStudi ?? "", `${t.count} kali`];
-      row.eachCell((cell) => {
-        cell.border = THIN_BORDER;
-        if (i % 2 === 1) cell.fill = ALT_FILL;
-      });
-      row.getCell(2).numFmt = "@";
-      rowIdx += 1;
-    });
-    rowIdx += 1;
-
-    // Blok 3: Top 10 jam kunjungan terlama
+    // Blok: Top 10 jam kunjungan terlama
     const topDuration = buildTopByDuration(bookings);
-    const blok3Title = sheet2.getCell(rowIdx, 1);
-    blok3Title.value = "Top 10 Mahasiswa dengan Jam Kunjungan Terlama";
-    blok3Title.font = { bold: true, size: 12 };
-    blok3Title.fill = TITLE_FILL;
+    let rowIdx = 3;
+    const blokTitle = sheet2.getCell(rowIdx, 1);
+    blokTitle.value = "Top 10 Mahasiswa dengan Jam Kunjungan Terlama";
+    blokTitle.font = { bold: true, size: 12 };
+    blokTitle.fill = TITLE_FILL;
     sheet2.mergeCells(rowIdx, 1, rowIdx, 6);
     rowIdx += 1;
 

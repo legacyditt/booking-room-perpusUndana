@@ -1,0 +1,58 @@
+info:
+  name: Get Report Summary
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseUrl}}/reports/summary?month=2026-08"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengambil ringkasan laporan kunjungan perpustakaan untuk satu bulan.
+
+  **Auth:** memerlukan role admin. Pastikan sudah login (session cookie tersimpan) sebelum menjalankan request ini.
+
+  **Sumber data:** booking berstatus `APPROVED` (SEAT + ROOM yang disetujui) milik pengguna dengan status `mahasiswa`.
+
+  **Query Parameters:**
+  - `month` (string, opsional) — periode laporan format `YYYY-MM`. Default: bulan berjalan. Contoh: `2026-08`.
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "month": "2026-08",
+      "monthLabel": "Agustus 2026",
+      "total": 42,
+      "topByCount": [
+        {
+          "nim": "21010001",
+          "name": "Delano Manafe",
+          "programStudi": "Sistem Informasi",
+          "count": 12
+        }
+      ],
+      "topByDuration": [
+        {
+          "nim": "21010001",
+          "name": "Delano Manafe",
+          "programStudi": "Sistem Informasi",
+          "totalSessions": 12,
+          "visits": 12
+        }
+      ]
+    }
+  }
+  ```
+
+  `topByCount` = top 10 mahasiswa dengan kunjungan terbanyak. `topByDuration` = top 10 mahasiswa dengan durasi kunjungan terlama (dihitung dari total sesi).

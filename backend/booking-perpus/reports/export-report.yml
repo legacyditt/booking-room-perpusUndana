@@ -1,0 +1,32 @@
+info:
+  name: Export Report (xlsx)
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseUrl}}/reports/export?month=2026-08"
+  headers:
+    - name: Content-Type
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengunduh laporan kunjungan dalam format Excel (.xlsx) untuk satu bulan.
+
+  **Auth:** memerlukan role admin. Pastikan sudah login (session cookie tersimpan) sebelum menjalankan request ini.
+
+  **Query Parameters:**
+  - `month` (string, opsional) — periode laporan format `YYYY-MM`. Default: bulan berjalan. Contoh: `2026-08`.
+
+  **Response 200:** file binary `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` dengan nama `KUNJUNGAN_<BULAN>_TAHUN_<TAHUN>.xlsx` (mis. `KUNJUNGAN_AGUSTUS_TAHUN_2026.xlsx`).
+
+  **Isi workbook (2 sheet):**
+  - **Sheet 1 — `LAPORAN KUNJUNGAN TAHUN <TAHUN>`**: log kunjungan (1 baris = 1 booking). Kolom: NIM, NAMA MAHASISWA, HAK AKSES, PROGRAM STUDI, DURASI (Sesi | JAM : MENIT).
+  - **Sheet 2 — `TOTAL`**: ringkasan — total kunjungan, top 10 mahasiswa kunjungan terbanyak (`"N kali"`), top 10 mahasiswa jam kunjungan terlama (`"N sesi"` / `"N kali"`).

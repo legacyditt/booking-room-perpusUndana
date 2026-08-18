@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { MagnifyingGlass, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -124,20 +125,9 @@ export function ReservationFilters({
 
           {/* Rentang Tanggal (Dari - Sampai) */}
           <div className="flex flex-col gap-1.5 w-full lg:w-auto">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
-                Rentang Tanggal
-              </label>
-              {hasDateFilter && (
-                <button
-                  type="button"
-                  onClick={onClearDate}
-                  className="text-xs text-primary hover:underline font-medium cursor-pointer"
-                >
-                  Reset Tanggal
-                </button>
-              )}
-            </div>
+            <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+              Rentang Tanggal
+            </label>
             <div className="flex items-center gap-2">
               <Input
                 type="date"
@@ -155,6 +145,18 @@ export function ReservationFilters({
                 onChange={(e) => onEndDateChange(e.target.value)}
                 placeholder="Sampai"
               />
+              {hasDateFilter && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={onClearDate}
+                  title="Reset filter tanggal"
+                  className="h-10 w-10 text-neutral-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors shrink-0"
+                >
+                  <ArrowCounterClockwise size={18} weight="bold" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

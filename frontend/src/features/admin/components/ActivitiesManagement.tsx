@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -186,13 +188,16 @@ export function ActivitiesManagement({
             />
           </div>
           {hasDateFilter && (
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="icon"
               onClick={handleClearDate}
-              className="text-xs text-primary hover:underline font-medium cursor-pointer self-center"
+              title="Reset filter tanggal"
+              className="h-10 w-10 text-neutral-500 hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition-colors shrink-0"
             >
-              Reset Tanggal
-            </button>
+              <ArrowCounterClockwise size={18} weight="bold" />
+            </Button>
           )}
         </div>
       </div>

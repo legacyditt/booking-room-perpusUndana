@@ -10,6 +10,8 @@ import {
   Users,
   CheckCircle,
   Tag,
+  WhatsappLogo,
+  ArrowSquareOut,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -48,6 +50,17 @@ interface BookingDetailsFormProps {
   workingDays?: string[];
   adminWhatsapp?: string;
   mode?: "reguler" | "sewa";
+}
+
+function formatWhatsappUrl(phone: string, text: string) {
+  let cleanPhone = phone.replace(/\D/g, "");
+  if (cleanPhone.startsWith("0")) {
+    cleanPhone = "62" + cleanPhone.slice(1);
+  } else if (!cleanPhone.startsWith("62")) {
+    cleanPhone = "62" + cleanPhone;
+  }
+  const encodedText = encodeURIComponent(text);
+  return `https://wa.me/${cleanPhone}?text=${encodedText}`;
 }
 
 export function BookingDetailsForm({
@@ -185,6 +198,31 @@ export function BookingDetailsForm({
       setIsLoading(false);
     }
   };
+
+  const selectedSessionObj = sessions.find(
+    (s) => s.id.toString() === selectedSession,
+  );
+  const sessionText = selectedSessionObj
+    ? `${selectedSessionObj.name} (${selectedSessionObj.startTime} - ${selectedSessionObj.finishTime} WITA)`
+    : "-";
+  const formattedDate = date
+    ? format(date, "EEEE, d MMMM yyyy", { locale: id })
+    : "-";
+  const formattedPrice = room.bookingPrice
+    ? formatRupiah(Number(room.bookingPrice.price))
+    : "-";
+
+  const waMessage = `Halo Admin Perpustakaan Undana,
+
+Saya ingin melakukan konfirmasi pemesanan sewa ruangan:
+• *Ruangan:* ${room.name}
+• *Tanggal:* ${formattedDate}
+• *Sesi:* ${sessionText}
+• *Total Biaya:* ${formattedPrice}
+
+Berikut saya lampirkan bukti pembayaran dan bukti pemesanan saya. Terima kasih.`;
+
+  const waUrl = formatWhatsappUrl(adminWhatsapp, waMessage);
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
@@ -425,14 +463,42 @@ export function BookingDetailsForm({
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 pt-4 pb-2">
-            <div className="bg-primary/5 p-4 border border-primary/20 text-center">
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary/5 hover:bg-primary/10 transition-colors p-4 border border-primary/20 text-center rounded-lg group block cursor-pointer"
+            >
               <span className="block text-xs font-bold text-neutral uppercase tracking-wider mb-1">
                 Nomor WhatsApp Admin
               </span>
-              <span className="text-xl font-bold text-primary">
-                {adminWhatsapp}
+              <span className="text-xl font-bold text-primary group-hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5 justify-center">
+                <span>{adminWhatsapp}</span>
+                <ArrowSquareOut size={18} />
               </span>
-            </div>
+            </a>
+
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all hover:shadow-md cursor-pointer text-sm"
+            >
+              <WhatsappLogo size={22} weight="fill" />
+              <span>Hubungi Admin via WhatsApp</span>
+            </a>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPaymentDialog(false);
+                router.push("/reservations");
+              }}
+              className="w-full text-neutral-600 hover:text-primary"
+            >
+              Lihat Pemesanan Saya
+            </Button>
+
             <p className="text-xs text-center text-neutral/70">
               *Tunjukkan bukti pesanan (pada menu Pemesanan Saya) dan bukti
               transfer saat menghubungi admin.

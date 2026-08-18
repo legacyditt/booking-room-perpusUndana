@@ -229,17 +229,21 @@ export function SettingsManagement({
             </div>
 
             {/* Preview Tampilan Modal User */}
-            <div className="mt-4 p-4 rounded-lg bg-emerald-50/60 border border-emerald-200/80">
-              <span className="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1">
+            <div className="mt-4 p-4 rounded-lg bg-emerald-50/60 border border-emerald-200/80 space-y-3">
+              <span className="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
                 Preview Tampilan di Pembayaran User:
               </span>
               <div className="bg-white p-3 rounded-md border border-emerald-100 text-center shadow-xs">
-                <span className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                <span className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-0.5">
                   Nomor WhatsApp Admin
                 </span>
                 <span className="text-lg font-bold text-primary">
-                  {whatsapp || "0812-3456-7890"}
+                  {whatsapp || "081234567890"}
                 </span>
+              </div>
+              <div className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-xs">
+                <WhatsappLogo size={18} weight="fill" />
+                <span>Hubungi Admin via WhatsApp</span>
               </div>
             </div>
           </div>

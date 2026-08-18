@@ -6,4 +6,5 @@ export * from "./bookingPrices";
 export * from "./users";
 export * from "./auth";
 export * from "./working-days";
+export * from "./settings";
 export * from "./reports";

@@ -12,7 +12,7 @@ import { logActivity } from "../lib/activityLog";
 const DEFAULT_WORKING_DAYS = ["senin", "selasa", "rabu", "kamis", "jumat"];
 
 const assertWorkingDay = async (date: Date) => {
-  const row = await prisma.workingDays.findUnique({ where: { id: 1 } });
+  const row = await prisma.systemSetting.findUnique({ where: { id: 1 } });
   const days = row ? row.days.split(",") : DEFAULT_WORKING_DAYS;
   const day = date.toLocaleDateString("id-ID", { weekday: "long" }).toLowerCase();
   if (!days.includes(day)) {

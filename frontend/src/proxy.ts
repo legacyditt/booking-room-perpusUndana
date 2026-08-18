@@ -18,7 +18,7 @@ function isJwtExpired(token: string) {
     const decodedJson = Buffer.from(payloadBase64Url, "base64").toString();
     const payload = JSON.parse(decodedJson);
 
-    // payload.exp menggunakan format Unix Timestamp (detik )
+    // payload.exp menggunakan format Unix Timestamp (detik)
     const currentTime = Math.floor(Date.now() / 1000);
     return payload.exp ? payload.exp < currentTime : false;
   } catch (error) {
@@ -47,27 +47,7 @@ export async function proxy(request: NextRequest) {
 
   // Kasus 2: Sudah login tapi mau buka halaman login/register
   if (isLoggedIn && isAuthRoute) {
-    try {
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-      const res = await fetch(`${baseURL}/api/auth/get-session`, {
-        headers: {
-          cookie: request.headers.get("cookie") || "",
-        },
-      });
-      const data = await res.json();
-
-      if (data?.session) {
-        return NextResponse.redirect(new URL("/", request.url));
-      } else {
-        const response = NextResponse.next();
-        response.cookies.delete("better-auth.session_token");
-        return response;
-      }
-    } catch (error) {
-      const response = NextResponse.next();
-      response.cookies.delete("better-auth.session_token");
-      return response;
-    }
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

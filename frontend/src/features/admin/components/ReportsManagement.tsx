@@ -121,64 +121,88 @@ export function ReportsManagement({ initialSummary }: ReportsManagementProps) {
 
   return (
     <div className="space-y-6">
-      {/* ── Filter Periode ── */}
-      <div className="p-5 border border-[#E2E8F0] bg-white rounded-xl shadow-sm flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <Select value={String(month)} onValueChange={handleMonthChange}>
-            <SelectTrigger className="w-full sm:w-[180px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {MONTHS_ID.map((name, i) => (
-                <SelectItem key={i + 1} value={String(i + 1)}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* ── Header: Filter Periode (75%) & Total Kunjungan (25%) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">
+        {/* Card Filter & Export (75% / col-span-3) */}
+        <div className="lg:col-span-3 p-6 border border-[#E2E8F0] bg-white rounded-xl shadow-xs flex flex-col justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-serif font-bold text-primary mb-1">
+              Filter Laporan Kunjungan
+            </h2>
+            <p className="text-sm text-neutral-500">
+              Pilih periode bulan dan tahun untuk melihat ringkasan aktivitas dan mengunduh laporan.
+            </p>
+          </div>
 
-          <Select value={String(year)} onValueChange={handleYearChange}>
-            <SelectTrigger className="w-full sm:w-[140px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((y) => (
-                <SelectItem key={y} value={String(y)}>
-                  {y}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between pt-4 border-t border-neutral-100">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="flex flex-col gap-1.5 w-full sm:w-[170px]">
+                <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  Bulan
+                </label>
+                <Select value={String(month)} onValueChange={handleMonthChange}>
+                  <SelectTrigger className="w-full h-10 bg-white border-neutral-200 font-medium text-neutral-700">
+                    <SelectValue>
+                      {MONTHS_ID[month - 1] ?? "Pilih Bulan"}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MONTHS_ID.map((name, i) => (
+                      <SelectItem key={i + 1} value={String(i + 1)}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-col gap-1.5 w-full sm:w-[130px]">
+                <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
+                  Tahun
+                </label>
+                <Select value={String(year)} onValueChange={handleYearChange}>
+                  <SelectTrigger className="w-full h-10 bg-white border-neutral-200 font-medium text-neutral-700">
+                    <SelectValue>{year}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {years.map((y) => (
+                      <SelectItem key={y} value={String(y)}>
+                        {y}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleExport}
+              disabled={exporting || loading}
+              className="w-full sm:w-auto h-10 gap-2 bg-[#0F2018] text-white hover:bg-[#0F2018]/90 px-5 font-medium shadow-xs"
+            >
+              {exporting ? (
+                <SpinnerGap className="w-4 h-4 animate-spin" />
+              ) : (
+                <DownloadSimple className="w-4 h-4" weight="bold" />
+              )}
+              Export Excel
+            </Button>
+          </div>
         </div>
 
-        <Button
-          onClick={handleExport}
-          disabled={exporting || loading}
-          className="w-full sm:w-auto gap-2 bg-[#0F2018] text-white hover:bg-[#0F2018]/90"
-        >
-          {exporting ? (
-            <SpinnerGap className="w-4 h-4 animate-spin" />
-          ) : (
-            <DownloadSimple className="w-4 h-4" />
-          )}
-          Export Excel
-        </Button>
-      </div>
-
-      {/* ── Total Kunjungan ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-neutral-200 shadow-none rounded-xl col-span-2 lg:col-span-1">
-          <CardContent className="p-6">
-            <p className="text-sm font-medium text-neutral-500">
+        {/* Card Total Kunjungan (25% / col-span-1) */}
+        <Card className="border-neutral-200 shadow-xs rounded-xl flex flex-col justify-between p-6 bg-gradient-to-br from-primary/5 via-white to-primary/10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Total Kunjungan
             </p>
-            <p className="text-4xl font-serif font-bold text-primary mt-2">
+            <p className="text-4xl font-serif font-bold text-primary mt-3">
               {loading ? "…" : summary.total}
             </p>
-            <p className="text-sm text-neutral-500 mt-1">
-              {summary.monthLabel}
-            </p>
-          </CardContent>
+          </div>
+          <p className="text-xs text-neutral-500 mt-2 font-medium">
+            Periode: <span className="text-primary font-semibold">{summary.monthLabel}</span>
+          </p>
         </Card>
       </div>
 

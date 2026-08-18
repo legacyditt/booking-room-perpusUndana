@@ -33,11 +33,9 @@ export function AdminProfileForm() {
     }
   }, [user?.name]);
 
-  const hasChanges =
-    name !== (user?.name ?? "") ||
-    currentPassword !== "" ||
-    password !== "" ||
-    confirmPassword !== "";
+  const isInfoChanged = name.trim() !== (user?.name ?? "").trim();
+  const isPasswordChangeAttempted = password !== "" || confirmPassword !== "";
+  const hasChanges = isInfoChanged || isPasswordChangeAttempted;
 
   const handleSave = async () => {
     if (password && password.length < 8) {
@@ -269,7 +267,7 @@ export function AdminProfileForm() {
           type="button"
           onClick={handleSave}
           disabled={isSaving || !hasChanges}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-8 font-semibold shadow-sm transition-transform"
+          className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground h-11 px-8 font-semibold shadow-sm transition-transform"
         >
           {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
         </Button>

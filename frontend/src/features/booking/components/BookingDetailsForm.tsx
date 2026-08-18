@@ -75,6 +75,11 @@ export function BookingDetailsForm({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [lastBookingDetails, setLastBookingDetails] = useState<{
+    dateText: string;
+    sessionText: string;
+    priceText: string;
+  } | null>(null);
 
   // State for availability map
   const [availabilityMap, setAvailabilityMap] = useState<
@@ -121,7 +126,7 @@ export function BookingDetailsForm({
         setIsCheckingAvailability(false);
         return;
       }
-      // Kosongkan peta ketersediaan dulu agar data tanggal lama tidak tampil
+
       setAvailabilityMap({});
       setIsCheckingAvailability(true);
       try {
@@ -175,6 +180,25 @@ export function BookingDetailsForm({
         description: `Ruangan ${room.name} berhasil dipesan.`,
       });
 
+      const sessionObj = sessions.find(
+        (s) => s.id.toString() === selectedSession,
+      );
+      const sessionFormatted = sessionObj
+        ? `${sessionObj.name} (${sessionObj.startTime} - ${sessionObj.finishTime} WITA)`
+        : "-";
+      const dateFormatted = date
+        ? format(date, "EEEE, d MMMM yyyy", { locale: id })
+        : "-";
+      const priceFormatted = room.bookingPrice
+        ? formatRupiah(Number(room.bookingPrice.price))
+        : "-";
+
+      setLastBookingDetails({
+        dateText: dateFormatted,
+        sessionText: sessionFormatted,
+        priceText: priceFormatted,
+      });
+
       // Bersihkan state form
       setDate(undefined);
       setSelectedSession("");
@@ -199,28 +223,32 @@ export function BookingDetailsForm({
     }
   };
 
-  const selectedSessionObj = sessions.find(
+  const currentSessionObj = sessions.find(
     (s) => s.id.toString() === selectedSession,
   );
-  const sessionText = selectedSessionObj
-    ? `${selectedSessionObj.name} (${selectedSessionObj.startTime} - ${selectedSessionObj.finishTime} WITA)`
-    : "-";
-  const formattedDate = date
-    ? format(date, "EEEE, d MMMM yyyy", { locale: id })
-    : "-";
-  const formattedPrice = room.bookingPrice
-    ? formatRupiah(Number(room.bookingPrice.price))
-    : "-";
+  const activeSessionText =
+    lastBookingDetails?.sessionText ||
+    (currentSessionObj
+      ? `${currentSessionObj.name} (${currentSessionObj.startTime} - ${currentSessionObj.finishTime} WITA)`
+      : "-");
+
+  const activeDateText =
+    lastBookingDetails?.dateText ||
+    (date ? format(date, "EEEE, d MMMM yyyy", { locale: id }) : "-");
+
+  const activePriceText =
+    lastBookingDetails?.priceText ||
+    (room.bookingPrice ? formatRupiah(Number(room.bookingPrice.price)) : "-");
 
   const waMessage = `Halo Admin Perpustakaan Undana,
 
 Saya ingin melakukan konfirmasi pemesanan sewa ruangan:
-• *Ruangan:* ${room.name}
-• *Tanggal:* ${formattedDate}
-• *Sesi:* ${sessionText}
-• *Total Biaya:* ${formattedPrice}
+• Ruangan: ${room.name}
+• Tanggal: ${activeDateText}
+• Sesi: ${activeSessionText}
+• Total Biaya: ${activePriceText}
 
-Berikut saya lampirkan bukti pembayaran dan bukti pemesanan saya. Terima kasih.`;
+Mohon informasi terkait pembayaran dan petunjuk selanjutnya untuk menyelesaikan proses sewa. Terima kasih.`;
 
   const waUrl = formatWhatsappUrl(adminWhatsapp, waMessage);
 
@@ -482,7 +510,7 @@ Berikut saya lampirkan bukti pembayaran dan bukti pemesanan saya. Terima kasih.`
                 />
               </div>
               <span className="text-[11px] text-emerald-700/80 mt-1 font-medium">
-                Klik nomor untuk langsung menghubungi Admin
+                Klik untuk langsung menghubungi Admin
               </span>
             </a>
 

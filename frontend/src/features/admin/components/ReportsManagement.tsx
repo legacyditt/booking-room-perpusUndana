@@ -86,8 +86,9 @@ export function ReportsManagement({ initialSummary }: ReportsManagementProps) {
 
   const handleMonthChange = (value: string | null) => {
     if (!value) return;
-    setMonth(Number(value));
-    fetchSummary(`${year}-${value}`);
+    const numericMonth = Number(value);
+    setMonth(numericMonth);
+    fetchSummary(`${year}-${String(numericMonth).padStart(2, "0")}`);
   };
 
   const handleYearChange = (value: string | null) => {

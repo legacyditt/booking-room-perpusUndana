@@ -169,9 +169,13 @@ export function ProfileForm() {
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       id="user-name"
-                      name="name"
+                      name="display-name"
                       type="text"
-                      autoComplete="name"
+                      autoComplete="off"
+                      data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="pl-9 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
@@ -204,10 +208,13 @@ export function ProfileForm() {
                     <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       id="study-program-field"
-                      name="study-program-field"
+                      name="affiliation-field"
                       type="text"
                       autoComplete="off"
                       data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
                       value={studyProgram}
                       onChange={(e) => setStudyProgram(e.target.value)}
                       placeholder={user?.status === "umum" ? "Nama instansi" : "Nama program studi"}
@@ -282,13 +289,19 @@ export function ProfileForm() {
                     <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       id="current-password"
-                      name="current-password"
-                      type={showCurrentPassword ? "text" : "password"}
-                      autoComplete="current-password"
+                      name="security-current-pass"
+                      type="text"
+                      autoComplete="off"
+                      data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
                       placeholder="Wajib untuk ganti sandi"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                      className={`pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm ${
+                        showCurrentPassword ? "input-password-plain" : "input-password-mask"
+                      }`}
                     />
                     <button
                       type="button"
@@ -309,13 +322,19 @@ export function ProfileForm() {
                     <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       id="new-password"
-                      name="new-password"
-                      type={showPassword ? "text" : "password"}
-                      autoComplete="new-password"
+                      name="security-new-pass"
+                      type="text"
+                      autoComplete="off"
+                      data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
                       placeholder="Masukkan sandi baru"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                      className={`pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm ${
+                        showPassword ? "input-password-plain" : "input-password-mask"
+                      }`}
                     />
                     <button
                       type="button"
@@ -336,13 +355,19 @@ export function ProfileForm() {
                     <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       id="confirm-new-password"
-                      name="confirm-new-password"
-                      type={showConfirmPassword ? "text" : "password"}
-                      autoComplete="new-password"
+                      name="security-confirm-pass"
+                      type="text"
+                      autoComplete="off"
+                      data-lpignore="true"
+                      data-1p-ignore="true"
+                      data-bwignore="true"
+                      data-form-type="other"
                       placeholder="Ulangi sandi baru"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                      className={`pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm ${
+                        showConfirmPassword ? "input-password-plain" : "input-password-mask"
+                      }`}
                     />
                     <button
                       type="button"

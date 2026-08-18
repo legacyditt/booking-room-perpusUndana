@@ -144,11 +144,12 @@ model BookingPrice {
   @@map("booking_prices")
 }
 
-model WorkingDays {
-  id   Int    @id @default(1) // single row, selalu id 1
-  days String // "senin,selasa,rabu,kamis,jumat"
+model SystemSetting {
+  id       Int    @id @default(1) // single row, selalu id 1
+  days     String @default("senin,selasa,rabu,kamis,jumat") // "senin,selasa,rabu,kamis,jumat"
+  whatsapp String @default("081234567890")
 
-  @@map("working_days")
+  @@map("system_settings")
 }
 
 model AdminActivityLog {

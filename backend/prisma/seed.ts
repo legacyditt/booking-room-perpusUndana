@@ -167,9 +167,13 @@ async function main() {
   await prisma.account.deleteMany();
   await prisma.user.deleteMany();
 
-  await prisma.workingDays.upsert({
+  await prisma.systemSetting.upsert({
     where: { id: 1 },
-    create: { id: 1, days: "senin,selasa,rabu,kamis,jumat" },
+    create: {
+      id: 1,
+      days: "senin,selasa,rabu,kamis,jumat",
+      whatsapp: "081234567890",
+    },
     update: { days: "senin,selasa,rabu,kamis,jumat" },
   });
 

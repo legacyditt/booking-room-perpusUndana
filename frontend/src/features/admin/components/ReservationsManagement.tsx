@@ -6,6 +6,7 @@ import { ReservationTable } from "@/features/admin/components/ReservationTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
 import { updateBookingStatus } from "@/lib/api/bookings";
 import { Booking, BookingStatus } from "@/types/booking";
+import { isSeatApproved } from "@/lib/booking-status";
 import { toast } from "@/components/ui/toast";
 
 const PAGE_SIZE = 5;
@@ -24,7 +25,8 @@ export function ReservationsManagement({
   const [bookings, setBookings] = useState(initialBookings);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
-  const [dateFilter, setDateFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [typeFilter, setTypeFilter] = useState("Semua");
   const [page, setPage] = useState(1);
   const [isUpdatingId, setIsUpdatingId] = useState<number | null>(null);
@@ -37,15 +39,27 @@ export function ReservationsManagement({
         booking.user?.name.toLowerCase().includes(q) ||
         booking.room.name.toLowerCase().includes(q) ||
         String(booking.id).includes(q);
+
       const matchStatus =
-        statusFilter === "Semua" || booking.status === statusFilter;
-      const matchDate = !dateFilter || booking.date.slice(0, 10) === dateFilter;
+        statusFilter === "Semua"
+          ? true
+          : statusFilter === "DIPESAN"
+            ? isSeatApproved(booking)
+            : statusFilter === "APPROVED"
+              ? booking.type === "ROOM" && booking.status === "APPROVED"
+              : booking.status === statusFilter;
+
+      const bookingDateStr = booking.date.slice(0, 10);
+      const matchStart = !startDate || bookingDateStr >= startDate;
+      const matchEnd = !endDate || bookingDateStr <= endDate;
+
       const matchType =
         typeFilter === "Semua" ||
         (booking.type === "ROOM" ? "sewa" : "reguler") === typeFilter;
-      return matchSearch && matchStatus && matchDate && matchType;
+
+      return matchSearch && matchStatus && matchStart && matchEnd && matchType;
     });
-  }, [bookings, search, statusFilter, dateFilter, typeFilter]);
+  }, [bookings, search, statusFilter, startDate, endDate, typeFilter]);
 
   // Urutkan: booking sewa selalu di atas. Urutan dalam grup tetap (createdAt desc).
   const grouped = useMemo(
@@ -68,6 +82,12 @@ export function ReservationsManagement({
     setPage(1);
   };
 
+  const handleClearDate = () => {
+    setStartDate("");
+    setEndDate("");
+    setPage(1);
+  };
+
   const handleUpdateStatus = async (id: number, status: BookingStatus) => {
     setIsUpdatingId(id);
     try {
@@ -85,7 +105,7 @@ export function ReservationsManagement({
         title: "Tindakan Gagal Diproses",
         description: errorMessage(
           error,
-          "Terjadi kesalahan saat memperbarui status pemesanan. Silakan coba beberapa saat lagi."
+          "Terjadi kesalahan saat memperbarui status pemesanan. Silakan coba beberapa saat lagi.",
         ),
       });
     } finally {
@@ -100,8 +120,11 @@ export function ReservationsManagement({
         onSearchChange={resetPage(setSearch)}
         status={statusFilter}
         onStatusChange={resetPage(setStatusFilter)}
-        date={dateFilter}
-        onDateChange={resetPage(setDateFilter)}
+        startDate={startDate}
+        onStartDateChange={resetPage(setStartDate)}
+        endDate={endDate}
+        onEndDateChange={resetPage(setEndDate)}
+        onClearDate={handleClearDate}
         type={typeFilter}
         onTypeChange={resetPage(setTypeFilter)}
       />

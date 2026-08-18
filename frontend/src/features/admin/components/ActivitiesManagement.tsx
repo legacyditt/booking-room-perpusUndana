@@ -85,16 +85,48 @@ export function ActivitiesManagement({
     safePage * PAGE_SIZE,
   );
 
+  const selectedAdminName =
+    adminFilter === "Semua"
+      ? "Semua Admin"
+      : (admins.find((a) => a.id === adminFilter)?.name ?? adminFilter);
+
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    setPage(1);
+    if (!endDate || endDate < val) {
+      setEndDate(val);
+    }
+  };
+
+  const handleEndDateChange = (val: string) => {
+    setEndDate(val);
+    setPage(1);
+  };
+
+  const handleClearDate = () => {
+    setStartDate("");
+    setEndDate("");
+    setPage(1);
+  };
+
+  const hasDateFilter = Boolean(startDate || endDate);
+
   return (
     <div className="flex flex-col min-h-[500px]">
       {/* ── Filter Bar ── */}
       <div className="p-5 border-b border-[#E2E8F0] bg-white flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center">
         <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-          <Select value={adminFilter} onValueChange={(v) => v && setAdminFilter(v)}>
+          <Select
+            value={adminFilter}
+            onValueChange={(v) => {
+              if (v) {
+                setAdminFilter(v);
+                setPage(1);
+              }
+            }}
+          >
             <SelectTrigger className="w-full sm:w-[200px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
-              <SelectValue>
-                {adminFilter === "Semua" ? "Semua Admin" : adminFilter}
-              </SelectValue>
+              <SelectValue>{selectedAdminName}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Semua">Semua Admin</SelectItem>
@@ -106,7 +138,15 @@ export function ActivitiesManagement({
             </SelectContent>
           </Select>
 
-          <Select value={actionFilter} onValueChange={(v) => v && setActionFilter(v)}>
+          <Select
+            value={actionFilter}
+            onValueChange={(v) => {
+              if (v) {
+                setActionFilter(v);
+                setPage(1);
+              }
+            }}
+          >
             <SelectTrigger className="w-full sm:w-[190px] h-10 bg-white border-neutral-200 font-medium text-neutral-700">
               <SelectValue>
                 {actionFilter === "Semua"
@@ -125,13 +165,13 @@ export function ActivitiesManagement({
           </Select>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto items-start sm:items-center flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-sm text-neutral-500 shrink-0">Dari</span>
             <Input
               type="date"
               value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              onChange={(e) => handleStartDateChange(e.target.value)}
               className="h-10 w-full sm:w-[150px] bg-white border-neutral-200"
             />
           </div>
@@ -140,10 +180,20 @@ export function ActivitiesManagement({
             <Input
               type="date"
               value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              min={startDate}
+              onChange={(e) => handleEndDateChange(e.target.value)}
               className="h-10 w-full sm:w-[150px] bg-white border-neutral-200"
             />
           </div>
+          {hasDateFilter && (
+            <button
+              type="button"
+              onClick={handleClearDate}
+              className="text-xs text-primary hover:underline font-medium cursor-pointer self-center"
+            >
+              Reset Tanggal
+            </button>
+          )}
         </div>
       </div>
 

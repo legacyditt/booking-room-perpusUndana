@@ -89,3 +89,11 @@
 html, body {
   overflow-x: hidden;
 }
+
+.input-password-mask {
+  -webkit-text-security: disc;
+}
+
+.input-password-plain {
+  -webkit-text-security: none;
+}

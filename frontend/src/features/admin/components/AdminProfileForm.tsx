@@ -124,9 +124,13 @@ export function AdminProfileForm() {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 id="admin-name"
-                name="name"
+                name="admin-display-name"
                 type="text"
-                autoComplete="name"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nama Anda"
@@ -186,13 +190,19 @@ export function AdminProfileForm() {
               <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 id="admin-current-password"
-                name="current-password"
-                type={showCurrentPassword ? "text" : "password"}
-                autoComplete="current-password"
+                name="admin-security-current-pass"
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 placeholder="Wajib untuk ganti sandi"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                className={`pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm ${
+                  showCurrentPassword ? "input-password-plain" : "input-password-mask"
+                }`}
               />
               <button
                 type="button"
@@ -213,13 +223,19 @@ export function AdminProfileForm() {
               <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 id="admin-new-password"
-                name="new-password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
+                name="admin-security-new-pass"
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 placeholder="Kosongkan jika tidak ingin mengubah"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                className={`pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm ${
+                  showPassword ? "input-password-plain" : "input-password-mask"
+                }`}
               />
               <button
                 type="button"
@@ -240,13 +256,19 @@ export function AdminProfileForm() {
               <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 id="admin-confirm-password"
-                name="confirm-password"
-                type={showConfirmPassword ? "text" : "password"}
-                autoComplete="new-password"
+                name="admin-security-confirm-pass"
+                type="text"
+                autoComplete="off"
+                data-lpignore="true"
+                data-1p-ignore="true"
+                data-bwignore="true"
+                data-form-type="other"
                 placeholder="Ulangi sandi baru"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
+                className={`pl-9 pr-10 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm ${
+                  showConfirmPassword ? "input-password-plain" : "input-password-mask"
+                }`}
               />
               <button
                 type="button"

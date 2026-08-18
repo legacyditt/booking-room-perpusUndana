@@ -2,10 +2,11 @@ import { notFound } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
 import { RoomImageGallery } from "@/features/booking/components/RoomImageGallery";
 import { BookingDetailsForm } from "@/features/booking/components/BookingDetailsForm";
-import { getRoom, getSessions, getWorkingDays } from "@/lib/api";
+import { getRoom, getSessions, getSystemSettings } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
 import Link from "next/link";
 import { ArrowLeft } from "@phosphor-icons/react/dist/ssr";
+import type { SystemSettings } from "@/lib/api/settings";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -34,11 +35,14 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
     // Fallback ke daftar sesi kosong bila endpoint gagal.
   }
 
-  let workingDays: string[] = ["senin", "selasa", "rabu", "kamis", "jumat"];
+  let systemSettings: SystemSettings = {
+    days: ["senin", "selasa", "rabu", "kamis", "jumat"],
+    whatsapp: "081234567890",
+  };
   try {
-    workingDays = (await getWorkingDays(cookie)).days;
+    systemSettings = await getSystemSettings(cookie);
   } catch {
-    // Fallback ke hari kerja default bila endpoint gagal.
+    // Fallback ke konfigurasi default bila endpoint gagal.
   }
 
   return (
@@ -65,7 +69,13 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
             
             {/* Bagian Kanan: Form Pemesanan */}
             <div className="sticky top-28">
-              <BookingDetailsForm room={room} sessions={sessions} workingDays={workingDays} mode={mode === "sewa" ? "sewa" : "reguler"} />
+              <BookingDetailsForm
+                room={room}
+                sessions={sessions}
+                workingDays={systemSettings.days}
+                adminWhatsapp={systemSettings.whatsapp}
+                mode={mode === "sewa" ? "sewa" : "reguler"}
+              />
             </div>
           </div>
           

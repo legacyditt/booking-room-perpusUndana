@@ -1,14 +1,15 @@
-import { client, unwrap } from "./client";
+import {
+  getSystemSettings,
+  updateSystemSettings,
+  SystemSettings,
+} from "./settings";
 
-export interface WorkingDays {
-  days: string[];
-}
+export type WorkingDays = Pick<SystemSettings, "days">;
 
 export function getWorkingDays(cookie?: string): Promise<WorkingDays> {
-  const headers = cookie ? { cookie } : undefined;
-  return unwrap(client.get("/working-days", { headers }));
+  return getSystemSettings(cookie);
 }
 
 export function updateWorkingDays(days: string[]): Promise<WorkingDays> {
-  return unwrap(client.put("/working-days", { days }));
+  return updateSystemSettings({ days });
 }

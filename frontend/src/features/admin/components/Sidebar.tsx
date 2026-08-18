@@ -16,6 +16,7 @@ import {
   UserCircle,
   ListMagnifyingGlass,
   ChartBar,
+  Gear,
 } from "@phosphor-icons/react/dist/ssr";
 
 import {
@@ -47,6 +48,7 @@ const navItems = [
     icon: ListMagnifyingGlass,
   },
   { name: "Laporan", href: "/admin/reports", icon: ChartBar },
+  { name: "Pengaturan Lainnya", href: "/admin/settings", icon: Gear },
   { name: "Edit Profil", href: "/admin/profile", icon: UserCircle },
 ];
 

@@ -10,6 +10,8 @@ import {
   Users,
   CheckCircle,
   Tag,
+  WhatsappLogo,
+  ArrowSquareOut,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -46,13 +48,26 @@ interface BookingDetailsFormProps {
   room: Room;
   sessions: Session[];
   workingDays?: string[];
+  adminWhatsapp?: string;
   mode?: "reguler" | "sewa";
+}
+
+function formatWhatsappUrl(phone: string, text: string) {
+  let cleanPhone = phone.replace(/\D/g, "");
+  if (cleanPhone.startsWith("0")) {
+    cleanPhone = "62" + cleanPhone.slice(1);
+  } else if (!cleanPhone.startsWith("62")) {
+    cleanPhone = "62" + cleanPhone;
+  }
+  const encodedText = encodeURIComponent(text);
+  return `https://wa.me/${cleanPhone}?text=${encodedText}`;
 }
 
 export function BookingDetailsForm({
   room,
   sessions,
   workingDays = ["senin", "selasa", "rabu", "kamis", "jumat"],
+  adminWhatsapp = "081234567890",
   mode = "reguler",
 }: BookingDetailsFormProps) {
   const [date, setDate] = useState<Date | undefined>();
@@ -60,6 +75,11 @@ export function BookingDetailsForm({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [lastBookingDetails, setLastBookingDetails] = useState<{
+    dateText: string;
+    sessionText: string;
+    priceText: string;
+  } | null>(null);
 
   // State for availability map
   const [availabilityMap, setAvailabilityMap] = useState<
@@ -106,7 +126,7 @@ export function BookingDetailsForm({
         setIsCheckingAvailability(false);
         return;
       }
-      // Kosongkan peta ketersediaan dulu agar data tanggal lama tidak tampil
+
       setAvailabilityMap({});
       setIsCheckingAvailability(true);
       try {
@@ -160,6 +180,25 @@ export function BookingDetailsForm({
         description: `Ruangan ${room.name} berhasil dipesan.`,
       });
 
+      const sessionObj = sessions.find(
+        (s) => s.id.toString() === selectedSession,
+      );
+      const sessionFormatted = sessionObj
+        ? `${sessionObj.name} (${sessionObj.startTime} - ${sessionObj.finishTime} WITA)`
+        : "-";
+      const dateFormatted = date
+        ? format(date, "EEEE, d MMMM yyyy", { locale: id })
+        : "-";
+      const priceFormatted = room.bookingPrice
+        ? formatRupiah(Number(room.bookingPrice.price))
+        : "-";
+
+      setLastBookingDetails({
+        dateText: dateFormatted,
+        sessionText: sessionFormatted,
+        priceText: priceFormatted,
+      });
+
       // Bersihkan state form
       setDate(undefined);
       setSelectedSession("");
@@ -183,6 +222,35 @@ export function BookingDetailsForm({
       setIsLoading(false);
     }
   };
+
+  const currentSessionObj = sessions.find(
+    (s) => s.id.toString() === selectedSession,
+  );
+  const activeSessionText =
+    lastBookingDetails?.sessionText ||
+    (currentSessionObj
+      ? `${currentSessionObj.name} (${currentSessionObj.startTime} - ${currentSessionObj.finishTime} WITA)`
+      : "-");
+
+  const activeDateText =
+    lastBookingDetails?.dateText ||
+    (date ? format(date, "EEEE, d MMMM yyyy", { locale: id }) : "-");
+
+  const activePriceText =
+    lastBookingDetails?.priceText ||
+    (room.bookingPrice ? formatRupiah(Number(room.bookingPrice.price)) : "-");
+
+  const waMessage = `Halo Admin Perpustakaan Undana,
+
+Saya ingin melakukan konfirmasi pemesanan sewa ruangan:
+• Ruangan: ${room.name}
+• Tanggal: ${activeDateText}
+• Sesi: ${activeSessionText}
+• Total Biaya: ${activePriceText}
+
+Mohon informasi terkait pembayaran dan petunjuk selanjutnya untuk menyelesaikan proses sewa. Terima kasih.`;
+
+  const waUrl = formatWhatsappUrl(adminWhatsapp, waMessage);
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
@@ -423,14 +491,40 @@ export function BookingDetailsForm({
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 pt-4 pb-2">
-            <div className="bg-primary/5 p-4 border border-primary/20 text-center">
-              <span className="block text-xs font-bold text-neutral uppercase tracking-wider mb-1">
-                Nomor WhatsApp Admin
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative flex flex-col items-center justify-center p-4 bg-emerald-50/50 hover:bg-emerald-100/60 border border-emerald-200 hover:border-emerald-400 rounded-xl transition-all duration-200 shadow-2xs hover:shadow-xs cursor-pointer text-center"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">
+                <WhatsappLogo size={16} weight="fill" className="text-[#25D366]" />
+                <span>Nomor WhatsApp Admin</span>
+              </div>
+              <div className="text-xl font-bold text-primary group-hover:text-emerald-800 transition-colors inline-flex items-center gap-2">
+                <span>{adminWhatsapp}</span>
+                <ArrowSquareOut
+                  size={18}
+                  weight="bold"
+                  className="text-emerald-600 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                />
+              </div>
+              <span className="text-[11px] text-emerald-700/80 mt-1 font-medium">
+                Klik untuk langsung menghubungi Admin
               </span>
-              <span className="text-xl font-bold text-primary">
-                0812-3456-7890
-              </span>
-            </div>
+            </a>
+
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowPaymentDialog(false);
+                router.push("/reservations");
+              }}
+              className="w-full text-neutral-600 hover:text-primary"
+            >
+              Lihat Pemesanan Saya
+            </Button>
+
             <p className="text-xs text-center text-neutral/70">
               *Tunjukkan bukti pesanan (pada menu Pemesanan Saya) dan bukti
               transfer saat menghubungi admin.

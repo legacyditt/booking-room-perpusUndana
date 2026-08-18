@@ -46,6 +46,7 @@ interface BookingDetailsFormProps {
   room: Room;
   sessions: Session[];
   workingDays?: string[];
+  adminWhatsapp?: string;
   mode?: "reguler" | "sewa";
 }
 
@@ -53,6 +54,7 @@ export function BookingDetailsForm({
   room,
   sessions,
   workingDays = ["senin", "selasa", "rabu", "kamis", "jumat"],
+  adminWhatsapp = "081234567890",
   mode = "reguler",
 }: BookingDetailsFormProps) {
   const [date, setDate] = useState<Date | undefined>();
@@ -428,7 +430,7 @@ export function BookingDetailsForm({
                 Nomor WhatsApp Admin
               </span>
               <span className="text-xl font-bold text-primary">
-                0812-3456-7890
+                {adminWhatsapp}
               </span>
             </div>
             <p className="text-xs text-center text-neutral/70">

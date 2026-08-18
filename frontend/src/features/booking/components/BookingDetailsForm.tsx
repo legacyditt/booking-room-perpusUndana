@@ -467,25 +467,23 @@ Berikut saya lampirkan bukti pembayaran dan bukti pemesanan saya. Terima kasih.`
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-primary/5 hover:bg-primary/10 transition-colors p-4 border border-primary/20 text-center rounded-lg group block cursor-pointer"
+              className="group relative flex flex-col items-center justify-center p-4 bg-emerald-50/50 hover:bg-emerald-100/60 border border-emerald-200 hover:border-emerald-400 rounded-xl transition-all duration-200 shadow-2xs hover:shadow-xs cursor-pointer text-center"
             >
-              <span className="block text-xs font-bold text-neutral uppercase tracking-wider mb-1">
-                Nomor WhatsApp Admin
-              </span>
-              <span className="text-xl font-bold text-primary group-hover:text-emerald-700 transition-colors inline-flex items-center gap-1.5 justify-center">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">
+                <WhatsappLogo size={16} weight="fill" className="text-[#25D366]" />
+                <span>Nomor WhatsApp Admin</span>
+              </div>
+              <div className="text-xl font-bold text-primary group-hover:text-emerald-800 transition-colors inline-flex items-center gap-2">
                 <span>{adminWhatsapp}</span>
-                <ArrowSquareOut size={18} />
+                <ArrowSquareOut
+                  size={18}
+                  weight="bold"
+                  className="text-emerald-600 opacity-80 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                />
+              </div>
+              <span className="text-[11px] text-emerald-700/80 mt-1 font-medium">
+                Klik nomor untuk langsung menghubungi Admin
               </span>
-            </a>
-
-            <a
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all hover:shadow-md cursor-pointer text-sm"
-            >
-              <WhatsappLogo size={22} weight="fill" />
-              <span>Hubungi Admin via WhatsApp</span>
             </a>
 
             <Button

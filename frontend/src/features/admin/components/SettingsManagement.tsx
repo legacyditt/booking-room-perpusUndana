@@ -30,17 +30,30 @@ interface SettingsManagementProps {
 export function SettingsManagement({
   initialSettings,
 }: SettingsManagementProps) {
-  // State Hari Operasional
+  // State Hari Operasional (Saved & Current)
+  const [savedDays, setSavedDays] = useState<string[]>(
+    initialSettings.days || ["senin", "selasa", "rabu", "kamis", "jumat"],
+  );
   const [workingDays, setWorkingDays] = useState<string[]>(
     initialSettings.days || ["senin", "selasa", "rabu", "kamis", "jumat"],
   );
   const [isSavingDays, setIsSavingDays] = useState(false);
 
-  // State Nomor WhatsApp
+  // State Nomor WhatsApp (Saved & Current)
+  const [savedWhatsapp, setSavedWhatsapp] = useState<string>(
+    initialSettings.whatsapp || "081234567890",
+  );
   const [whatsapp, setWhatsapp] = useState<string>(
     initialSettings.whatsapp || "081234567890",
   );
   const [isSavingWhatsapp, setIsSavingWhatsapp] = useState(false);
+
+  // Cek apakah ada perubahan (dirty state)
+  const isDaysChanged =
+    workingDays.length !== savedDays.length ||
+    !workingDays.every((d) => savedDays.includes(d));
+
+  const isWhatsappChanged = whatsapp.trim() !== savedWhatsapp.trim();
 
   const toggleDay = (id: string) => {
     setWorkingDays((prev) =>
@@ -61,6 +74,7 @@ export function SettingsManagement({
     setIsSavingDays(true);
     try {
       await updateSystemSettings({ days: workingDays });
+      setSavedDays([...workingDays]);
       toast.add({
         type: "success",
         title: "Pengaturan Hari Kerja Disimpan",
@@ -95,6 +109,7 @@ export function SettingsManagement({
     setIsSavingWhatsapp(true);
     try {
       await updateSystemSettings({ whatsapp: trimmed });
+      setSavedWhatsapp(trimmed);
       toast.add({
         type: "success",
         title: "Nomor WhatsApp Disimpan",
@@ -229,21 +244,21 @@ export function SettingsManagement({
             </div>
 
             {/* Preview Tampilan Modal User */}
-            <div className="mt-4 p-4 rounded-lg bg-emerald-50/60 border border-emerald-200/80 space-y-3">
+            <div className="mt-4 p-4 rounded-lg bg-emerald-50/60 border border-emerald-200/80 space-y-2">
               <span className="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
                 Preview Tampilan di Pembayaran User:
               </span>
-              <div className="bg-white p-3 rounded-md border border-emerald-100 text-center shadow-xs">
-                <span className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-0.5">
-                  Nomor WhatsApp Admin
-                </span>
+              <div className="flex flex-col items-center justify-center p-3.5 bg-white border border-emerald-200 rounded-xl text-center shadow-xs">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-0.5">
+                  <WhatsappLogo size={15} weight="fill" className="text-[#25D366]" />
+                  <span>Nomor WhatsApp Admin</span>
+                </div>
                 <span className="text-lg font-bold text-primary">
                   {whatsapp || "081234567890"}
                 </span>
-              </div>
-              <div className="w-full flex items-center justify-center gap-2 bg-[#25D366] text-white font-semibold py-2.5 px-4 rounded-lg text-xs shadow-xs">
-                <WhatsappLogo size={18} weight="fill" />
-                <span>Hubungi Admin via WhatsApp</span>
+                <span className="text-[10px] text-emerald-700/80 mt-0.5 font-medium">
+                  Klik nomor untuk langsung chat di WhatsApp
+                </span>
               </div>
             </div>
           </div>

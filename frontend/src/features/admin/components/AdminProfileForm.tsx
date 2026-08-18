@@ -119,13 +119,16 @@ export function AdminProfileForm() {
           
           {/* Nama Lengkap (Bisa di-edit) */}
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+            <label htmlFor="admin-name" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
               Nama Tampilan
             </label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
+                id="admin-name"
+                name="name"
                 type="text"
+                autoComplete="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nama Anda"
@@ -143,7 +146,7 @@ export function AdminProfileForm() {
               <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 type="email"
-                defaultValue={user?.email}
+                value={user?.email ?? ""}
                 disabled
                 className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
               />
@@ -159,7 +162,7 @@ export function AdminProfileForm() {
               <Shield className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
                 type="text"
-                defaultValue="Admin Sistem"
+                value="Admin Sistem"
                 disabled
                 className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
               />
@@ -178,13 +181,16 @@ export function AdminProfileForm() {
         
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+            <label htmlFor="admin-current-password" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
               Kata Sandi Saat Ini
             </label>
             <div className="relative">
               <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
+                id="admin-current-password"
+                name="current-password"
                 type={showCurrentPassword ? "text" : "password"}
+                autoComplete="current-password"
                 placeholder="Wajib untuk ganti sandi"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
@@ -202,13 +208,16 @@ export function AdminProfileForm() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+            <label htmlFor="admin-new-password" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
               Kata Sandi Baru
             </label>
             <div className="relative">
               <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
+                id="admin-new-password"
+                name="new-password"
                 type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
                 placeholder="Kosongkan jika tidak ingin mengubah"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -226,13 +235,16 @@ export function AdminProfileForm() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+            <label htmlFor="admin-confirm-password" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
               Konfirmasi Kata Sandi Baru
             </label>
             <div className="relative">
               <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
               <Input
+                id="admin-confirm-password"
+                name="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
+                autoComplete="new-password"
                 placeholder="Ulangi sandi baru"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

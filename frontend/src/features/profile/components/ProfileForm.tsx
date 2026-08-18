@@ -161,13 +161,16 @@ export function ProfileForm() {
                 
                 {/* Nama Lengkap (Bisa di-edit) */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+                  <label htmlFor="user-name" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
                     Nama Lengkap
                   </label>
                   <div className="relative">
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
+                      id="user-name"
+                      name="name"
                       type="text"
+                      autoComplete="name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="pl-9 h-11 bg-white border-[#D6D3D1] focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all shadow-sm"
@@ -184,7 +187,7 @@ export function ProfileForm() {
                     <EnvelopeSimple className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="email"
-                      defaultValue={user?.email}
+                      value={user?.email ?? ""}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -193,13 +196,17 @@ export function ProfileForm() {
 
                 {/* Program Studi / Instansi (Bisa di-edit) */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+                  <label htmlFor="study-program-field" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
                     {affiliationLabel}
                   </label>
                   <div className="relative">
                     <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
+                      id="study-program-field"
+                      name="study-program-field"
                       type="text"
+                      autoComplete="off"
+                      data-lpignore="true"
                       value={studyProgram}
                       onChange={(e) => setStudyProgram(e.target.value)}
                       placeholder={user?.status === "umum" ? "Nama instansi" : "Nama program studi"}
@@ -217,7 +224,7 @@ export function ProfileForm() {
                     <Student className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="text"
-                      defaultValue={statusLabel(user?.status)}
+                      value={statusLabel(user?.status)}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -233,7 +240,7 @@ export function ProfileForm() {
                     <IdentificationCard className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="text"
-                      defaultValue={user?.idNumber}
+                      value={user?.idNumber ?? ""}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -249,7 +256,7 @@ export function ProfileForm() {
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
                       type="tel"
-                      defaultValue={user?.whatsapp}
+                      value={user?.whatsapp ?? ""}
                       disabled
                       className="pl-9 h-11 bg-neutral-100 border-[#D6D3D1] text-neutral-500 cursor-not-allowed shadow-none opacity-100"
                     />
@@ -267,13 +274,16 @@ export function ProfileForm() {
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+                  <label htmlFor="current-password" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
                     Kata Sandi Saat Ini
                   </label>
                   <div className="relative">
                     <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
+                      id="current-password"
+                      name="current-password"
                       type={showCurrentPassword ? "text" : "password"}
+                      autoComplete="current-password"
                       placeholder="Wajib untuk ganti sandi"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
@@ -291,13 +301,16 @@ export function ProfileForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+                  <label htmlFor="new-password" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
                     Kata Sandi Baru
                   </label>
                   <div className="relative">
                     <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
+                      id="new-password"
+                      name="new-password"
                       type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       placeholder="Masukkan sandi baru"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
@@ -315,13 +328,16 @@ export function ProfileForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
+                  <label htmlFor="confirm-new-password" className="text-xs font-semibold text-[#44403C] uppercase tracking-wider">
                     Konfirmasi Kata Sandi
                   </label>
                   <div className="relative">
                     <LockKey className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 w-4 h-4" />
                     <Input
+                      id="confirm-new-password"
+                      name="confirm-new-password"
                       type={showConfirmPassword ? "text" : "password"}
+                      autoComplete="new-password"
                       placeholder="Ulangi sandi baru"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}

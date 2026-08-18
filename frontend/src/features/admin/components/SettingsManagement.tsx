@@ -194,8 +194,8 @@ export function SettingsManagement({
         <div className="pt-6 mt-6 border-t border-neutral-100 flex justify-end">
           <Button
             onClick={handleSaveWorkingDays}
-            disabled={isSavingDays}
-            className="bg-primary text-white hover:bg-primary/90 gap-2 px-6"
+            disabled={isSavingDays || !isDaysChanged}
+            className="bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed gap-2 px-6"
           >
             <FloppyDisk size={18} weight="bold" />
             {isSavingDays ? "Menyimpan..." : "Simpan Hari Operasional"}
@@ -267,8 +267,8 @@ export function SettingsManagement({
         <div className="pt-6 mt-6 border-t border-neutral-100 flex justify-end">
           <Button
             onClick={handleSaveWhatsapp}
-            disabled={isSavingWhatsapp}
-            className="bg-primary text-white hover:bg-primary/90 gap-2 px-6"
+            disabled={isSavingWhatsapp || !isWhatsappChanged}
+            className="bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed gap-2 px-6"
           >
             <FloppyDisk size={18} weight="bold" />
             {isSavingWhatsapp ? "Menyimpan..." : "Simpan Nomor WhatsApp"}

@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
 import { client } from "@/lib/api/client";
+import { useSession } from "@/lib/api/auth-client";
 import { createBooking } from "@/lib/api/bookings";
 import { errorMessage } from "@/lib/api/errors";
 import {
@@ -76,6 +77,7 @@ export function BookingDetailsForm({
   whatsappTemplate,
   mode = "reguler",
 }: BookingDetailsFormProps) {
+  const { data: session } = useSession();
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -253,6 +255,7 @@ export function BookingDetailsForm({
       tanggal: activeDateText,
       sesi: activeSessionText,
       total_biaya: activePriceText,
+      nama_pemesan: session?.user?.name || "-",
     },
   );
 

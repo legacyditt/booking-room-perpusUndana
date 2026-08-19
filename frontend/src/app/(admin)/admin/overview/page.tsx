@@ -12,21 +12,13 @@ export const dynamic = "force-dynamic";
 
 // ── Halaman Overview Admin ────────────────────────────────────────────────────
 export default async function AdminOverviewPage() {
-  const cookie = (await getCookieHeader()).cookie;
+  const { cookie } = await getCookieHeader();
 
-  let bookings: Booking[] = [];
-  let dbStats: DatabaseStats | undefined;
-
-  try {
-    const [bookingsRes, statsRes] = await Promise.all([
-      getBookings(cookie),
-      getDatabaseStats(cookie),
-    ]);
-    bookings = bookingsRes;
-    dbStats = statsRes;
-  } catch {
-    bookings = [];
-  }
+  // Pengambilan data paralel dengan isolasi error agar kegagalan satu API tidak merusak data lainnya
+  const [bookings, dbStats] = await Promise.all([
+    getBookings(cookie).catch(() => [] as Booking[]),
+    getDatabaseStats(cookie).catch(() => undefined),
+  ]);
 
   // Ambil 3 kartu statistik pertama (Total Booking Hari Ini, Menunggu Persetujuan, Booking Disetujui Bulan Ini)
   const topStats = mockAdminStats.slice(0, 3);

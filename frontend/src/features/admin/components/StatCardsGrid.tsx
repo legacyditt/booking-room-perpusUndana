@@ -1,17 +1,14 @@
 import { StatCard } from "./StatCard";
 import { Card, CardContent } from "@/components/ui/card";
-import { getBookings } from "@/lib/api";
 import type { AdminStat } from "@/types/admin";
 import type { Booking } from "@/types/booking";
 import { isSameMonth, isToday, parseISO } from "date-fns";
 
 interface StatCardsGridProps {
-  cookie?: string;
+  bookings: Booking[];
 }
 
-export async function StatCardsGrid({ cookie }: StatCardsGridProps) {
-  const bookings = await getBookings(cookie).catch(() => [] as Booking[]);
-
+export function StatCardsGrid({ bookings }: StatCardsGridProps) {
   const stats: AdminStat[] = [
     {
       id: "total-bookings",

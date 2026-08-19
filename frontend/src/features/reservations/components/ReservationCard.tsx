@@ -43,6 +43,7 @@ interface ReservationCardProps {
   booking: Booking;
   room: Room;
   session: Session;
+  sessions: Session[];
 }
 
 // ── Pemetaan status booking ke variant Badge (Konsisten dengan Admin) ──
@@ -62,6 +63,7 @@ export function ReservationCard({
   booking,
   room,
   session,
+  sessions,
 }: ReservationCardProps) {
   const router = useRouter();
   const [isCancelling, setIsCancelling] = useState(false);
@@ -167,6 +169,7 @@ export function ReservationCard({
                 booking={booking}
                 room={room}
                 currentSession={session}
+                sessions={sessions}
               />
 
               <Dialog>

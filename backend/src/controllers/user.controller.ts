@@ -17,9 +17,11 @@ type AdminUser = Prisma.UserGetPayload<{ select: typeof userSelect }>;
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
+        const { role } = req.query;
         const users = await prisma.user.findMany({
             select: userSelect,
             orderBy: { createdAt: "desc" },
+            ...(role === "admin" || role === "user" ? { where: { role } } : {}),
         });
         return res.status(200).json({ data: users });
     } catch (error) {

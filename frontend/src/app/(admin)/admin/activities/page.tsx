@@ -11,7 +11,7 @@ export default async function AdminActivitiesPage() {
   try {
     const { cookie } = await getCookieHeader();
     activities = await getAdminActivities(cookie);
-    admins = (await getUsers(cookie)).filter((u) => u.role === "admin");
+    admins = await getUsers(cookie, "admin");
   } catch {
     activities = [];
     admins = [];

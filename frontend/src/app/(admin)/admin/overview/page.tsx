@@ -35,7 +35,7 @@ export default async function AdminOverviewPage() {
       {/* ── Kartu Statistik (3 Metrik + 1 Database Usage Card) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Suspense fallback={<StatCardsSkeleton />}>
-          <StatCardsGrid cookie={cookie} />
+          <StatCardsGrid bookings={bookings} />
         </Suspense>
         {/* Card ke-4: Penggunaan Database dengan Progress Bar */}
         <DatabaseUsageCard stats={dbStats} />

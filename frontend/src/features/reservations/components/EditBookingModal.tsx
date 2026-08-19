@@ -35,7 +35,6 @@ import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { client } from "@/lib/api/client";
 import { updateBooking } from "@/lib/api/bookings";
-import { getSessions } from "@/lib/api/sessions";
 import { errorMessage } from "@/lib/api/errors";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
@@ -44,12 +43,14 @@ interface EditBookingModalProps {
   booking: Booking;
   room: Room;
   currentSession: Session;
+  sessions: Session[];
 }
 
 export function EditBookingModal({
   booking,
   room,
   currentSession,
+  sessions,
 }: EditBookingModalProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -57,7 +58,6 @@ export function EditBookingModal({
   const [selectedSession, setSelectedSession] = useState<string>(
     booking.sessionId.toString(),
   );
-  const [sessions, setSessions] = useState<Session[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -67,13 +67,6 @@ export function EditBookingModal({
     booked: number;
   } | null>(null);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
-
-  // Ambil daftar sesi dari API ketika modal terbuka
-  useEffect(() => {
-    if (open && sessions.length === 0) {
-      getSessions().then(setSessions).catch(console.error);
-    }
-  }, [open, sessions.length]);
 
   // Cek ketersediaan kursi secara realtime
   useEffect(() => {
@@ -247,17 +240,11 @@ export function EditBookingModal({
                 </div>
               </SelectTrigger>
               <SelectContent>
-                {sessions.length === 0 ? (
-                  <SelectItem value={currentSession.id.toString()}>
-                    Loading sessions...
+                {sessions.map((s) => (
+                  <SelectItem key={s.id} value={s.id.toString()}>
+                    {s.name} ({s.startTime} - {s.finishTime})
                   </SelectItem>
-                ) : (
-                  sessions.map((s) => (
-                    <SelectItem key={s.id} value={s.id.toString()}>
-                      {s.name} ({s.startTime} - {s.finishTime})
-                    </SelectItem>
-                  ))
-                )}
+                ))}
               </SelectContent>
             </Select>
           </div>

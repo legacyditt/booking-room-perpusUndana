@@ -1,29 +1,34 @@
+"use client";
+
 import { StatCard } from "./StatCard";
 import { Card, CardContent } from "@/components/ui/card";
 import type { AdminStat } from "@/types/admin";
 import type { Booking } from "@/types/booking";
 import { isSameMonth, isToday, parseISO } from "date-fns";
+import { useAllBookings } from "@/lib/hooks/use-all-bookings";
 
 interface StatCardsGridProps {
   bookings: Booking[];
 }
 
 export function StatCardsGrid({ bookings }: StatCardsGridProps) {
+  const { data = [] } = useAllBookings(bookings);
+
   const stats: AdminStat[] = [
     {
       id: "total-bookings",
       label: "Total Booking Hari Ini",
-      value: bookings.filter((b) => isToday(parseISO(b.date))).length,
+      value: data.filter((b) => isToday(parseISO(b.date))).length,
     },
     {
       id: "pending-approvals",
       label: "Menunggu Persetujuan",
-      value: bookings.filter((b) => b.status === "PENDING").length,
+      value: data.filter((b) => b.status === "PENDING").length,
     },
     {
       id: "approved-this-month",
       label: "Booking Disetujui Bulan Ini",
-      value: bookings.filter(
+      value: data.filter(
         (b) => b.status === "APPROVED" && isSameMonth(parseISO(b.date), new Date())
       ).length,
     },

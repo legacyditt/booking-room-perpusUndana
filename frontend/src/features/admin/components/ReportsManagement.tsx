@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/toast";
 import { SpinnerGap, DownloadSimple } from "@phosphor-icons/react";
-import { getReportSummary, downloadReport } from "@/lib/api/reports";
+import { downloadReport } from "@/lib/api/reports";
+import { useReportSummary } from "@/lib/hooks/use-report-summary";
 import type { ReportSummary } from "@/types/report";
 
 const MONTHS_ID = [
@@ -51,8 +52,6 @@ export function ReportsManagement({ initialSummary }: ReportsManagementProps) {
   const initialMonth = Number(initialSummary.month.slice(5, 7));
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
-  const [summary, setSummary] = useState(initialSummary);
-  const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
 
   const years = useMemo(() => {
@@ -61,46 +60,28 @@ export function ReportsManagement({ initialSummary }: ReportsManagementProps) {
     return years;
   }, [initialYear]);
 
-  const monthParam = useCallback(
-    () => `${year}-${String(month).padStart(2, "0")}`,
-    [year, month],
-  );
+  const monthParam = `${year}-${String(month).padStart(2, "0")}`;
 
-  const fetchSummary = async (m: string) => {
-    setLoading(true);
-    try {
-      setSummary(await getReportSummary(m));
-    } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Gagal Memuat Laporan",
-        description: errorMessage(
-          error,
-          "Terjadi kesalahan saat memuat data laporan.",
-        ),
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: summary = initialSummary, isFetching: loading } =
+    useReportSummary(
+      monthParam,
+      monthParam === initialSummary.month ? initialSummary : undefined,
+    );
 
   const handleMonthChange = (value: string | null) => {
     if (!value) return;
-    const numericMonth = Number(value);
-    setMonth(numericMonth);
-    fetchSummary(`${year}-${String(numericMonth).padStart(2, "0")}`);
+    setMonth(Number(value));
   };
 
   const handleYearChange = (value: string | null) => {
     if (!value) return;
     setYear(Number(value));
-    fetchSummary(`${value}-${String(month).padStart(2, "0")}`);
   };
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      await downloadReport(monthParam());
+      await downloadReport(monthParam);
       toast.add({
         type: "success",
         title: "Laporan Diunduh",

@@ -4,7 +4,6 @@ import React, { useMemo, useState } from "react";
 import { RoomFilters } from "@/features/admin/components/RoomFilters";
 import { RoomTable } from "@/features/admin/components/RoomTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
-import { deleteRoom } from "@/lib/api/rooms";
 import { Room } from "@/types/room";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useRooms } from "@/lib/hooks/use-rooms";
+import { useDeleteRoom } from "@/lib/hooks/use-delete-room";
 
 const PAGE_SIZE = 5;
 
@@ -26,13 +27,15 @@ interface RoomsManagementProps {
 }
 
 export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
-  const [rooms, setRooms] = useState(initialRooms);
+  const { data: rooms = [] } = useRooms(initialRooms);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Semua");
   const [page, setPage] = useState(1);
 
   const [roomToDelete, setRoomToDelete] = useState<Room | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteMutation = useDeleteRoom();
+  const isDeleting = deleteMutation.isPending;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -61,31 +64,29 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
     setPage(1);
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!roomToDelete) return;
 
-    setIsDeleting(true);
-    try {
-      await deleteRoom(roomToDelete.id);
-      setRooms((prev) => prev.filter((r) => r.id !== roomToDelete.id));
-      toast.add({
-        type: "success",
-        title: "Ruangan Berhasil Dihapus",
-        description: `Ruang "${roomToDelete.name}" beserta seluruh datanya telah dihapus secara permanen.`,
-      });
-      setRoomToDelete(null);
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Tidak Dapat Menghapus Ruangan",
-        description: message,
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+    deleteMutation.mutate(roomToDelete.id, {
+      onSuccess: () => {
+        toast.add({
+          type: "success",
+          title: "Ruangan Berhasil Dihapus",
+          description: `Ruang "${roomToDelete.name}" beserta seluruh datanya telah dihapus secara permanen.`,
+        });
+        setRoomToDelete(null);
+      },
+      onError: (error) => {
+        const message =
+          (error as { response?: { data?: { message?: string } } })?.response?.data
+            ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+        toast.add({
+          type: "error",
+          title: "Tidak Dapat Menghapus Ruangan",
+          description: message,
+        });
+      },
+    });
   };
 
   return (

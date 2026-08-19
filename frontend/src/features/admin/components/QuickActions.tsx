@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   PlusCircle,
   ChartBar,
@@ -24,16 +23,18 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/toast";
-import { downloadDatabaseBackup, clearDatabaseBookings } from "@/lib/api";
+import { downloadDatabaseBackup } from "@/lib/api";
+import { useClearBookings } from "@/lib/hooks/use-clear-bookings";
 
 const CONFIRMATION_KEYWORD = "HAPUS RIWAYAT";
 
 export function QuickActions() {
-  const router = useRouter();
   const [isExporting, setIsExporting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [confirmInput, setConfirmInput] = useState("");
-  const [isClearing, setIsClearing] = useState(false);
+
+  const clearMutation = useClearBookings();
+  const isClearing = clearMutation.isPending;
 
   // Handler untuk mengunduh file backup Excel
   const handleExportBackup = async () => {
@@ -57,31 +58,29 @@ export function QuickActions() {
   };
 
   // Handler untuk eksekusi pembersihan riwayat booking
-  const handleClearDatabase = async () => {
+  const handleClearDatabase = () => {
     if (confirmInput.trim() !== CONFIRMATION_KEYWORD) return;
 
-    try {
-      setIsClearing(true);
-      const res = await clearDatabaseBookings(confirmInput.trim());
-      toast.add({
-        title: "Database Dibersihkan",
-        description:
-          res.message || "Seluruh riwayat pemesanan berhasil dibersihkan.",
-        type: "success",
-      });
-      setIsDialogOpen(false);
-      setConfirmInput("");
-      router.refresh();
-    } catch {
-      toast.add({
-        title: "Gagal Membersihkan Data",
-        description:
-          "Terjadi kesalahan saat membersihkan riwayat database.",
-        type: "error",
-      });
-    } finally {
-      setIsClearing(false);
-    }
+    clearMutation.mutate(confirmInput.trim(), {
+      onSuccess: (res) => {
+        toast.add({
+          title: "Database Dibersihkan",
+          description:
+            res.message || "Seluruh riwayat pemesanan berhasil dibersihkan.",
+          type: "success",
+        });
+        setIsDialogOpen(false);
+        setConfirmInput("");
+      },
+      onError: () => {
+        toast.add({
+          title: "Gagal Membersihkan Data",
+          description:
+            "Terjadi kesalahan saat membersihkan riwayat database.",
+          type: "error",
+        });
+      },
+    });
   };
 
   return (

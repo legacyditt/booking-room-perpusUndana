@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { TablePagination } from "@/features/admin/components/TablePagination";
 import type { AdminActivity, AdminUser } from "@/types/admin";
+import { useAdminActivities } from "@/lib/hooks/use-admin-activities";
 
 const PAGE_SIZE = 10;
 
@@ -60,7 +61,7 @@ export function ActivitiesManagement({
   activities: initialActivities,
   admins,
 }: ActivitiesManagementProps) {
-  const [activities, setActivities] = useState(initialActivities);
+  const { data: activities = [] } = useAdminActivities(initialActivities);
   const [adminFilter, setAdminFilter] = useState("Semua");
   const [actionFilter, setActionFilter] = useState("Semua");
   const [startDate, setStartDate] = useState("");

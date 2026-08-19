@@ -4,10 +4,11 @@ import React, { useMemo, useState } from "react";
 import { ReservationFilters } from "@/features/admin/components/ReservationFilters";
 import { ReservationTable } from "@/features/admin/components/ReservationTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
-import { updateBookingStatus } from "@/lib/api/bookings";
 import { Booking, BookingStatus } from "@/types/booking";
 import { isSeatApproved } from "@/lib/booking-status";
 import { toast } from "@/components/ui/toast";
+import { useAllBookings } from "@/lib/hooks/use-all-bookings";
+import { useUpdateBookingStatus } from "@/lib/hooks/use-update-booking-status";
 
 const PAGE_SIZE = 5;
 
@@ -22,14 +23,44 @@ const errorMessage = (error: unknown, fallback: string) =>
 export function ReservationsManagement({
   bookings: initialBookings,
 }: ReservationsManagementProps) {
-  const [bookings, setBookings] = useState(initialBookings);
+  const { data: bookings = [] } = useAllBookings(initialBookings);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Semua");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [typeFilter, setTypeFilter] = useState("Semua");
   const [page, setPage] = useState(1);
-  const [isUpdatingId, setIsUpdatingId] = useState<number | null>(null);
+
+  const updateStatusMutation = useUpdateBookingStatus();
+  const isUpdatingId = updateStatusMutation.isPending
+    ? (updateStatusMutation.variables?.id ?? null)
+    : null;
+
+  const handleUpdateStatus = (id: number, status: BookingStatus) => {
+    updateStatusMutation.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          const label = status === "APPROVED" ? "disetujui" : "ditolak";
+          toast.add({
+            type: "success",
+            title: `Pemesanan Berhasil ${status === "APPROVED" ? "Disetujui" : "Ditolak"}`,
+            description: `Pengajuan pemesanan #BKG-${id} telah ${label}.`,
+          });
+        },
+        onError: (error) => {
+          toast.add({
+            type: "error",
+            title: "Tindakan Gagal Diproses",
+            description: errorMessage(
+              error,
+              "Terjadi kesalahan saat memperbarui status pemesanan. Silakan coba beberapa saat lagi.",
+            ),
+          });
+        },
+      },
+    );
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -86,31 +117,6 @@ export function ReservationsManagement({
     setStartDate("");
     setEndDate("");
     setPage(1);
-  };
-
-  const handleUpdateStatus = async (id: number, status: BookingStatus) => {
-    setIsUpdatingId(id);
-    try {
-      const updated = await updateBookingStatus(id, status);
-      setBookings((prev) => prev.map((b) => (b.id === id ? updated : b)));
-      const label = status === "APPROVED" ? "disetujui" : "ditolak";
-      toast.add({
-        type: "success",
-        title: `Pemesanan Berhasil ${status === "APPROVED" ? "Disetujui" : "Ditolak"}`,
-        description: `Pengajuan pemesanan #BKG-${id} telah ${status === "APPROVED" ? "disetujui" : "ditolak"}.`,
-      });
-    } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Tindakan Gagal Diproses",
-        description: errorMessage(
-          error,
-          "Terjadi kesalahan saat memperbarui status pemesanan. Silakan coba beberapa saat lagi.",
-        ),
-      });
-    } finally {
-      setIsUpdatingId(null);
-    }
   };
 
   return (

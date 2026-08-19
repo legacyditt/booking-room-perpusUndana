@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { updateSystemSettings } from "@/lib/api/settings";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,6 +9,7 @@ import {
   Check,
   Info,
 } from "@phosphor-icons/react/dist/ssr";
+import { useUpdateSystemSettings } from "@/lib/hooks/use-update-system-settings";
 
 const DAYS = [
   { id: "senin", label: "Senin" },
@@ -30,7 +30,9 @@ export function WorkingDaysSection({
 }: WorkingDaysSectionProps) {
   const [savedDays, setSavedDays] = useState<string[]>(initialDays);
   const [workingDays, setWorkingDays] = useState<string[]>(initialDays);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const updateMutation = useUpdateSystemSettings();
+  const isSaving = updateMutation.isPending;
 
   const isChanged =
     workingDays.length !== savedDays.length ||
@@ -42,7 +44,7 @@ export function WorkingDaysSection({
     );
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (workingDays.length === 0) {
       toast.add({
         type: "warning",
@@ -52,28 +54,30 @@ export function WorkingDaysSection({
       return;
     }
 
-    setIsSaving(true);
-    try {
-      await updateSystemSettings({ days: workingDays });
-      setSavedDays([...workingDays]);
-      toast.add({
-        type: "success",
-        title: "Pengaturan Hari Kerja Disimpan",
-        description:
-          "Pembaruan hari operasional berhasil disimpan ke dalam sistem.",
-      });
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Gagal Menyimpan Hari Kerja",
-        description: message,
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    updateMutation.mutate(
+      { days: workingDays },
+      {
+        onSuccess: () => {
+          setSavedDays([...workingDays]);
+          toast.add({
+            type: "success",
+            title: "Pengaturan Hari Kerja Disimpan",
+            description:
+              "Pembaruan hari operasional berhasil disimpan ke dalam sistem.",
+          });
+        },
+        onError: (error) => {
+          const message =
+            (error as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+          toast.add({
+            type: "error",
+            title: "Gagal Menyimpan Hari Kerja",
+            description: message,
+          });
+        },
+      },
+    );
   };
 
   return (

@@ -2,11 +2,12 @@ import { StatCard } from "@/features/admin/components/StatCard";
 import { DatabaseUsageCard } from "@/features/admin/components/DatabaseUsageCard";
 import { RecentBookingsTable } from "@/features/admin/components/RecentBookingsTable";
 import { QuickActions } from "@/features/admin/components/QuickActions";
-import { mockAdminStats } from "@/data/mock";
 import { getBookings, getDatabaseStats } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
+import type { AdminStat } from "@/types/admin";
 import type { Booking } from "@/types/booking";
 import type { DatabaseStats } from "@/types/database";
+import { isSameMonth, isToday, parseISO } from "date-fns";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,26 @@ export default async function AdminOverviewPage() {
     getDatabaseStats(cookie).catch(() => undefined),
   ]);
 
-  // Ambil 3 kartu statistik pertama (Total Booking Hari Ini, Menunggu Persetujuan, Booking Disetujui Bulan Ini)
-  const topStats = mockAdminStats.slice(0, 3);
+  // Statistik turunan dari data booking yang sudah diambil
+  const topStats: AdminStat[] = [
+    {
+      id: "total-bookings",
+      label: "Total Booking Hari Ini",
+      value: bookings.filter((b) => isToday(parseISO(b.date))).length,
+    },
+    {
+      id: "pending-approvals",
+      label: "Menunggu Persetujuan",
+      value: bookings.filter((b) => b.status === "PENDING").length,
+    },
+    {
+      id: "approved-this-month",
+      label: "Booking Disetujui Bulan Ini",
+      value: bookings.filter(
+        (b) => b.status === "APPROVED" && isSameMonth(parseISO(b.date), new Date())
+      ).length,
+    },
+  ];
 
   return (
     <div className="p-8 space-y-8">

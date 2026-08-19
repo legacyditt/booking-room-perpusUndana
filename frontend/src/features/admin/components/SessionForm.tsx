@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { createSession, updateSession } from "@/lib/api/sessions";
+import { useCreateSession } from "@/lib/hooks/use-create-session";
+import { useUpdateSession } from "@/lib/hooks/use-update-session";
 
 interface SessionFormValues {
   name: string;
@@ -24,7 +25,9 @@ const errorMessage = (error: unknown, fallback: string) =>
 export function SessionForm({ session }: SessionFormProps) {
   const router = useRouter();
   const isEdit = Boolean(session);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createMutation = useCreateSession();
+  const updateMutation = useUpdateSession();
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   const [formData, setFormData] = useState<SessionFormValues>(
     session ?? {
@@ -43,36 +46,28 @@ export function SessionForm({ session }: SessionFormProps) {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
-    try {
-      const payload = {
-        name: formData.name,
-        startTime: formData.startTime,
-        finishTime: formData.finishTime,
-        isSewaOnly: formData.isSewaOnly,
-      };
+    const payload = {
+      name: formData.name,
+      startTime: formData.startTime,
+      finishTime: formData.finishTime,
+      isSewaOnly: formData.isSewaOnly,
+    };
 
-      if (isEdit) {
-        await updateSession(session!.id, payload);
-        toast.add({
-          type: "success",
-          title: "Perubahan Disimpan",
-          description: `Data sesi "${payload.name}" telah berhasil diperbarui ke dalam sistem.`,
-        });
-      } else {
-        await createSession(payload);
-        toast.add({
-          type: "success",
-          title: "Sesi Berhasil Ditambahkan",
-          description: `Sesi "${payload.name}" kini sudah aktif dan tersedia untuk dipesan.`,
-        });
-      }
-
+    const onSuccess = () => {
+      toast.add({
+        type: "success",
+        title: isEdit ? "Perubahan Disimpan" : "Sesi Berhasil Ditambahkan",
+        description: isEdit
+          ? `Data sesi "${payload.name}" telah berhasil diperbarui ke dalam sistem.`
+          : `Sesi "${payload.name}" kini sudah aktif dan tersedia untuk dipesan.`,
+      });
       router.push("/admin/sessions");
-    } catch (error) {
+    };
+
+    const onError = (error: unknown) => {
       toast.add({
         type: "error",
         title: isEdit ? "Gagal Memperbarui Data" : "Gagal Menambahkan Sesi",
@@ -83,8 +78,12 @@ export function SessionForm({ session }: SessionFormProps) {
             : "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda."
         ),
       });
-    } finally {
-      setIsSubmitting(false);
+    };
+
+    if (isEdit) {
+      updateMutation.mutate({ id: session!.id, ...payload }, { onSuccess, onError });
+    } else {
+      createMutation.mutate(payload, { onSuccess, onError });
     }
   };
 

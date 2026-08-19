@@ -1,17 +1,22 @@
+"use client";
+
 import { Database, HardDrives } from "@phosphor-icons/react/dist/ssr";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import type { DatabaseStats } from "@/types/database";
+import { useDatabaseStats } from "@/lib/hooks/use-database-stats";
 
 interface DatabaseUsageCardProps {
   stats?: DatabaseStats;
 }
 
 export function DatabaseUsageCard({ stats }: DatabaseUsageCardProps) {
+  const { data } = useDatabaseStats(stats);
+
   // Nilai default jika data belum termuat
-  const usedFormatted = stats?.usedFormatted ?? "12.8 MB";
-  const maxFormatted = stats?.maxFormatted ?? "512 MB";
-  const percentage = stats?.percentage ?? 2.5;
+  const usedFormatted = data?.usedFormatted ?? "12.8 MB";
+  const maxFormatted = data?.maxFormatted ?? "512 MB";
+  const percentage = data?.percentage ?? 2.5;
 
   // Penentuan warna indikator berdasarkan persentase penggunaan storage
   const getStatusColor = (pct: number) => {

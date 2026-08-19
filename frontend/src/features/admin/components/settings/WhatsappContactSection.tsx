@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { updateSystemSettings } from "@/lib/api/settings";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,7 @@ import {
   WhatsappLogo,
   FloppyDisk,
 } from "@phosphor-icons/react/dist/ssr";
+import { useUpdateSystemSettings } from "@/lib/hooks/use-update-system-settings";
 
 interface WhatsappContactSectionProps {
   initialWhatsapp?: string;
@@ -19,11 +19,13 @@ export function WhatsappContactSection({
 }: WhatsappContactSectionProps) {
   const [savedWhatsapp, setSavedWhatsapp] = useState<string>(initialWhatsapp);
   const [whatsapp, setWhatsapp] = useState<string>(initialWhatsapp);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const updateMutation = useUpdateSystemSettings();
+  const isSaving = updateMutation.isPending;
 
   const isChanged = whatsapp.trim() !== savedWhatsapp.trim();
 
-  const handleSave = async () => {
+  const handleSave = () => {
     const trimmed = whatsapp.trim();
     if (!trimmed) {
       toast.add({
@@ -34,28 +36,30 @@ export function WhatsappContactSection({
       return;
     }
 
-    setIsSaving(true);
-    try {
-      await updateSystemSettings({ whatsapp: trimmed });
-      setSavedWhatsapp(trimmed);
-      toast.add({
-        type: "success",
-        title: "Nomor WhatsApp Disimpan",
-        description:
-          "Nomor narahubung sewa ruangan berhasil diperbarui dan disinkronkan ke halaman user.",
-      });
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Gagal Menyimpan Nomor WhatsApp",
-        description: message,
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    updateMutation.mutate(
+      { whatsapp: trimmed },
+      {
+        onSuccess: () => {
+          setSavedWhatsapp(trimmed);
+          toast.add({
+            type: "success",
+            title: "Nomor WhatsApp Disimpan",
+            description:
+              "Nomor narahubung sewa ruangan berhasil diperbarui dan disinkronkan ke halaman user.",
+          });
+        },
+        onError: (error) => {
+          const message =
+            (error as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+          toast.add({
+            type: "error",
+            title: "Gagal Menyimpan Nomor WhatsApp",
+            description: message,
+          });
+        },
+      },
+    );
   };
 
   return (

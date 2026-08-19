@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { SessionTable } from "@/features/admin/components/SessionTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
-import { deleteSession } from "@/lib/api/sessions";
 import { Session } from "@/types/booking";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useSessions } from "@/lib/hooks/use-sessions";
+import { useDeleteSession } from "@/lib/hooks/use-delete-session";
 
 const PAGE_SIZE = 5;
 
@@ -25,11 +26,13 @@ interface SessionsManagementProps {
 export function SessionsManagement({
   sessions: initialSessions,
 }: SessionsManagementProps) {
-  const [sessions, setSessions] = useState(initialSessions);
+  const { data: sessions = [] } = useSessions(initialSessions);
   const [page, setPage] = useState(1);
 
   const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteMutation = useDeleteSession();
+  const isDeleting = deleteMutation.isPending;
 
   const totalPages = Math.max(1, Math.ceil(sessions.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -38,31 +41,29 @@ export function SessionsManagement({
     safePage * PAGE_SIZE,
   );
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!sessionToDelete) return;
 
-    setIsDeleting(true);
-    try {
-      await deleteSession(sessionToDelete.id);
-      setSessions((prev) => prev.filter((s) => s.id !== sessionToDelete.id));
-      toast.add({
-        type: "success",
-        title: "Sesi Berhasil Dihapus",
-        description: `Sesi "${sessionToDelete.name}" beserta seluruh datanya telah dihapus secara permanen.`,
-      });
-      setSessionToDelete(null);
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Tidak Dapat Menghapus Sesi",
-        description: message,
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+    deleteMutation.mutate(sessionToDelete.id, {
+      onSuccess: () => {
+        toast.add({
+          type: "success",
+          title: "Sesi Berhasil Dihapus",
+          description: `Sesi "${sessionToDelete.name}" beserta seluruh datanya telah dihapus secara permanen.`,
+        });
+        setSessionToDelete(null);
+      },
+      onError: (error) => {
+        const message =
+          (error as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+        toast.add({
+          type: "error",
+          title: "Tidak Dapat Menghapus Sesi",
+          description: message,
+        });
+      },
+    });
   };
 
   return (

@@ -27,14 +27,17 @@ const toMin = (time: string) => {
 
 const assertSlotAvailable = async (
   tx: Prisma.TransactionClient,
-  input: { roomId: number; sessionId: number; date: Date; capacity: number },
+  input: {
+    roomId: number;
+    sessionId: number;
+    date: Date;
+    capacity: number;
+    session: { startTime: string; finishTime: string } | null;
+  },
   type: "SEAT" | "ROOM",
   excludeBookingId?: number,
 ) => {
-  const session = await tx.bookingSession.findUnique({
-    where: { id: input.sessionId },
-    select: { startTime: true, finishTime: true },
-  });
+  const session = input.session;
   if (!session) throw new Error("SESSION_NOT_FOUND");
 
   const [newStart, newFinish] = [
@@ -194,6 +197,7 @@ export const createBooking = async (req: Request, res: Response) => {
             sessionId: Number(sessionId),
             date: new Date(date),
             capacity: room.capacity,
+            session,
           },
           bookingType,
         );
@@ -454,6 +458,7 @@ export const updateBooking = async (req: Request, res: Response) => {
             sessionId: Number(sessionId),
             date: newDate,
             capacity: booking.room.capacity,
+            session,
           },
           booking.type,
           booking.id,

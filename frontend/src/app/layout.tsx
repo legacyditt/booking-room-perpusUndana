@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toast";
+import { Providers } from "./providers";
 
 const fontSerif = Playfair_Display({
   subsets: ["latin"],
@@ -35,7 +36,7 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col font-sans">
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

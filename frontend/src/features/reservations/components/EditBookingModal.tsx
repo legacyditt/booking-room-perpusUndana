@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { useRouter } from "next/navigation";
 import {
   Calendar as CalendarIcon,
   Clock,
@@ -33,10 +32,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
-import { client } from "@/lib/api/client";
-import { updateBooking } from "@/lib/api/bookings";
-import { getSessions } from "@/lib/api/sessions";
 import { errorMessage } from "@/lib/api/errors";
+import { useRoomAvailability } from "@/lib/hooks/use-room-availability";
+import { useUpdateBooking } from "@/lib/hooks/use-update-booking";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 
@@ -44,108 +42,70 @@ interface EditBookingModalProps {
   booking: Booking;
   room: Room;
   currentSession: Session;
+  sessions: Session[];
 }
 
 export function EditBookingModal({
   booking,
   room,
   currentSession,
+  sessions,
 }: EditBookingModalProps) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(new Date(booking.date));
   const [selectedSession, setSelectedSession] = useState<string>(
     booking.sessionId.toString(),
   );
-  const [sessions, setSessions] = useState<Session[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const [availability, setAvailability] = useState<{
-    remainingCapacity: number;
-    capacity: number;
-    booked: number;
-  } | null>(null);
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const dateString = date ? format(date, "yyyy-MM-dd") : "";
+  const isSameAsCurrent =
+    !!date &&
+    dateString === booking.date.split("T")[0] &&
+    selectedSession === booking.sessionId.toString();
 
-  // Ambil daftar sesi dari API ketika modal terbuka
-  useEffect(() => {
-    if (open && sessions.length === 0) {
-      getSessions().then(setSessions).catch(console.error);
-    }
-  }, [open, sessions.length]);
+  // Cek ketersediaan kursi secara realtime (hanya saat berbeda dari jadwal asli)
+  const { data: availability, isFetching: isCheckingAvailability } =
+    useRoomAvailability(
+      room.id,
+      isSameAsCurrent ? undefined : date,
+      isSameAsCurrent ? undefined : selectedSession,
+    );
 
-  // Cek ketersediaan kursi secara realtime
-  useEffect(() => {
-    async function checkAvailability() {
-      if (!date || !selectedSession || !open) return;
+  const updateMutation = useUpdateBooking();
+  const isLoading = updateMutation.isPending;
 
-      const dateString = format(date, "yyyy-MM-dd");
-      const isSameAsCurrent =
-        dateString === booking.date.split("T")[0] &&
-        selectedSession === booking.sessionId.toString();
-
-      // Jika user memilih tanggal & sesi yang sama dengan jadwal aslinya, tidak perlu cek ketersediaan
-      if (isSameAsCurrent) {
-        setAvailability(null);
-        return;
-      }
-
-      setIsCheckingAvailability(true);
-      try {
-        const response = await client.get(
-          `/rooms/${room.id}/availability?date=${dateString}&sessionId=${selectedSession}`,
-        );
-        if (response.data && response.data.data) {
-          setAvailability(response.data.data);
-        }
-      } catch (error) {
-        console.error("Failed to check availability:", error);
-        setAvailability(null);
-      } finally {
-        setIsCheckingAvailability(false);
-      }
-    }
-
-    checkAvailability();
-  }, [date, selectedSession, open, room.id, booking]);
-
-  const handleUpdate = async () => {
+  const handleUpdate = () => {
     if (!date || !selectedSession) return;
-    setIsLoading(true);
 
-    try {
-      await updateBooking(booking.id, {
-        date: format(date, "yyyy-MM-dd"),
+    updateMutation.mutate(
+      {
+        id: booking.id,
+        date: dateString,
         sessionId: Number(selectedSession),
-      });
-
-      toast.add({
-        type: "success",
-        title: "Pemesanan Diperbarui",
-        description: `Jadwal untuk ${room.name} berhasil diubah.`,
-      });
-
-      setOpen(false);
-      router.refresh();
-    } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Pembaruan Gagal",
-        description: errorMessage(
-          error,
-          "Terjadi kesalahan sistem saat memproses pembaruan. Silakan coba lagi.",
-        ),
-      });
-    } finally {
-      setIsLoading(false);
-    }
+      },
+      {
+        onSuccess: () => {
+          toast.add({
+            type: "success",
+            title: "Pemesanan Diperbarui",
+            description: `Jadwal untuk ${room.name} berhasil diubah.`,
+          });
+          setOpen(false);
+        },
+        onError: (error) => {
+          toast.add({
+            type: "error",
+            title: "Pembaruan Gagal",
+            description: errorMessage(
+              error,
+              "Terjadi kesalahan sistem saat memproses pembaruan. Silakan coba lagi.",
+            ),
+          });
+        },
+      },
+    );
   };
-
-  const isSameAsCurrent = date
-    ? format(date, "yyyy-MM-dd") === booking.date.split("T")[0] &&
-      selectedSession === booking.sessionId.toString()
-    : false;
   const isSaveDisabled =
     !date ||
     !selectedSession ||
@@ -247,17 +207,11 @@ export function EditBookingModal({
                 </div>
               </SelectTrigger>
               <SelectContent>
-                {sessions.length === 0 ? (
-                  <SelectItem value={currentSession.id.toString()}>
-                    Loading sessions...
+                {sessions.map((s) => (
+                  <SelectItem key={s.id} value={s.id.toString()}>
+                    {s.name} ({s.startTime} - {s.finishTime})
                   </SelectItem>
-                ) : (
-                  sessions.map((s) => (
-                    <SelectItem key={s.id} value={s.id.toString()}>
-                      {s.name} ({s.startTime} - {s.finishTime})
-                    </SelectItem>
-                  ))
-                )}
+                ))}
               </SelectContent>
             </Select>
           </div>

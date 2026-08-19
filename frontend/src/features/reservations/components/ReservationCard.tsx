@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   format,
   formatDistanceToNow,
@@ -10,7 +9,6 @@ import {
   startOfDay,
 } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -32,9 +30,9 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/toast";
-import { cancelBooking } from "@/lib/api/bookings";
 import { errorMessage } from "@/lib/api/errors";
 import { isSeatApproved } from "@/lib/booking-status";
+import { useCancelBooking } from "@/lib/hooks/use-cancel-booking";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 import { EditBookingModal } from "./EditBookingModal";
@@ -43,6 +41,7 @@ interface ReservationCardProps {
   booking: Booking;
   room: Room;
   session: Session;
+  sessions: Session[];
 }
 
 // ── Pemetaan status booking ke variant Badge (Konsisten dengan Admin) ──
@@ -62,31 +61,31 @@ export function ReservationCard({
   booking,
   room,
   session,
+  sessions,
 }: ReservationCardProps) {
-  const router = useRouter();
-  const [isCancelling, setIsCancelling] = useState(false);
+  const cancelMutation = useCancelBooking();
+  const isCancelling = cancelMutation.isPending;
 
-  const handleCancel = async () => {
-    setIsCancelling(true);
-    try {
-      await cancelBooking(booking.id);
-      toast.add({
-        type: "success",
-        title: "Pemesanan Dibatalkan",
-        description: `Pemesanan ${room.name} berhasil dibatalkan.`,
-      });
-      router.refresh();
-    } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Gagal Membatalkan",
-        description: errorMessage(
-          error,
-          "Terjadi kesalahan sistem. Silakan coba lagi.",
-        ),
-      });
-      setIsCancelling(false);
-    }
+  const handleCancel = () => {
+    cancelMutation.mutate(booking.id, {
+      onSuccess: () => {
+        toast.add({
+          type: "success",
+          title: "Pemesanan Dibatalkan",
+          description: `Pemesanan ${room.name} berhasil dibatalkan.`,
+        });
+      },
+      onError: (error) => {
+        toast.add({
+          type: "error",
+          title: "Gagal Membatalkan",
+          description: errorMessage(
+            error,
+            "Terjadi kesalahan sistem. Silakan coba lagi.",
+          ),
+        });
+      },
+    });
   };
 
   // Format tanggal pembuatan
@@ -167,6 +166,7 @@ export function ReservationCard({
                 booking={booking}
                 room={room}
                 currentSession={session}
+                sessions={sessions}
               />
 
               <Dialog>

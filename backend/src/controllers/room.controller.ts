@@ -179,9 +179,22 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
   }
 };
 
+const syncRoomPrice = async (roomId: number, price: number) => {
+  const existing = await prisma.bookingPrice.findUnique({ where: { roomId } });
+  if (price > 0) {
+    if (existing) {
+      await prisma.bookingPrice.update({ where: { roomId }, data: { price } });
+    } else {
+      await prisma.bookingPrice.create({ data: { roomId, price } });
+    }
+  } else if (existing) {
+    await prisma.bookingPrice.delete({ where: { roomId } });
+  }
+};
+
 export const createRoom = async (req: Request, res: Response) => {
   try {
-    const { name, capacity, imageUrl } = req.body;
+    const { name, capacity, imageUrl, price } = req.body;
     const room = await prisma.room.create({
       data: {
         name,
@@ -190,6 +203,11 @@ export const createRoom = async (req: Request, res: Response) => {
         createdById: req.userId,
       },
     });
+    if (price !== undefined && Number(price) > 0) {
+      await prisma.bookingPrice.create({
+        data: { roomId: room.id, price: Number(price) },
+      });
+    }
     await logActivity(req.userId as string, "CREATE_ROOM", `Ruang: ${room.name}`);
     return res
       .status(201)
@@ -203,7 +221,7 @@ export const createRoom = async (req: Request, res: Response) => {
 export const updateRooms = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, capacity, imageUrl } = req.body;
+    const { name, capacity, imageUrl, price } = req.body;
 
     const existingRoom = await prisma.room.findUnique({
       where: { id: Number(id) },
@@ -220,6 +238,10 @@ export const updateRooms = async (req: Request, res: Response) => {
         updatedById: req.userId,
       },
     });
+
+    if (price !== undefined) {
+      await syncRoomPrice(room.id, Number(price));
+    }
 
     if (imageUrl !== existingRoom.imageUrl) {
       await deleteRoomImage(existingRoom.imageUrl);

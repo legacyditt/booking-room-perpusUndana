@@ -4,7 +4,7 @@ import { useState } from "react";
 import { isBefore, parseISO, startOfDay } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReservationCard } from "@/features/reservations/components/ReservationCard";
-import type { Booking } from "@/types/booking";
+import type { Booking, Session } from "@/types/booking";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -17,9 +17,10 @@ import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
 
 interface ReservationClientProps {
   bookings: Booking[];
+  sessions: Session[];
 }
 
-export function ReservationClient({ bookings }: ReservationClientProps) {
+export function ReservationClient({ bookings, sessions }: ReservationClientProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const today = startOfDay(new Date());
@@ -117,6 +118,7 @@ export function ReservationClient({ bookings }: ReservationClientProps) {
                   booking={booking}
                   room={booking.room}
                   session={booking.session}
+                  sessions={sessions}
                 />
               ))}
             </div>
@@ -137,6 +139,7 @@ export function ReservationClient({ bookings }: ReservationClientProps) {
                   booking={booking}
                   room={booking.room}
                   session={booking.session}
+                  sessions={sessions}
                 />
               ))}
             </div>

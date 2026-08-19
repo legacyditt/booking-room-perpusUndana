@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
 import { Footer } from "@/features/home/components/Footer";
 import { ReservationClient } from "@/features/reservations/components/ReservationClient";
-import { getUserBookings } from "@/lib/api";
+import { getUserBookings, getSessions } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
 
 export const metadata: Metadata = {
@@ -23,6 +23,8 @@ export default async function MyReservationsPage() {
     redirect("/login");
   }
 
+  const sessions = await getSessions(cookie).catch(() => []);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -41,7 +43,7 @@ export default async function MyReservationsPage() {
           </div>
 
           {/* Client component for Tabs, Search, and Filtering */}
-          <ReservationClient bookings={bookings} />
+          <ReservationClient bookings={bookings} sessions={sessions} />
         </div>
       </main>
       <Footer />

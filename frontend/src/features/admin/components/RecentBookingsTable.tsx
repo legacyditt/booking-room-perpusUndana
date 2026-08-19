@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Booking, BookingStatus } from "@/types/booking";
 import { isSeatApproved } from "@/lib/booking-status";
+import { useAllBookings } from "@/lib/hooks/use-all-bookings";
 
 // ── Pemetaan status booking ke variant Badge & label ─────────────────────────
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
@@ -29,6 +32,9 @@ interface RecentBookingsTableProps {
 }
 
 export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
+  const { data = [] } = useAllBookings(bookings);
+  const recentBookings = data.slice(0, 5);
+
   return (
     <div className="bg-white rounded-xl border border-neutral-200 flex flex-col overflow-hidden">
       {/* Header tabel */}
@@ -67,7 +73,7 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
         </TableHeader>
 
         <TableBody>
-          {bookings.map((booking) => {
+          {recentBookings.map((booking) => {
             const { label, variant } = statusConfig[booking.status];
             const displayLabel = isSeatApproved(booking) ? "Dipesan" : label;
             const displayVariant = isSeatApproved(booking)

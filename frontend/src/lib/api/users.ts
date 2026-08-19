@@ -1,9 +1,12 @@
 import { client, unwrap } from "./client";
 import type { AdminActivity, AdminUser } from "@/types/admin";
 
-export function getUsers(cookie?: string): Promise<AdminUser[]> {
+export function getUsers(
+  cookie?: string,
+  role?: "admin" | "user",
+): Promise<AdminUser[]> {
   const headers = cookie ? { cookie } : undefined;
-  return unwrap(client.get("/users", { headers }));
+  return unwrap(client.get("/users", { headers, params: role ? { role } : undefined }));
 }
 
 export function updateUserRole(id: string, role: string): Promise<AdminUser> {

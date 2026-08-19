@@ -45,7 +45,6 @@ export default async function EditRoomPage({ params }: PageProps) {
           capacity: String(room.capacity),
           imageUrl: room.imageUrl,
           price: room.bookingPrice ? String(room.bookingPrice.price) : "0",
-          hasBookingPrice: !!room.bookingPrice,
         }}
         imageUrlDisplay={room.imageUrlDisplay ?? room.imageUrl}
       />

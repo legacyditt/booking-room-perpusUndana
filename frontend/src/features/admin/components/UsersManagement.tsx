@@ -5,7 +5,6 @@ import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
 import { UserFilters } from "@/features/admin/components/UserFilters";
 import { UserTable } from "@/features/admin/components/UserTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
-import { createAdmins, deleteUser, updateUserRole } from "@/lib/api/users";
 import { AdminUser } from "@/types/admin";
 import { toast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,10 @@ import {
 } from "@/components/ui/dialog";
 
 import { Input } from "@/components/ui/input";
+import { useUsers } from "@/lib/hooks/use-users";
+import { useUpdateUserRole } from "@/lib/hooks/use-update-user-role";
+import { useCreateAdmins } from "@/lib/hooks/use-create-admins";
+import { useDeleteUser } from "@/lib/hooks/use-delete-user";
 
 const PAGE_SIZE = 5;
 
@@ -46,7 +49,7 @@ export function UsersManagement({
   actionType = "edit",
   showAddAdminButton = false,
 }: UsersManagementProps) {
-  const [users, setUsers] = useState(initialUsers);
+  const { data: users = [] } = useUsers(undefined, initialUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("Semua");
   const [categoryFilter, setCategoryFilter] = useState("Semua");
@@ -54,13 +57,18 @@ export function UsersManagement({
 
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [dialogRole, setDialogRole] = useState("user");
-  const [isSaving, setIsSaving] = useState(false);
 
   const [isAddingAdmin, setIsAddingAdmin] = useState(false);
   const [adminEmails, setAdminEmails] = useState<string[]>([""]);
 
   const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const updateRoleMutation = useUpdateUserRole();
+  const addAdminMutation = useCreateAdmins();
+  const deleteMutation = useDeleteUser();
+
+  const isSaving = updateRoleMutation.isPending || addAdminMutation.isPending;
+  const isDeleting = deleteMutation.isPending;
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -92,37 +100,38 @@ export function UsersManagement({
     setDialogRole(user.role);
   };
 
-  const handleSaveRole = async () => {
+  const handleSaveRole = () => {
     if (!editingUser || dialogRole === editingUser.role) {
       setEditingUser(null);
       return;
     }
 
-    setIsSaving(true);
-    try {
-      const updated = await updateUserRole(editingUser.id, dialogRole);
-      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
-      toast.add({
-        type: "success",
-        title: "Hak Akses Diperbarui",
-        description: `Peran pengguna "${updated.name}" berhasil diubah menjadi ${roleLabel(updated.role)}.`,
-      });
-      setEditingUser(null);
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Gagal Mengubah Hak Akses",
-        description: message,
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    updateRoleMutation.mutate(
+      { id: editingUser.id, role: dialogRole },
+      {
+        onSuccess: () => {
+          toast.add({
+            type: "success",
+            title: "Hak Akses Diperbarui",
+            description: `Peran pengguna "${editingUser.name}" berhasil diubah menjadi ${roleLabel(dialogRole)}.`,
+          });
+          setEditingUser(null);
+        },
+        onError: (error) => {
+          const message =
+            (error as { response?: { data?: { message?: string } } })?.response?.data
+              ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+          toast.add({
+            type: "error",
+            title: "Gagal Mengubah Hak Akses",
+            description: message,
+          });
+        },
+      },
+    );
   };
 
-  const handleAddAdmin = async () => {
+  const handleAddAdmin = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const validEmails = adminEmails.filter(
       (email) => email.trim() !== "" && emailRegex.test(email)
@@ -137,68 +146,66 @@ export function UsersManagement({
       }
       return;
     }
-    setIsSaving(true);
-    try {
-      const { data, failed } = await createAdmins(validEmails);
-      setUsers((prev) => [...data, ...prev]);
-      setIsAddingAdmin(false);
-      setAdminEmails([""]);
-      if (data.length > 0) {
-        toast.add({
-          type: "success",
-          title: `${data.length} Admin Berhasil Ditambahkan`,
-          description: `Admin baru memiliki password default (admin123).`,
-        });
-      }
-      if (failed.length > 0) {
+
+    addAdminMutation.mutate(validEmails, {
+      onSuccess: ({ data, failed }) => {
+        setIsAddingAdmin(false);
+        setAdminEmails([""]);
+        if (data.length > 0) {
+          toast.add({
+            type: "success",
+            title: `${data.length} Admin Berhasil Ditambahkan`,
+            description: `Admin baru memiliki password default (admin123).`,
+          });
+        }
+        if (failed.length > 0) {
+          toast.add({
+            type: "error",
+            title: `${failed.length} Email Gagal Diproses`,
+            description: `Email yang gagal: ${failed.join(", ")}`,
+          });
+        }
+      },
+      onError: (error) => {
+        const message =
+          (error as { response?: { data?: { message?: string } } })?.response?.data
+            ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
         toast.add({
           type: "error",
-          title: `${failed.length} Email Gagal Diproses`,
-          description: `Email yang gagal: ${failed.join(", ")}`,
+          title: "Gagal Menambahkan Admin",
+          description: message,
         });
-      }
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Gagal Menambahkan Admin",
-        description: message,
-      });
-    } finally {
-      setIsSaving(false);
-    }
+      },
+    });
   };
 
   const handleDeleteAdmin = (user: AdminUser) => {
     setUserToDelete(user);
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = () => {
     if (!userToDelete) return;
-    setIsDeleting(true);
-    try {
-      await deleteUser(userToDelete.id);
-      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
-      toast.add({
-        type: "success",
-        title: "Admin Dihapus",
-        description: `Admin "${userToDelete.name}" telah dihapus.`,
-      });
-      setUserToDelete(null);
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Gagal Menghapus Admin",
-        description: message,
-      });
-    } finally {
-      setIsDeleting(false);
-    }
+
+    deleteMutation.mutate(userToDelete.id, {
+      onSuccess: () => {
+        toast.add({
+          type: "success",
+          title: "Admin Dihapus",
+          description: `Admin "${userToDelete.name}" telah dihapus.`,
+        });
+        setUserToDelete(null);
+      },
+      onError: (error) => {
+        const message =
+          (error as { response?: { data?: { message?: string } } })?.response?.data
+            ?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+        toast.add({
+          type: "error",
+          title: "Gagal Menghapus Admin",
+          description: message,
+        });
+      },
+    });
   };
 
   return (

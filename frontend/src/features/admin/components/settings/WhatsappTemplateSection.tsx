@@ -2,7 +2,6 @@
 
 import React, { useState, useRef } from "react";
 import {
-  updateSystemSettings,
   DEFAULT_WHATSAPP_TEMPLATE,
   formatWhatsappTemplate,
 } from "@/lib/api/settings";
@@ -16,6 +15,7 @@ import {
   Sparkle,
   Checks,
 } from "@phosphor-icons/react/dist/ssr";
+import { useUpdateSystemSettings } from "@/lib/hooks/use-update-system-settings";
 
 const AVAILABLE_TAGS = [
   { tag: "{ruangan}", label: "Nama Ruangan", example: "Ruang Seminar" },
@@ -34,7 +34,9 @@ export function WhatsappTemplateSection({
 }: WhatsappTemplateSectionProps) {
   const [savedTemplate, setSavedTemplate] = useState<string>(initialTemplate);
   const [template, setTemplate] = useState<string>(initialTemplate);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const updateMutation = useUpdateSystemSettings();
+  const isSaving = updateMutation.isPending;
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isChanged = template.trim() !== savedTemplate.trim();
@@ -62,7 +64,7 @@ export function WhatsappTemplateSection({
     }, 0);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     const trimmed = template.trim();
     if (!trimmed) {
       toast.add({
@@ -73,28 +75,30 @@ export function WhatsappTemplateSection({
       return;
     }
 
-    setIsSaving(true);
-    try {
-      await updateSystemSettings({ whatsappTemplate: trimmed });
-      setSavedTemplate(trimmed);
-      toast.add({
-        type: "success",
-        title: "Template WhatsApp Disimpan",
-        description:
-          "Format template pesan berhasil diperbarui untuk seluruh proses konfirmasi sewa user.",
-      });
-    } catch (error) {
-      const message =
-        (error as { response?: { data?: { message?: string } } })?.response
-          ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
-      toast.add({
-        type: "error",
-        title: "Gagal Menyimpan Template",
-        description: message,
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    updateMutation.mutate(
+      { whatsappTemplate: trimmed },
+      {
+        onSuccess: () => {
+          setSavedTemplate(trimmed);
+          toast.add({
+            type: "success",
+            title: "Template WhatsApp Disimpan",
+            description:
+              "Format template pesan berhasil diperbarui untuk seluruh proses konfirmasi sewa user.",
+          });
+        },
+        onError: (error) => {
+          const message =
+            (error as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message ?? "Terjadi kesalahan sistem. Silakan coba lagi.";
+          toast.add({
+            type: "error",
+            title: "Gagal Menyimpan Template",
+            description: message,
+          });
+        },
+      },
+    );
   };
 
   // Generator live preview WhatsApp

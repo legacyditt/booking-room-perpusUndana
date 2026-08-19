@@ -11,11 +11,18 @@ export function getRoom(id: number, cookie?: string): Promise<Room> {
   return unwrap(client.get(`/rooms/${id}`, { headers }));
 }
 
-export function createRoom(input: { name: string; capacity: number; imageUrl: string }): Promise<Room> {
+interface RoomInput {
+  name: string;
+  capacity: number;
+  imageUrl: string;
+  price?: number;
+}
+
+export function createRoom(input: RoomInput): Promise<Room> {
   return unwrap(client.post("/rooms", input));
 }
 
-export function updateRoom(id: number, input: { name: string; capacity: number; imageUrl: string }): Promise<Room> {
+export function updateRoom(id: number, input: RoomInput): Promise<Room> {
   return unwrap(client.put(`/rooms/${id}`, input));
 }
 

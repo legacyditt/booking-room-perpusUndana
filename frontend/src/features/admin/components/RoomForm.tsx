@@ -5,12 +5,9 @@ import { useRouter } from "next/navigation";
 import { ImageSquare, UploadSimple } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { createRoom, updateRoom, uploadRoomImage } from "@/lib/api";
-import {
-  createBookingPrice,
-  updateBookingPrice,
-  deleteBookingPrice,
-} from "@/lib/api/bookingPrices";
+import { uploadRoomImage } from "@/lib/api";
+import { useCreateRoom } from "@/lib/hooks/use-create-room";
+import { useUpdateRoom } from "@/lib/hooks/use-update-room";
 
 interface RoomFormValues {
   name: string;
@@ -20,7 +17,7 @@ interface RoomFormValues {
 }
 
 interface RoomFormProps {
-  room?: RoomFormValues & { id: number; hasBookingPrice: boolean };
+  room?: RoomFormValues & { id: number };
   imageUrlDisplay?: string;
 }
 
@@ -31,7 +28,9 @@ const errorMessage = (error: unknown, fallback: string) =>
 export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
   const router = useRouter();
   const isEdit = Boolean(room);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createMutation = useCreateRoom();
+  const updateMutation = useUpdateRoom();
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(
     imageUrlDisplay ?? room?.imageUrl ?? "",
@@ -68,23 +67,8 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
     return "Rp " + value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   };
 
-  const syncPrice = async (roomId: number, price: number) => {
-    if (!isEdit) return;
-
-    if (price > 0) {
-      if (room!.hasBookingPrice) {
-        await updateBookingPrice(roomId, price);
-      } else {
-        await createBookingPrice({ roomId, price });
-      }
-    } else if (room!.hasBookingPrice) {
-      await deleteBookingPrice(roomId);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     try {
       let imageUrl = formData.imageUrl;
@@ -93,34 +77,60 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
         imageUrl = key;
       }
 
+      const price = Number(formData.price) || 0;
       const payload = {
         name: formData.name,
         capacity: Number(formData.capacity),
         imageUrl,
+        price,
       };
-      const price = Number(formData.price) || 0;
 
       if (isEdit) {
-        await updateRoom(room!.id, payload);
-        await syncPrice(room!.id, price);
-        toast.add({
-          type: "success",
-          title: "Perubahan Disimpan",
-          description: `Data ruang "${payload.name}" telah berhasil diperbarui ke dalam sistem.`,
-        });
+        updateMutation.mutate(
+          { id: room!.id, ...payload },
+          {
+            onSuccess: () => {
+              toast.add({
+                type: "success",
+                title: "Perubahan Disimpan",
+                description: `Data ruang "${payload.name}" telah berhasil diperbarui ke dalam sistem.`,
+              });
+              router.push("/admin/rooms");
+            },
+            onError: (error) => {
+              toast.add({
+                type: "error",
+                title: "Gagal Memperbarui Data",
+                description: errorMessage(
+                  error,
+                  "Terjadi kesalahan saat menyimpan perubahan. Silakan coba beberapa saat lagi.",
+                ),
+              });
+            },
+          },
+        );
       } else {
-        const created = await createRoom(payload);
-        if (price > 0) {
-          await createBookingPrice({ roomId: created.id, price });
-        }
-        toast.add({
-          type: "success",
-          title: "Ruangan Berhasil Ditambahkan",
-          description: `Ruang "${payload.name}" kini sudah aktif dan tersedia untuk dipesan.`,
+        createMutation.mutate(payload, {
+          onSuccess: () => {
+            toast.add({
+              type: "success",
+              title: "Ruangan Berhasil Ditambahkan",
+              description: `Ruang "${payload.name}" kini sudah aktif dan tersedia untuk dipesan.`,
+            });
+            router.push("/admin/rooms");
+          },
+          onError: (error) => {
+            toast.add({
+              type: "error",
+              title: "Gagal Menambahkan Ruangan",
+              description: errorMessage(
+                error,
+                "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda.",
+              ),
+            });
+          },
         });
       }
-
-      router.push("/admin/rooms");
     } catch (error) {
       toast.add({
         type: "error",
@@ -132,8 +142,6 @@ export function RoomForm({ room, imageUrlDisplay }: RoomFormProps) {
             : "Pastikan seluruh form terisi dengan benar, atau periksa koneksi internet Anda.",
         ),
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

@@ -40,9 +40,9 @@ import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
-import { client } from "@/lib/api/client";
 import { useSession } from "@/lib/api/auth-client";
-import { createBooking } from "@/lib/api/bookings";
+import { useCreateBooking } from "@/lib/hooks/use-create-booking";
+import { useDailyAvailability } from "@/lib/hooks/use-daily-availability";
 import { errorMessage } from "@/lib/api/errors";
 import {
   formatWhatsappTemplate,
@@ -81,7 +81,6 @@ export function BookingDetailsForm({
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [lastBookingDetails, setLastBookingDetails] = useState<{
     dateText: string;
@@ -89,14 +88,11 @@ export function BookingDetailsForm({
     priceText: string;
   } | null>(null);
 
-  // State for availability map
-  const [availabilityMap, setAvailabilityMap] = useState<
-    Record<
-      string,
-      { remainingCapacity: number; capacity: number; booked: number }
-    >
-  >({});
-  const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
+  const createBookingMutation = useCreateBooking();
+  const isLoading = createBookingMutation.isPending;
+
+  const { data: availabilityMap = {}, isFetching: isCheckingAvailability } =
+    useDailyAvailability(room.id, date);
 
   const router = useRouter();
 
@@ -126,37 +122,7 @@ export function BookingDetailsForm({
       : currentAvailability?.remainingCapacity === 0
     : false;
 
-  // Efek 1: Fetch 1x hit API daily-availability ke backend saat tanggal dipilih
-  useEffect(() => {
-    async function checkDailyAvailability() {
-      if (!date) {
-        setAvailabilityMap({});
-        setIsCheckingAvailability(false);
-        return;
-      }
-
-      setAvailabilityMap({});
-      setIsCheckingAvailability(true);
-      try {
-        const dateString = format(date, "yyyy-MM-dd");
-        const response = await client.get(
-          `/rooms/${room.id}/daily-availability?date=${dateString}`,
-        );
-        if (response.data && response.data.data) {
-          setAvailabilityMap(response.data.data);
-        }
-      } catch (error) {
-        console.error("Failed to check availability:", error);
-        setAvailabilityMap({});
-      } finally {
-        setIsCheckingAvailability(false);
-      }
-    }
-
-    checkDailyAvailability();
-  }, [date, room.id]);
-
-  // Efek 2: Kosongkan opsi dropdown jika sesi yang sedang dipilih ternyata penuh di tanggal yang baru
+  // Efek: Kosongkan opsi dropdown jika sesi yang sedang dipilih ternyata penuh di tanggal yang baru
   useEffect(() => {
     if (selectedSession && availabilityMap[selectedSession]) {
       const sessionAvail = availabilityMap[selectedSession];
@@ -170,65 +136,64 @@ export function BookingDetailsForm({
     }
   }, [availabilityMap, selectedSession, isSewa]);
 
-  const handleBooking = async () => {
+  const handleBooking = () => {
     if (!date || !selectedSession) return;
-    setIsLoading(true);
 
-    try {
-      await createBooking({
+    createBookingMutation.mutate(
+      {
         roomId: room.id,
         sessionId: Number(selectedSession),
         date: format(date, "yyyy-MM-dd"),
         type: isSewa ? "ROOM" : "SEAT",
-      });
+      },
+      {
+        onSuccess: () => {
+          toast.add({
+            type: "success",
+            title: "Pemesanan Berhasil",
+            description: `Ruangan ${room.name} berhasil dipesan.`,
+          });
 
-      toast.add({
-        type: "success",
-        title: "Pemesanan Berhasil",
-        description: `Ruangan ${room.name} berhasil dipesan.`,
-      });
+          const sessionObj = sessions.find(
+            (s) => s.id.toString() === selectedSession,
+          );
+          const sessionFormatted = sessionObj
+            ? `${sessionObj.name} (${sessionObj.startTime} - ${sessionObj.finishTime} WITA)`
+            : "-";
+          const dateFormatted = date
+            ? format(date, "EEEE, d MMMM yyyy", { locale: id })
+            : "-";
+          const priceFormatted = room.bookingPrice
+            ? formatRupiah(Number(room.bookingPrice.price))
+            : "-";
 
-      const sessionObj = sessions.find(
-        (s) => s.id.toString() === selectedSession,
-      );
-      const sessionFormatted = sessionObj
-        ? `${sessionObj.name} (${sessionObj.startTime} - ${sessionObj.finishTime} WITA)`
-        : "-";
-      const dateFormatted = date
-        ? format(date, "EEEE, d MMMM yyyy", { locale: id })
-        : "-";
-      const priceFormatted = room.bookingPrice
-        ? formatRupiah(Number(room.bookingPrice.price))
-        : "-";
+          setLastBookingDetails({
+            dateText: dateFormatted,
+            sessionText: sessionFormatted,
+            priceText: priceFormatted,
+          });
 
-      setLastBookingDetails({
-        dateText: dateFormatted,
-        sessionText: sessionFormatted,
-        priceText: priceFormatted,
-      });
+          setDate(undefined);
+          setSelectedSession("");
 
-      // Bersihkan state form
-      setDate(undefined);
-      setSelectedSession("");
-
-      if (isSewa) {
-        setShowPaymentDialog(true);
-      } else {
-        // Arahkan user ke halaman riwayat pemesanan jika reguler
-        router.push("/reservations");
-      }
-    } catch (error) {
-      toast.add({
-        type: "error",
-        title: "Pemesanan Gagal",
-        description: errorMessage(
-          error,
-          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
-        ),
-      });
-    } finally {
-      setIsLoading(false);
-    }
+          if (isSewa) {
+            setShowPaymentDialog(true);
+          } else {
+            router.push("/reservations");
+          }
+        },
+        onError: (error) => {
+          toast.add({
+            type: "error",
+            title: "Pemesanan Gagal",
+            description: errorMessage(
+              error,
+              "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
+            ),
+          });
+        },
+      },
+    );
   };
 
   const currentSessionObj = sessions.find(

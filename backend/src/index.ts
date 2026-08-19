@@ -14,6 +14,7 @@ import workingDaysRoute from "./routes/workingDays.routes";
 import settingsRoute from "./routes/settings.routes";
 import adminActivityRoute from "./routes/adminActivity.routes";
 import reportsRoute from "./routes/reports.routes";
+import adminDatabaseRoute from "./routes/adminDatabase.routes";
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -51,6 +52,7 @@ app.use("/working-days", workingDaysRoute);
 app.use("/settings", settingsRoute);
 app.use("/admin-activity", adminActivityRoute);
 app.use("/reports", reportsRoute);
+app.use("/admin/database", adminDatabaseRoute);
 
 app.listen(Number(port), "0.0.0.0", () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

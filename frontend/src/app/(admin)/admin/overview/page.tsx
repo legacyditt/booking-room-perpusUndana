@@ -1,12 +1,12 @@
-import { StatCard } from "@/features/admin/components/StatCard";
+import { StatCardsGrid, StatCardsSkeleton } from "@/features/admin/components/StatCardsGrid";
 import { DatabaseUsageCard } from "@/features/admin/components/DatabaseUsageCard";
 import { RecentBookingsTable } from "@/features/admin/components/RecentBookingsTable";
 import { QuickActions } from "@/features/admin/components/QuickActions";
-import { mockAdminStats } from "@/data/mock";
 import { getBookings, getDatabaseStats } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
 import type { Booking } from "@/types/booking";
 import type { DatabaseStats } from "@/types/database";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +19,6 @@ export default async function AdminOverviewPage() {
     getBookings(cookie).catch(() => [] as Booking[]),
     getDatabaseStats(cookie).catch(() => undefined),
   ]);
-
-  // Ambil 3 kartu statistik pertama (Total Booking Hari Ini, Menunggu Persetujuan, Booking Disetujui Bulan Ini)
-  const topStats = mockAdminStats.slice(0, 3);
 
   return (
     <div className="p-8 space-y-8">
@@ -37,9 +34,9 @@ export default async function AdminOverviewPage() {
 
       {/* ── Kartu Statistik (3 Metrik + 1 Database Usage Card) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {topStats.map((stat) => (
-          <StatCard key={stat.id} stat={stat} />
-        ))}
+        <Suspense fallback={<StatCardsSkeleton />}>
+          <StatCardsGrid cookie={cookie} />
+        </Suspense>
         {/* Card ke-4: Penggunaan Database dengan Progress Bar */}
         <DatabaseUsageCard stats={dbStats} />
       </div>

@@ -74,6 +74,7 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
                 sessions={sessions}
                 workingDays={systemSettings.days}
                 adminWhatsapp={systemSettings.whatsapp}
+                whatsappTemplate={systemSettings.whatsappTemplate}
                 mode={mode === "sewa" ? "sewa" : "reguler"}
               />
             </div>

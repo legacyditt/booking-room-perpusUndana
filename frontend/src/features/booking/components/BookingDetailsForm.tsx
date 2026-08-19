@@ -41,14 +41,20 @@ import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 import { Session } from "@/types/booking";
 import { client } from "@/lib/api/client";
+import { useSession } from "@/lib/api/auth-client";
 import { createBooking } from "@/lib/api/bookings";
 import { errorMessage } from "@/lib/api/errors";
+import {
+  formatWhatsappTemplate,
+  DEFAULT_WHATSAPP_TEMPLATE,
+} from "@/lib/api/settings";
 
 interface BookingDetailsFormProps {
   room: Room;
   sessions: Session[];
   workingDays?: string[];
   adminWhatsapp?: string;
+  whatsappTemplate?: string;
   mode?: "reguler" | "sewa";
 }
 
@@ -68,8 +74,10 @@ export function BookingDetailsForm({
   sessions,
   workingDays = ["senin", "selasa", "rabu", "kamis", "jumat"],
   adminWhatsapp = "081234567890",
+  whatsappTemplate,
   mode = "reguler",
 }: BookingDetailsFormProps) {
+  const { data: session } = useSession();
   const [date, setDate] = useState<Date | undefined>();
   const [selectedSession, setSelectedSession] = useState<string>("");
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -240,15 +248,16 @@ export function BookingDetailsForm({
     lastBookingDetails?.priceText ||
     (room.bookingPrice ? formatRupiah(Number(room.bookingPrice.price)) : "-");
 
-  const waMessage = `Halo Admin Perpustakaan Undana,
-
-Saya ingin melakukan konfirmasi pemesanan sewa ruangan:
-• Ruangan: ${room.name}
-• Tanggal: ${activeDateText}
-• Sesi: ${activeSessionText}
-• Total Biaya: ${activePriceText}
-
-Mohon informasi terkait pembayaran dan petunjuk selanjutnya untuk menyelesaikan proses sewa. Terima kasih.`;
+  const waMessage = formatWhatsappTemplate(
+    whatsappTemplate || DEFAULT_WHATSAPP_TEMPLATE,
+    {
+      ruangan: room.name,
+      tanggal: activeDateText,
+      sesi: activeSessionText,
+      total_biaya: activePriceText,
+      nama_pemesan: session?.user?.name || "-",
+    },
+  );
 
   const waUrl = formatWhatsappUrl(adminWhatsapp, waMessage);
 

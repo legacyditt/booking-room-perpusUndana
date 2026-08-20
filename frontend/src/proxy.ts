@@ -54,6 +54,12 @@ export async function proxy(request: NextRequest) {
           cookie: request.headers.get("cookie") || "",
         },
       });
+
+      if (!res.ok) {
+        const response = NextResponse.next();
+        response.cookies.delete("better-auth.session_token");
+        return response;
+      }
       const data = await res.json();
 
       if (data?.session) {

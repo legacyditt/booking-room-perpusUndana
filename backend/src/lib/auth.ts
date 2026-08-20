@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
-import { logActivity } from "./activityLog";
 
 export const auth = betterAuth({
   // 1. Adapter Database
@@ -38,23 +37,6 @@ export const auth = betterAuth({
 
   // 4. Secret Key untuk mengenkripsi token cookie
   secret: process.env.BETTER_AUTH_SECRET,
-
-  // 5. Tracking login admin
-  databaseHooks: {
-    session: {
-      create: {
-        after: async (session) => {
-          const user = await prisma.user.findUnique({
-            where: { id: session.userId },
-            select: { role: true, name: true },
-          });
-          if (user?.role === "admin") {
-            await logActivity(session.userId, "LOGIN", user.name ?? undefined);
-          }
-        },
-      },
-    },
-  },
 });
 
 export type Auth = typeof auth;

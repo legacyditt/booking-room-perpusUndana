@@ -29,7 +29,6 @@ const PAGE_SIZE = 10;
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 const actionConfig: Record<string, { label: string; variant: BadgeVariant }> = {
-  LOGIN: { label: "Login", variant: "outline" },
   CREATE_ROOM: { label: "Tambah Ruangan", variant: "default" },
   UPDATE_ROOM: { label: "Ubah Ruangan", variant: "secondary" },
   DELETE_ROOM: { label: "Hapus Ruangan", variant: "destructive" },

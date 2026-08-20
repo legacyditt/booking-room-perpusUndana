@@ -9,7 +9,6 @@ import {
 } from "../lib/excel";
 
 const ACTION_LABELS: Record<string, string> = {
-  LOGIN: "Login",
   CREATE_ROOM: "Tambah Ruangan",
   UPDATE_ROOM: "Ubah Ruangan",
   DELETE_ROOM: "Hapus Ruangan",

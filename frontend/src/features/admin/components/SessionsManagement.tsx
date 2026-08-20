@@ -35,7 +35,7 @@ export function SessionsManagement({
       if (a.isRentOnly !== b.isRentOnly) {
         return a.isRentOnly ? 1 : -1;
       }
-      return a.startTime.localeCompare(b.startTime);
+      return (a.startTime ?? "").localeCompare(b.startTime ?? "");
     });
   }, [rawSessions]);
 

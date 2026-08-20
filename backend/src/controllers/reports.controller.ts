@@ -1,43 +1,15 @@
 import { Request, Response } from "express";
 import ExcelJS from "exceljs";
 import prisma from "../lib/prisma";
-
-const MONTHS_ID = [
-  "JANUARI",
-  "FEBRUARI",
-  "MARET",
-  "APRIL",
-  "MEI",
-  "JUNI",
-  "JULI",
-  "AGUSTUS",
-  "SEPTEMBER",
-  "OKTOBER",
-  "NOVEMBER",
-  "DESEMBER",
-];
-
-const HEADER_FILL: ExcelJS.Fill = {
-  type: "pattern",
-  pattern: "solid",
-  fgColor: { argb: "FF0F2018" },
-};
-const TITLE_FILL: ExcelJS.Fill = {
-  type: "pattern",
-  pattern: "solid",
-  fgColor: { argb: "FFE7EDE9" },
-};
-const ALT_FILL: ExcelJS.Fill = {
-  type: "pattern",
-  pattern: "solid",
-  fgColor: { argb: "FFF7F9F8" },
-};
-const THIN_BORDER: Partial<ExcelJS.Borders> = {
-  top: { style: "thin" },
-  bottom: { style: "thin" },
-  left: { style: "thin" },
-  right: { style: "thin" },
-};
+import {
+  MONTHS_ID,
+  ALT_FILL,
+  TITLE_FILL,
+  THIN_BORDER,
+  center,
+  formatDate,
+  setTableHeader,
+} from "../lib/excel";
 
 interface BookingWithUser {
   user: {
@@ -52,6 +24,7 @@ interface BookingWithUser {
     startTime: string;
     finishTime: string;
   };
+  date: Date;
 }
 
 const parseMonth = (raw?: string) => {
@@ -170,19 +143,6 @@ export const getReportSummary = async (req: Request, res: Response) => {
   }
 };
 
-const center = (cell: ExcelJS.Cell) => {
-  cell.alignment = { horizontal: "center", vertical: "middle" };
-};
-
-const setTableHeader = (row: ExcelJS.Row) => {
-  row.eachCell((cell) => {
-    cell.fill = HEADER_FILL;
-    cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
-    cell.alignment = { horizontal: "center", vertical: "middle", wrapText: true };
-    cell.border = THIN_BORDER;
-  });
-};
-
 export const exportReport = async (req: Request, res: Response) => {
   try {
     const { year, month, bookings } = await getReportBookings(
@@ -204,12 +164,12 @@ export const exportReport = async (req: Request, res: Response) => {
     const titleRows = [
       "LAPORAN KUNJUNGAN UPT PERPUSTAKAAN",
       "UNIVERSITAS NUSA CENDANA",
-      `TAHUN ${year}`,
+      `BULAN ${monthLabel} TAHUN ${year}`,
     ];
     titleRows.forEach((text, i) => {
       const row = sheet1.getRow(i + 1);
       row.height = 24;
-      sheet1.mergeCells(i + 1, 1, i + 1, 6);
+      sheet1.mergeCells(i + 1, 1, i + 1, 7);
       const cell = row.getCell(1);
       cell.value = text;
       cell.font = { bold: true, size: i === 2 ? 12 : 14 };
@@ -217,12 +177,12 @@ export const exportReport = async (req: Request, res: Response) => {
     });
 
     const headerRow = sheet1.getRow(4);
-    headerRow.values = ["NIM", "NAMA MAHASISWA", "HAK AKSES", "PROGRAM STUDI", "DURASI", ""];
-    sheet1.mergeCells(4, 5, 4, 6);
+    headerRow.values = ["NIM", "NAMA MAHASISWA", "HAK AKSES", "PROGRAM STUDI", "TANGGAL", "DURASI", ""];
+    sheet1.mergeCells(4, 6, 4, 7);
     headerRow.height = 22;
 
     const subHeaderRow = sheet1.getRow(5);
-    subHeaderRow.values = ["", "", "", "", "Sesi", "JAM : MENIT"];
+    subHeaderRow.values = ["", "", "", "", "", "Sesi", "JAM : MENIT"];
     subHeaderRow.height = 20;
 
     [headerRow, subHeaderRow].forEach(setTableHeader);
@@ -238,6 +198,7 @@ export const exportReport = async (req: Request, res: Response) => {
         b.user.name,
         b.user.status,
         b.user.affiliation ?? "",
+        formatDate(b.date),
         b.session.name,
         `${String(Math.floor(durMin / 60)).padStart(2, "0")}:${String(durMin % 60).padStart(2, "0")}`,
       ];
@@ -253,8 +214,9 @@ export const exportReport = async (req: Request, res: Response) => {
       if (i === 1) width = 30;
       if (i === 2) width = 14;
       if (i === 3) width = 26;
-      if (i === 4) width = 20;
-      if (i === 5) width = 14;
+      if (i === 4) width = 14;
+      if (i === 5) width = 20;
+      if (i === 6) width = 14;
       col.width = width;
     });
 

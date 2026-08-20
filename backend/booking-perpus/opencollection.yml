@@ -8,3 +8,40 @@ extensions:
     ignore:
       - node_modules
       - .git
+
+requests:
+  - name: Export Log Aktivitas Admin
+    method: GET
+    url: http://localhost:3001/admin-activity/export
+    auth:
+      mode: cookie
+    query:
+      - key: adminId
+        value: ""
+        description: Filter berdasarkan ID admin (opsional)
+      - key: action
+        value: ""
+        description: Filter berdasarkan kode aksi, contoh CREATE_ROOM (opsional)
+      - key: startDate
+        value: ""
+        description: Filter dari tanggal YYYY-MM-DD (opsional)
+      - key: endDate
+        value: ""
+        description: Filter sampai tanggal YYYY-MM-DD (opsional)
+    responses:
+      - name: Success
+        status: 200
+        contentType: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+        description: File Excel berisi log aktivitas admin (styled report).
+      - name: Unauthorized
+        status: 401
+        contentType: application/json
+        body: '{"message": "Unauthorized"}'
+      - name: Forbidden
+        status: 403
+        contentType: application/json
+        body: '{"message": "Forbidden: admin access required"}'
+      - name: Internal Server Error
+        status: 500
+        contentType: application/json
+        body: '{"message": "Internal server error"}'

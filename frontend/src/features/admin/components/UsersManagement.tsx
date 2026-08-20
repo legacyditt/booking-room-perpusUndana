@@ -36,6 +36,7 @@ const roleLabel = (role: string) => (role === "admin" ? "Admin" : "Pengguna");
 
 interface UsersManagementProps {
   users: AdminUser[];
+  role?: "admin" | "user";
   hideRoleFilter?: boolean;
   hideCategory?: boolean;
   actionType?: "edit" | "delete";
@@ -44,12 +45,13 @@ interface UsersManagementProps {
 
 export function UsersManagement({
   users: initialUsers,
+  role,
   hideRoleFilter = false,
   hideCategory = false,
   actionType = "edit",
   showAddAdminButton = false,
 }: UsersManagementProps) {
-  const { data: users = [] } = useUsers(undefined, initialUsers);
+  const { data: users = [] } = useUsers(role, initialUsers);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("Semua");
   const [categoryFilter, setCategoryFilter] = useState("Semua");

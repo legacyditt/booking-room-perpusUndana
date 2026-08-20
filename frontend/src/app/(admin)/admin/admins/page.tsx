@@ -31,6 +31,7 @@ export default async function AdminAdminsPage() {
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
         <UsersManagement 
           users={users.filter(u => u.role === "admin")} 
+          role="admin"
           hideRoleFilter={true} 
           hideCategory={true}
           actionType="delete"

@@ -29,7 +29,7 @@ export default async function AdminUsersPage() {
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">
-        <UsersManagement users={users.filter(u => u.role !== "admin")} hideRoleFilter={true} />
+        <UsersManagement users={users.filter(u => u.role !== "admin")} role="user" hideRoleFilter={true} />
       </div>
     </div>
   );

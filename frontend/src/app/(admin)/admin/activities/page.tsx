@@ -1,4 +1,5 @@
 import { ActivitiesManagement } from "@/features/admin/components/ActivitiesManagement";
+import { ActivityExportButton } from "@/features/admin/components/ActivityExportButton";
 import { getAdminActivities, getUsers } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
 import type { AdminActivity, AdminUser } from "@/types/admin";
@@ -28,6 +29,7 @@ export default async function AdminActivitiesPage() {
             Riwayat aksi yang dilakukan admin di sistem.
           </p>
         </div>
+        <ActivityExportButton />
       </div>
 
       <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden flex flex-col">

@@ -34,7 +34,7 @@ app.use(express.json());
 app.use("/api/auth", authRoute);
 
 // 4. Router BetterAuth
-app.all("/api/auth/{*any}", toNodeHandler(auth));
+app.all("/api/auth/{/*any}", toNodeHandler(auth));
 
 // --- ROUTES APLIKASI ---
 app.get("/", (req: Request, res: Response) => {

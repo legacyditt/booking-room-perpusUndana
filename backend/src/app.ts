@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import roomRoute from "./routes/room.routes";
 import sessionRoute from "./routes/sessions.routes";
@@ -33,8 +32,11 @@ app.use(express.json());
 // 3. Route Reset Password (wajib sebelum catch-all BetterAuth agar tidak ditangkap handler-nya)
 app.use("/api/auth", authRoute);
 
-// 4. Router BetterAuth
-app.all("/api/auth/{/*any}", toNodeHandler(auth));
+// 4. Router BetterAuth (dynamic import: better-auth is ESM-only)
+app.all("/api/auth/{/*any}", async (req, res) => {
+  const { toNodeHandler } = await import("better-auth/node");
+  return toNodeHandler(auth)(req, res);
+});
 
 // --- ROUTES APLIKASI ---
 app.get("/", (req: Request, res: Response) => {

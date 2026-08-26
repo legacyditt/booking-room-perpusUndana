@@ -1,59 +1,23 @@
-const BASE_URL = "https://api.prisma.io/v1";
-
-const headers = () => ({
-  Authorization: `Bearer ${process.env.PRISMA_SERVICE_TOKEN}`,
-});
-
-// ponytail: databaseId di-cache di module scope — ID project/database tidak berubah saat runtime
-let cachedDatabaseId: string | null = null;
-
-async function getFirstDatabaseId(): Promise<string> {
-  if (cachedDatabaseId) return cachedDatabaseId;
-
-  const res = await fetch(`${BASE_URL}/databases`, { headers: headers() });
-  if (!res.ok) throw new Error(`Prisma API databases failed: ${res.status}`);
-
-  const body = (await res.json()) as { data: { id: string }[] };
-  console.log("[prismaManagement] databases response:", JSON.stringify(body, null, 2));
-  const db = body.data?.[0];
-  if (!db?.id) throw new Error("No database found in Prisma workspace");
-
-  cachedDatabaseId = db.id;
-  return cachedDatabaseId;
-}
+import prisma from "./prisma";
 
 export interface PrismaStorageUsage {
   usedBytes: number;
   limitBytes: number;
 }
 
+// ponytail: 512 MB — Neon free tier storage limit
+const NEON_FREE_TIER_LIMIT = 536_870_912;
+
 export async function getDatabaseStorageUsage(): Promise<PrismaStorageUsage | null> {
   try {
-    const databaseId = await getFirstDatabaseId();
-    const res = await fetch(`${BASE_URL}/databases/${databaseId}/usage`, {
-      headers: headers(),
-    });
-    if (!res.ok) return null;
+    const result = await prisma.$queryRaw<{ used_bytes: bigint }[]>`
+      SELECT pg_database_size(current_database()) AS used_bytes
+    `;
 
-    const body = (await res.json()) as Record<string, unknown>;
-
-    // Response format: { storage: { usedBytes, limitBytes } }
-    const storage = body.storage as { usedBytes?: number; limitBytes?: number } | undefined;
-    if (storage?.usedBytes != null && storage?.limitBytes != null) {
-      return { usedBytes: storage.usedBytes, limitBytes: storage.limitBytes };
-    }
-
-    // Fallback: older format { metrics: { storage: { used, unit } } }
-    const metrics = body.metrics as { storage?: { used?: number; unit?: string } } | undefined;
-    if (metrics?.storage?.used != null) {
-      const usedGiB = metrics.storage.used;
-      const usedBytes = Math.round(usedGiB * 1024 * 1024 * 1024);
-      return { usedBytes, limitBytes: 536870912 }; // 512 MB default limit
-    }
-
-    return null;
+    const usedBytes = Number(result[0]?.used_bytes ?? 0);
+    return { usedBytes, limitBytes: NEON_FREE_TIER_LIMIT };
   } catch (err) {
-    console.error("Failed to fetch Prisma storage usage:", err);
+    console.error("Failed to fetch database storage usage:", err);
     return null;
   }
 }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "postinstall": "prisma generate",

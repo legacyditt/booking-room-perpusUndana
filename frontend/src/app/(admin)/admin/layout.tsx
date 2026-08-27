@@ -2,23 +2,21 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/features/admin/components/Sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { client } from "@/lib/api/client";
+import { auth } from "@/lib/auth";
 
 export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookie = (await headers()).get("cookie");
-  const res = await client.get("/api/auth/get-session", {
-    headers: { cookie: cookie ?? "" },
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
-  const data = res.data;
 
-  if (!data?.session) {
+  if (!session) {
     redirect("/login");
   }
-  if (data.user?.role !== "admin") {
+  if (session.user.role !== "admin") {
     redirect("/");
   }
 

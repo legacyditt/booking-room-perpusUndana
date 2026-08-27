@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// BETTERAUTH MODELS
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  status        String // "mahasiswa" | "dosen" | "umum"
+  idNumber      String // NIM / NIP / NIK
+  whatsapp         String
+  role             String     @default("user") // "user" atau "admin"
+  affiliation      String? // instansi (umum) / prodi (dosen-mahasiswa)
+  resetToken       String?    @unique @map("reset_token")
+  resetTokenExpiry DateTime?  @map("reset_token_expiry")
+
+  sessions Session[]
+  accounts Account[]
+
+  bookings        Booking[]
+  roomsCreated    Room[]           @relation("RoomCreatedBy")
+  roomsUpdated    Room[]           @relation("RoomUpdatedBy")
+  sessionsCreated BookingSession[] @relation("SessionCreatedBy")
+  sessionsUpdated BookingSession[] @relation("SessionUpdatedBy")
+  bookingsDecided Booking[]        @relation("BookingDecidedBy")
+  activities      AdminActivityLog[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// APP MODELS
+
+model Room {
+  id           Int           @id @default(autoincrement())
+  name         String
+  capacity     Int
+  imageUrl     String        @map("image_url")
+  createdById  String?       @map("created_by_id")
+  updatedById  String?       @map("updated_by_id")
+  bookings     Booking[]
+  bookingPrice BookingPrice?
+
+  createdBy User? @relation("RoomCreatedBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("RoomUpdatedBy", fields: [updatedById], references: [id])
+
+  @@map("rooms")
+}
+
+model BookingSession {
+  id         Int       @id @default(autoincrement())
+  name       String
+  startTime  String    @map("start_time")
+  finishTime String    @map("finish_time")
+  isRentOnly Boolean   @default(false) @map("is_rent_only")
+  createdById  String? @map("created_by_id")
+  updatedById  String? @map("updated_by_id")
+  bookings   Booking[]
+
+  createdBy User? @relation("SessionCreatedBy", fields: [createdById], references: [id])
+  updatedBy User? @relation("SessionUpdatedBy", fields: [updatedById], references: [id])
+
+  @@map("booking_sessions")
+}
+
+model Booking {
+  id          Int           @id @default(autoincrement())
+  roomId      Int           @map("room_id")
+  sessionId   Int           @map("session_id")
+  userId      String        @map("user_id")
+  date        DateTime
+  status      BookingStatus @default(PENDING)
+  type        BookingType   @default(SEAT)
+  decidedById String?       @map("decided_by_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  room       Room           @relation(fields: [roomId], references: [id])
+  session    BookingSession @relation(fields: [sessionId], references: [id])
+  user       User           @relation(fields: [userId], references: [id])
+  decidedBy  User?          @relation("BookingDecidedBy", fields: [decidedById], references: [id])
+
+  @@map("bookings")
+}
+
+model BookingPrice {
+  roomId Int     @id @map("room_id")
+  price  Decimal
+
+  room Room @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("booking_prices")
+}
+
+model SystemSetting {
+  id       Int    @id @default(1) // single row, selalu id 1
+  days     String @default("senin,selasa,rabu,kamis,jumat") // "senin,selasa,rabu,kamis,jumat"
+  whatsapp String @default("081234567890")
+
+  @@map("system_settings")
+}
+
+model AdminActivityLog {
+  id        Int      @id @default(autoincrement())
+  adminId   String   @map("admin_id")
+  admin     User     @relation(fields: [adminId], references: [id])
+  action    String
+  detail    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("admin_activity_log")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum BookingType {
+  SEAT
+  ROOM
+}

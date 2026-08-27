@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { createHash, randomBytes } from "crypto";
-// @ts-ignore: Module resolution for .d.mts in commonjs
 import { hashPassword } from "@better-auth/utils/password";
 import prisma from "../lib/prisma";
 import { sendPasswordResetEmail } from "../lib/mailer";

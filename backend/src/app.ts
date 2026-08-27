@@ -55,4 +55,6 @@ app.use("/admin-activity", adminActivityRoute);
 app.use("/reports", reportsRoute);
 app.use("/admin/database", adminDatabaseRoute);
 
+app.listen(Number(process.env.PORT ?? 3001));
+
 export default app;

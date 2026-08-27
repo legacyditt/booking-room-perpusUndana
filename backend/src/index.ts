@@ -1,14 +1,11 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth.js";
 import roomRoute from "./routes/room.routes.js";
 import sessionRoute from "./routes/sessions.routes.js";
 import bookingsRoute from "./routes/bookings.routes.js";
 import bookingPriceRoute from "./routes/bookingPrice.routes.js";
 import userRoute from "./routes/user.routes.js";
-import authRoute from "./routes/auth.routes.js";
 import uploadRoute from "./routes/upload.routes.js";
 import workingDaysRoute from "./routes/workingDays.routes.js";
 import settingsRoute from "./routes/settings.routes.js";
@@ -29,12 +26,6 @@ app.use(
 
 // 2. Body Parser (harus sebelum route auth agar req.body terisi)
 app.use(express.json());
-
-// 3. Route Reset Password (wajib sebelum catch-all BetterAuth agar tidak ditangkap handler-nya)
-app.use("/api/auth", authRoute);
-
-// 4. Router BetterAuth
-app.all("/api/auth/{*any}", toNodeHandler(auth));
 
 // --- ROUTES APLIKASI ---
 app.get("/", (req: Request, res: Response) => {

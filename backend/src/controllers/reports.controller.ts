@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import ExcelJS from "exceljs";
-import prisma from "../lib/prisma.js";
+import prisma from "../lib/prisma";
 import {
   MONTHS_ID,
   ALT_FILL,
@@ -9,7 +9,7 @@ import {
   center,
   formatDate,
   setTableHeader,
-} from "../lib/excel.js";
+} from "../lib/excel";
 
 interface BookingWithUser {
   user: {

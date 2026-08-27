@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   getSystemSettings,
   updateSystemSettings,
-} from "../controllers/settings.controller.js";
-import { requireAuth, requireAdmin } from "../middleware/auth.js";
+} from "../controllers/settings.controller";
+import { requireAuth, requireAdmin } from "../middleware/auth";
 
 const router = Router();
 

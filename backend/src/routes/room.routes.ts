@@ -7,8 +7,8 @@ import {
   deleteRoom,
   getRoomAvailability,
   getRoomDailyAvailability,
-} from "../controllers/room.controller.js";
-import { requireAuth, requireAdmin } from "../middleware/auth.js";
+} from "../controllers/room.controller";
+import { requireAuth, requireAdmin } from "../middleware/auth";
 
 const router = Router();
 

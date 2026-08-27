@@ -1,7 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
-import { requireAdmin } from "../middleware/auth.js";
-import { uploadRoomImage } from "../lib/storage.js";
+import { requireAdmin } from "../middleware/auth";
+import { uploadRoomImage } from "../lib/storage";
 
 const router = Router();
 

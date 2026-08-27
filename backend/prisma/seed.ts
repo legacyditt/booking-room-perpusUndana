@@ -1,7 +1,7 @@
-import prisma from "../src/lib/prisma.js";
+import prisma from "../src/lib/prisma";
 import { hashPassword } from "@better-auth/utils/password";
-import { BookingStatus } from "../src/generated/prisma/enums.js";
-import { BookingType } from "../src/generated/prisma/enums.js";
+import { BookingStatus } from "../src/generated/prisma/enums";
+import { BookingType } from "../src/generated/prisma/enums";
 
 const userPassword = "delano_MAHASISWA123";
 const adminPassword = "admin_PERPUSTAKAAN123";

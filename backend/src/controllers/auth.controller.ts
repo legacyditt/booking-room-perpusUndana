@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { createHash, randomBytes } from "crypto";
+// @ts-ignore: Module resolution for .d.mts in commonjs
 import { hashPassword } from "@better-auth/utils/password";
-import prisma from "../lib/prisma.js";
-import { sendPasswordResetEmail } from "../lib/mailer.js";
+import prisma from "../lib/prisma";
+import { sendPasswordResetEmail } from "../lib/mailer";
 
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 jam

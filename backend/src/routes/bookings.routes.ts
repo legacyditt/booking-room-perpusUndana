@@ -8,8 +8,8 @@ import {
   deleteBooking,
   updateBookingStatus,
   updateBooking,
-} from "../controllers/bookings.controller.js";
-import { requireAuth, requireAdmin } from "../middleware/auth.js";
+} from "../controllers/bookings.controller";
+import { requireAuth, requireAdmin } from "../middleware/auth";
 
 const router = Router();
 

@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   exportAdminActivities,
   getAdminActivities,
-} from "../controllers/adminActivity.controller.js";
-import { requireAdmin } from "../middleware/auth.js";
+} from "../controllers/adminActivity.controller";
+import { requireAdmin } from "../middleware/auth";
 
 const router = Router();
 

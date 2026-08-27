@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import ExcelJS from "exceljs";
-import prisma from "../lib/prisma";
-import { getDatabaseStorageUsage } from "../lib/prismaManagement";
-import { logActivity } from "../lib/activityLog";
+import prisma from "../lib/prisma.js";
+import { getDatabaseStorageUsage } from "../lib/prismaManagement.js";
+import { logActivity } from "../lib/activityLog.js";
 
 // ── Constants (sama dengan reports.controller.ts) ──────────────────────────
 const HEADER_FILL: ExcelJS.Fill = {

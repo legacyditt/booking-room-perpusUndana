@@ -5,8 +5,8 @@ import {
     createSession,
     updateSession,
     deleteSession
-} from '../controllers/sessions.controller';
-import { requireAuth, requireAdmin } from '../middleware/auth';
+} from '../controllers/sessions.controller.js';
+import { requireAuth, requireAdmin } from '../middleware/auth.js';
 
 const router = Router();
 

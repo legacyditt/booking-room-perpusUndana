@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
-import prisma from "../lib/prisma";
-import { Prisma } from "../generated/prisma/client";
+import prisma from "../lib/prisma.js";
+import { Prisma } from "../generated/prisma/client.js";
 import {
   sendBookingCancellationEmail,
   sendBookingStatusUpdateEmail,
-} from "../lib/mailer";
-import { logActivity } from "../lib/activityLog";
+} from "../lib/mailer.js";
+import { logActivity } from "../lib/activityLog.js";
 
 // ROOM = sewa seluruh ruangan (blokir jika ada booking apa pun),
 // SEAT = pesan 1 kursi (blokir jika sudah ada sewa ruangan atau kursi penuh).

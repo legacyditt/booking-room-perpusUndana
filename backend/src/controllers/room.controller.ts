@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import prisma from "../lib/prisma";
-import { getRoomImageUrl, deleteRoomImage } from "../lib/storage";
-import { logActivity } from "../lib/activityLog";
+import prisma from "../lib/prisma.js";
+import { getRoomImageUrl, deleteRoomImage } from "../lib/storage.js";
+import { logActivity } from "../lib/activityLog.js";
 
 export const getAllRooms = async (req: Request, res: Response) => {
   try {

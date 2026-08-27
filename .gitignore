@@ -3,3 +3,4 @@ roadmap-*.md
 notification-list.md
 todo.md
 .env.migration
+dist/

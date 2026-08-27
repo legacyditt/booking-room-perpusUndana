@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import ExcelJS from "exceljs";
-import prisma from "../lib/prisma";
+import prisma from "../lib/prisma.js";
 import {
   ALT_FILL,
   THIN_BORDER,
   formatDateTime,
   setTableHeader,
-} from "../lib/excel";
+} from "../lib/excel.js";
 
 const ACTION_LABELS: Record<string, string> = {
   CREATE_ROOM: "Tambah Ruangan",

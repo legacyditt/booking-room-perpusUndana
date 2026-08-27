@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { auth } from "../lib/auth.js";
 import prisma from "../lib/prisma.js";
-import { Prisma } from "../generated/prisma/client.js";
+import { Prisma } from "@prisma/client";
 import { logActivity } from "../lib/activityLog.js";
 
 const userSelect = {

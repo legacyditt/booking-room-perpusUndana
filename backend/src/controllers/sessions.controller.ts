@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import prisma from "../lib/prisma";
-import { logActivity } from "../lib/activityLog";
+import prisma from "../lib/prisma.js";
+import { logActivity } from "../lib/activityLog.js";
 
 export const getAllSessions = async (req: Request, res: Response) => {
     try {

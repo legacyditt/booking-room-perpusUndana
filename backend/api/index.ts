@@ -1,5 +1,4 @@
-// @ts-ignore: File ini adalah hasil build tsup
-import app from "../dist/app.js";
+import app from "../src/app.js";
 
 export const config = { runtime: "nodejs" };
 export default app;

@@ -3,4 +3,4 @@ export {
   updateSystemSettings,
   getWorkingDays,
   updateWorkingDays,
-} from "./settings.controller";
+} from "./settings.controller.js";

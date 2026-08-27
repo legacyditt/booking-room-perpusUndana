@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { auth } from "../lib/auth";
-import prisma from "../lib/prisma";
-import { Prisma } from "../generated/prisma/client";
-import { logActivity } from "../lib/activityLog";
+import { auth } from "../lib/auth.js";
+import prisma from "../lib/prisma.js";
+import { Prisma } from "../generated/prisma/client.js";
+import { logActivity } from "../lib/activityLog.js";
 
 const userSelect = {
     id: true,

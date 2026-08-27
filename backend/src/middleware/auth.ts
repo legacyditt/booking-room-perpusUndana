@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "../lib/auth";
+import { auth } from "../lib/auth.js";
 
 const getSession = async (req: Request) =>
   auth.api.getSession({ headers: fromNodeHeaders(req.headers) });

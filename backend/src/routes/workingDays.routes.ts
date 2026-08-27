@@ -2,8 +2,8 @@ import { Router } from "express";
 import {
   getWorkingDays,
   updateWorkingDays,
-} from "../controllers/settings.controller";
-import { requireAuth, requireAdmin } from "../middleware/auth";
+} from "../controllers/settings.controller.js";
+import { requireAuth, requireAdmin } from "../middleware/auth.js";
 
 const router = Router();
 

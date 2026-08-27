@@ -3,8 +3,8 @@ import {
   getDatabaseStats,
   downloadDatabaseBackup,
   clearDatabaseBookings,
-} from "../controllers/adminDatabase.controller.js";
-import { requireAdmin } from "../middleware/auth.js";
+} from "../controllers/adminDatabase.controller";
+import { requireAdmin } from "../middleware/auth";
 
 const router = Router();
 

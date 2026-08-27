@@ -5,8 +5,8 @@ import {
     createBookingPrice,
     updateBookingPrice,
     deleteBookingPrice
-} from '../controllers/bookingPrice.controller.js';
-import { requireAuth, requireAdmin } from '../middleware/auth.js';
+} from '../controllers/bookingPrice.controller';
+import { requireAuth, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 

@@ -118,7 +118,7 @@ model BookingSession {
 model Booking {
   id          Int           @id @default(autoincrement())
   roomId      Int           @map("room_id")
-  sessionId   Int           @map("session_id")
+  sessionId   Int?          @map("session_id")
   userId      String        @map("user_id")
   date        DateTime
   status      BookingStatus @default(PENDING)
@@ -127,7 +127,7 @@ model Booking {
   createdAt   DateTime      @default(now()) @map("created_at")
 
   room       Room           @relation(fields: [roomId], references: [id])
-  session    BookingSession @relation(fields: [sessionId], references: [id])
+  session    BookingSession? @relation(fields: [sessionId], references: [id])
   user       User           @relation(fields: [userId], references: [id])
   decidedBy  User?          @relation("BookingDecidedBy", fields: [decidedById], references: [id])
 

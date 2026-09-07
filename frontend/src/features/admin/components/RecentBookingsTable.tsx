@@ -92,7 +92,9 @@ export function RecentBookingsTable({ bookings }: RecentBookingsTableProps) {
                   {booking.room.name}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-neutral-600 tabular-nums">
-                  {booking.session.startTime} - {booking.session.finishTime}
+                  {booking.session
+                    ? `${booking.session.startTime} - ${booking.session.finishTime}`
+                    : "Sehari Penuh"}
                 </TableCell>
                 <TableCell className="px-6 py-4 text-neutral-500">
                   {format(new Date(booking.date), "dd MMM yyyy", { locale: id })}

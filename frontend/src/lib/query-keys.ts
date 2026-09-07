@@ -27,5 +27,7 @@ export const queryKeys = {
       ["availability", roomId, date, sessionId] as const,
     daily: (roomId: number, date: string) =>
       ["availability", "daily", roomId, date] as const,
+    month: (roomId: number, month: string) =>
+      ["availability", "month", roomId, month] as const,
   },
 };

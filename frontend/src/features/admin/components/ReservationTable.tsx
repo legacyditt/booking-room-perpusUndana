@@ -108,7 +108,9 @@ export function ReservationTable({
                     {format(new Date(booking.date), "dd MMM yyyy", { locale: id })}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-neutral-600">
-                    {booking.session.startTime} - {booking.session.finishTime}
+                    {booking.session
+                      ? `${booking.session.startTime} - ${booking.session.finishTime}`
+                      : "Sehari Penuh"}
                   </TableCell>
                   <TableCell className="px-5 py-4">
                     <div className="flex flex-col items-center justify-center gap-1">

@@ -200,7 +200,7 @@ export const downloadDatabaseBackup = async (_req: Request, res: Response) => {
       const row = wsBookings.addRow({
         id: b.id,
         roomName: b.room.name,
-        sessionName: b.session.name,
+        sessionName: b.session?.name ?? "Sehari Penuh",
         userName: b.user.name,
         date: b.date.toISOString(),
         status: b.status,

@@ -40,7 +40,7 @@ import { EditBookingModal } from "./EditBookingModal";
 interface ReservationCardProps {
   booking: Booking;
   room: Room;
-  session: Session;
+  session: Session | null;
   sessions: Session[];
 }
 
@@ -151,7 +151,9 @@ export function ReservationCard({
           <div className="flex items-center gap-3 text-neutral text-sm font-medium">
             <Clock className="w-4 h-4 text-neutral" />
             <span>
-              {session.startTime} - {session.finishTime}
+              {session
+                ? `${session.startTime} - ${session.finishTime}`
+                : "Sehari Penuh"}
             </span>
           </div>
         </div>

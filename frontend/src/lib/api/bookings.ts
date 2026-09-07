@@ -18,10 +18,12 @@ export function getBooking(id: number, cookie?: string): Promise<Booking> {
 
 export function createBooking(input: {
   roomId: number;
-  sessionId: number;
-  date: string;
+  sessionId?: number;
+  date?: string;
+  startDate?: string;
+  endDate?: string;
   type: BookingType;
-}): Promise<Booking> {
+}): Promise<Booking | Booking[]> {
   return unwrap(client.post("/bookings", input));
 }
 
@@ -44,7 +46,7 @@ export function updateBooking(
   id: number,
   input: {
     date: string;
-    sessionId: number;
+    sessionId?: number;
   },
 ): Promise<Booking> {
   return unwrap(client.patch(`/bookings/${id}`, input));

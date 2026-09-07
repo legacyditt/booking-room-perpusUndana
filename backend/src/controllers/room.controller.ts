@@ -70,16 +70,19 @@ export const getRoomAvailability = async (req: Request, res: Response) => {
       },
     });
 
-    const overlapping = bookings.filter((b) =>
-      overlaps(
-        session.startTime,
-        session.finishTime,
-        b.session.startTime,
-        b.session.finishTime,
-      ),
-    );
-    const roomBlocked = overlapping.some((b) => b.type === "ROOM");
-    const seatCount = overlapping.filter((b) => b.type === "SEAT").length;
+    // ROOM (sewa) memblokir seluruh hari; SEAT dibatasi per sesi (overlap waktu).
+    const roomBlocked = bookings.some((b) => b.type === "ROOM");
+    const seatCount = bookings.filter(
+      (b) =>
+        b.type === "SEAT" &&
+        b.session &&
+        overlaps(
+          session.startTime,
+          session.finishTime,
+          b.session.startTime,
+          b.session.finishTime,
+        ),
+    ).length;
     const remainingCapacity = roomBlocked
       ? 0
       : Math.max(0, room.capacity - seatCount);
@@ -88,7 +91,7 @@ export const getRoomAvailability = async (req: Request, res: Response) => {
       data: {
         remainingCapacity,
         capacity: room.capacity,
-        booked: overlapping.length,
+        booked: roomBlocked ? 1 : seatCount,
       },
     });
   } catch (error) {
@@ -151,16 +154,19 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
     const availabilityMap: Record<string, any> = {};
 
     sessions.forEach((session) => {
-      const overlapping = bookings.filter((b) =>
-        overlaps(
-          session.startTime,
-          session.finishTime,
-          b.session.startTime,
-          b.session.finishTime,
-        ),
-      );
-      const roomBlocked = overlapping.some((b) => b.type === "ROOM");
-      const seatCount = overlapping.filter((b) => b.type === "SEAT").length;
+      // ROOM (sewa) memblokir seluruh hari untuk sesi mana pun.
+      const roomBlocked = bookings.some((b) => b.type === "ROOM");
+      const seatCount = bookings.filter(
+        (b) =>
+          b.type === "SEAT" &&
+          b.session &&
+          overlaps(
+            session.startTime,
+            session.finishTime,
+            b.session.startTime,
+            b.session.finishTime,
+          ),
+      ).length;
       const remainingCapacity = roomBlocked
         ? 0
         : Math.max(0, room.capacity - seatCount);
@@ -168,11 +174,83 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
       availabilityMap[session.id] = {
         remainingCapacity,
         capacity: room.capacity,
-        booked: overlapping.length,
+        booked: roomBlocked ? 1 : seatCount,
       };
     });
 
     return res.status(200).json({ data: availabilityMap });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getRoomMonthAvailability = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { month } = req.query; // "yyyy-MM"
+
+    if (!month) {
+      return res.status(400).json({ message: "Month is required" });
+    }
+
+    const [yStr, mStr] = (month as string).split("-");
+    const year = Number(yStr);
+    const monthIdx = Number(mStr) - 1;
+    if (
+      Number.isNaN(year) ||
+      Number.isNaN(monthIdx) ||
+      monthIdx < 0 ||
+      monthIdx > 11
+    ) {
+      return res.status(400).json({ message: "Month tidak valid" });
+    }
+
+    const room = await prisma.room.findUnique({ where: { id: Number(id) } });
+    if (!room) return res.status(404).json({ message: "Room not found" });
+
+    const setting = await prisma.systemSetting.findUnique({ where: { id: 1 } });
+    const workingDays = setting
+      ? setting.days.split(",")
+      : ["senin", "selasa", "rabu", "kamis", "jumat"];
+
+    // Rentang bulan (UTC) konsisten dengan penyimpanan `date` (UTC midnight).
+    const start = new Date(Date.UTC(year, monthIdx, 1));
+    const end = new Date(Date.UTC(year, monthIdx + 1, 1));
+
+    const bookings = await prisma.booking.findMany({
+      where: {
+        roomId: Number(id),
+        date: { gte: start, lt: end },
+        status: { in: ["PENDING", "APPROVED"] },
+      },
+      select: { date: true },
+    });
+    const bookedSet = new Set(
+      bookings.map((b) => b.date.toISOString().split("T")[0]),
+    );
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split("T")[0];
+
+    const data: Record<string, { workingDay: boolean; unavailable: boolean }> =
+      {};
+    const cur = new Date(start);
+    while (cur < end) {
+      const dateStr = cur.toISOString().split("T")[0];
+      const dayName = cur
+        .toLocaleDateString("id-ID", { weekday: "long", timeZone: "UTC" })
+        .toLowerCase();
+      const workingDay = workingDays.includes(dayName);
+      data[dateStr] = {
+        workingDay,
+        unavailable: !workingDay || dateStr < todayStr || bookedSet.has(dateStr),
+      };
+      cur.setUTCDate(cur.getUTCDate() + 1);
+    }
+
+    return res.status(200).json({ data });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" });

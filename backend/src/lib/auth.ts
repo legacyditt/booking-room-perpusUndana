@@ -1,14 +1,15 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma.js";
+import { sendPasswordResetEmail } from "./mailer.js";
 
 export const auth = betterAuth({
-  // 1. Adapter Database
+  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3001",
+
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
 
-  // 2. Modul Autentikasi
   user: {
     additionalFields: {
       status: { type: "string", required: true },
@@ -20,23 +21,23 @@ export const auth = betterAuth({
   },
 
   session: {
-    expiresIn: 60 * 60 * 24 * 7, //Batas Sesi 7 hari
-    updateAge: 60 * 60 * 24, // Refresh Session: Jika user aktif dalam 1 hari,
-    // masa aktif token otomatis diperpanjang 7 hari lagi.
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   },
 
   emailAndPassword: {
-    enabled: true, // Nyalakan fitur login pakai email & password
+    enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail(user.email, url);
+    },
   },
 
-  // 3. Keamanan: Izinkan Frontend mengakses (CORS cookies)
   trustedOrigins: [
     "http://localhost:3000",
     "https://booking-room-perpus-undana.vercel.app",
     process.env.FRONTEND_URL ?? "http://localhost:3000",
   ],
 
-  // 4. Secret Key untuk mengenkripsi token cookie
   secret: process.env.BETTER_AUTH_SECRET,
 });
 

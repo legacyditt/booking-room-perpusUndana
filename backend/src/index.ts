@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express, { Request, Response } from "express";
 import cors from "cors";
+import { toNodeHandler } from "better-auth/node";
+import { auth } from "./lib/auth.js";
 import roomRoute from "./routes/room.routes.js";
 import sessionRoute from "./routes/sessions.routes.js";
 import bookingsRoute from "./routes/bookings.routes.js";
@@ -12,11 +14,11 @@ import settingsRoute from "./routes/settings.routes.js";
 import adminActivityRoute from "./routes/adminActivity.routes.js";
 import reportsRoute from "./routes/reports.routes.js";
 import adminDatabaseRoute from "./routes/adminDatabase.routes.js";
+import authRoute from "./routes/auth.routes.js";
 
 const app = express();
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 
-// 1. Konfigurasi CORS
 app.use(
   cors({
     origin: frontendUrl,
@@ -24,10 +26,15 @@ app.use(
   }),
 );
 
-// 2. Body Parser (harus sebelum route auth agar req.body terisi)
+/**
+ * Better Auth handler WAJIB di-mount sebelum express.json()
+ * agar tidak ada body-parser yang mencegat request auth.
+ * Express v5 menggunakan wildcard /*splat (bukan /*).
+ */
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
 app.use(express.json());
 
-// --- ROUTES APLIKASI ---
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "API Backend is running successfully!" });
 });
@@ -43,8 +50,8 @@ app.use("/settings", settingsRoute);
 app.use("/admin-activity", adminActivityRoute);
 app.use("/reports", reportsRoute);
 app.use("/admin/database", adminDatabaseRoute);
+app.use("/auth", authRoute);
 
-// Hanya jalankan listener saat running lokal (dev server)
 if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT || 3001;
   app.listen(Number(port), "0.0.0.0", () => {

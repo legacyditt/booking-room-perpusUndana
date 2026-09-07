@@ -8,7 +8,6 @@ export interface Session {
   name: string;
   startTime: string;
   finishTime: string;
-  isRentOnly?: boolean;
   createdBy?: { name: string };
   updatedBy?: { name: string };
 }

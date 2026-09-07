@@ -36,13 +36,12 @@ export const getSessionById = async (req: Request, res: Response) => {
 
 export const createSession = async (req: Request, res: Response) => {
     try {
-        const { name, startTime, finishTime, isSewaOnly } = req.body;
+        const { name, startTime, finishTime } = req.body;
         const session = await prisma.bookingSession.create({
             data: {
                 name,
                 startTime,
                 finishTime,
-                isRentOnly: isSewaOnly ?? false,
                 createdById: req.userId,
             }
         });
@@ -57,7 +56,7 @@ export const createSession = async (req: Request, res: Response) => {
 export const updateSession = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, startTime, finishTime, isSewaOnly } = req.body;
+        const { name, startTime, finishTime } = req.body;
 
         const existingSession = await prisma.bookingSession.findUnique({ where: { id: Number(id) } });
         if (!existingSession) return res.status(404).json({ message: 'Session not found' });
@@ -68,7 +67,6 @@ export const updateSession = async (req: Request, res: Response) => {
                 name,
                 startTime,
                 finishTime,
-                isRentOnly: isSewaOnly ?? existingSession.isRentOnly,
                 updatedById: req.userId,
             }
         });

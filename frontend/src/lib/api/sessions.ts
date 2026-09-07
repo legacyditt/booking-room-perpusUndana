@@ -15,7 +15,6 @@ export function createSession(input: {
   name: string;
   startTime: string;
   finishTime: string;
-  isSewaOnly?: boolean;
 }): Promise<Session> {
   return unwrap(client.post("/sessions", input));
 }
@@ -26,7 +25,6 @@ export function updateSession(
     name: string;
     startTime: string;
     finishTime: string;
-    isSewaOnly?: boolean;
   }
 ): Promise<Session> {
   return unwrap(client.put(`/sessions/${id}`, input));

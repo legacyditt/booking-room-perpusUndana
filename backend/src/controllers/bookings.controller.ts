@@ -231,11 +231,6 @@ export const createBooking = async (req: Request, res: Response) => {
         });
         if (!session)
           return res.status(404).json({ message: "Session Not Found" });
-        if (session.isRentOnly) {
-          return res
-            .status(400)
-            .json({ message: "Sesi ini khusus sewa ruangan, tidak dapat dipesan reguler" });
-        }
 
         await prisma.$transaction(async (tx) => {
           await assertSlotAvailable(
@@ -495,11 +490,6 @@ export const updateBooking = async (req: Request, res: Response) => {
         where: { id: Number(sessionId) },
       });
       if (!session) return res.status(404).json({ message: "Session Not Found" });
-      if (session.isRentOnly) {
-        return res
-          .status(400)
-          .json({ message: "Sesi ini khusus sewa ruangan, tidak dapat dipesan reguler" });
-      }
 
       try {
         await assertWorkingDay(new Date(date));

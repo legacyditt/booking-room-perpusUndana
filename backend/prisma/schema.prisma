@@ -104,7 +104,6 @@ model BookingSession {
   name       String
   startTime  String    @map("start_time")
   finishTime String    @map("finish_time")
-  isRentOnly Boolean   @default(false) @map("is_rent_only")
   createdById  String? @map("created_by_id")
   updatedById  String? @map("updated_by_id")
   bookings   Booking[]

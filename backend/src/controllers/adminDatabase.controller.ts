@@ -95,7 +95,7 @@ export const downloadDatabaseBackup = async (_req: Request, res: Response) => {
           select: { id: true, name: true, capacity: true, imageUrl: true },
         }),
         prisma.bookingSession.findMany({
-          select: { id: true, name: true, startTime: true, finishTime: true, isRentOnly: true },
+          select: { id: true, name: true, startTime: true, finishTime: true },
         }),
         prisma.booking.findMany({
           select: {
@@ -171,7 +171,6 @@ export const downloadDatabaseBackup = async (_req: Request, res: Response) => {
       { header: "NAMA", key: "name", width: 20 },
       { header: "JAM MULAI", key: "startTime", width: 14 },
       { header: "JAM SELESAI", key: "finishTime", width: 14 },
-      { header: "SEWA SAJA", key: "isRentOnly", width: 14 },
     ];
     setTableHeader(wsSessions.getRow(1));
     for (let i = 0; i < sessions.length; i++) {

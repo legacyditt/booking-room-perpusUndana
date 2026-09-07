@@ -169,9 +169,6 @@ export function BookingDetailsForm({
   const { data: availabilityMap = {}, isFetching: isCheckingAvailability } =
     useDailyAvailability(room.id, date);
 
-  // Sesi khusus sewa (isRentOnly) hanya tampil di mode reguler/gratis
-  const availableSessions = sessions.filter((s) => !s.isRentOnly);
-
   const currentAvailability = selectedSession
     ? availabilityMap[selectedSession]
     : null;
@@ -507,7 +504,7 @@ export function BookingDetailsForm({
                   >
                     {selectedSession
                       ? (() => {
-                          const s = availableSessions.find(
+                          const s = sessions.find(
                             (s) => s.id.toString() === selectedSession,
                           );
                           return s
@@ -528,7 +525,7 @@ export function BookingDetailsForm({
                     Memuat ketersediaan sesi...
                   </SelectItem>
                 ) : (
-                  availableSessions.map((s) => {
+                  sessions.map((s) => {
                     const sId = s.id.toString();
                     const sessionAvail = availabilityMap[sId];
                     const isSessionFull = sessionAvail

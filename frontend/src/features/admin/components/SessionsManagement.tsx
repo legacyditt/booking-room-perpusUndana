@@ -29,14 +29,11 @@ export function SessionsManagement({
   const { data: rawSessions = [] } = useSessions(initialSessions);
   const [page, setPage] = useState(1);
 
-  // Sorting: "Reguler & Sewa" (isRentOnly = false) di atas, lalu urut waktu mulai (startTime asc)
+  // Sorting: urut waktu mulai (startTime asc)
   const sessions = useMemo(() => {
-    return [...rawSessions].sort((a, b) => {
-      if (a.isRentOnly !== b.isRentOnly) {
-        return a.isRentOnly ? 1 : -1;
-      }
-      return (a.startTime ?? "").localeCompare(b.startTime ?? "");
-    });
+    return [...rawSessions].sort((a, b) =>
+      (a.startTime ?? "").localeCompare(b.startTime ?? ""),
+    );
   }, [rawSessions]);
 
   const [sessionToDelete, setSessionToDelete] = useState<Session | null>(null);

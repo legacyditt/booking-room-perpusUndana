@@ -16,9 +16,9 @@ const fontSans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Academia Libri - Study Room Booking",
+  title: "Room Booking",
   description:
-    "University Library Services. Preserving Knowledge, Enabling Discovery.",
+    "Layanan booking dan sewa ruangan oleh UPT Perpustakaan Universitas Nusa Cendana",
 };
 
 export default function RootLayout({

@@ -25,29 +25,28 @@ const toMin = (time: string) => {
   return h * 60 + m;
 };
 
+const expandRange = (start: Date, end: Date): Date[] => {
+  const dates: Date[] = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    dates.push(new Date(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+};
+
 const assertSlotAvailable = async (
   tx: Prisma.TransactionClient,
   input: {
     roomId: number;
-    sessionId: number;
     date: Date;
     capacity: number;
-    session: { startTime: string; finishTime: string } | null;
+    session?: { startTime: string; finishTime: string } | null;
   },
   type: "SEAT" | "ROOM",
   excludeBookingId?: number,
 ) => {
-  const session = input.session;
-  if (!session) throw new Error("SESSION_NOT_FOUND");
-
-  const [newStart, newFinish] = [
-    toMin(session.startTime),
-    toMin(session.finishTime),
-  ];
-  const overlaps = (start: string, finish: string) =>
-    newStart < toMin(finish) && toMin(start) < newFinish;
-
-  // Tarik semua booking ruangan+date (semua sesi) untuk deteksi bentrok antar sesi.
+  // Tarik semua booking ruangan+date (semua sesi) untuk deteksi bentrok.
   const existing = await tx.booking.findMany({
     where: {
       roomId: input.roomId,
@@ -61,20 +60,34 @@ const assertSlotAvailable = async (
     },
   });
 
-  const roomBlocked = existing.some(
-    (b) =>
-      b.type === "ROOM" && overlaps(b.session.startTime, b.session.finishTime),
-  );
+  // ROOM (sewa full-day): hari telah dipesan oleh siapa pun (sewa/seat) => bentrok.
+  if (type === "ROOM") {
+    if (existing.length > 0) throw new Error("SESSION_OVERLAP");
+    return;
+  }
+
+  // SEAT: gagal jika ada sewa (ROOM) pada hari itu, apa pun sesinya.
+  const roomBlocked = existing.some((b) => b.type === "ROOM");
+  if (roomBlocked) throw new Error("SESSION_OVERLAP");
+
+  const session = input.session;
+  if (!session) throw new Error("SESSION_NOT_FOUND");
+
+  const [newStart, newFinish] = [
+    toMin(session.startTime),
+    toMin(session.finishTime),
+  ];
+  const overlaps = (start: string, finish: string) =>
+    newStart < toMin(finish) && toMin(start) < newFinish;
+
   const seatOverlap = existing.filter(
     (b) =>
-      b.type === "SEAT" && overlaps(b.session.startTime, b.session.finishTime),
+      b.type === "SEAT" &&
+      b.session &&
+      overlaps(b.session.startTime, b.session.finishTime),
   ).length;
 
-  if (type === "ROOM") {
-    if (roomBlocked || seatOverlap > 0) throw new Error("SESSION_OVERLAP");
-  } else if (roomBlocked) {
-    throw new Error("SESSION_OVERLAP");
-  } else if (seatOverlap >= input.capacity) {
+  if (seatOverlap >= input.capacity) {
     throw new Error("CAPACITY_FULL");
   }
 };
@@ -152,36 +165,59 @@ export const getBookingById = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
   try {
-    const { roomId, sessionId, date, type = "SEAT" } = req.body;
+    const { roomId, sessionId, date, startDate, endDate, type = "SEAT" } =
+      req.body;
     if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
 
     const bookingType: "SEAT" | "ROOM" = type === "ROOM" ? "ROOM" : "SEAT";
 
     const room = await prisma.room.findUnique({
       where: { id: Number(roomId) },
+      include: { bookingPrice: true },
     });
     if (!room) return res.status(404).json({ message: "Room Not Found" });
 
-    const session = await prisma.bookingSession.findUnique({
-      where: { id: Number(sessionId) },
-    });
-    if (!session) return res.status(404).json({ message: "Session Not Found" });
-
-    if (type === "SEAT" && session.isRentOnly) {
+    // Hanya ruangan berharga (price > 0) yang bisa disewa penuh.
+    if (bookingType === "ROOM" && !room.bookingPrice) {
       return res
         .status(400)
-        .json({ message: "Sesi ini khusus sewa ruangan, tidak dapat dipesan reguler" });
+        .json({ message: "Ruangan ini tidak tersedia untuk disewa" });
     }
 
+    // Bangun daftar tanggal: SEAT = 1 tanggal; ROOM = 1 tanggal atau range.
+    let dates: Date[];
     try {
-      await assertWorkingDay(new Date(date));
-    } catch (e: any) {
-      if (e.message === "NOT_WORKING_DAY") {
-        return res
-          .status(400)
-          .json({ message: "Tanggal pemesanan harus hari kerja" });
+      if (bookingType === "ROOM") {
+        const start = new Date(startDate || date);
+        const end = endDate ? new Date(endDate) : start;
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+          return res.status(400).json({ message: "Tanggal tidak valid" });
+        }
+        dates = expandRange(start, end);
+      } else {
+        if (!date || !sessionId) {
+          return res
+            .status(400)
+            .json({ message: "Date and sessionId are required" });
+        }
+        dates = [new Date(date)];
       }
-      throw e;
+    } catch {
+      return res.status(400).json({ message: "Tanggal tidak valid" });
+    }
+
+    // Semua tanggal harus hari kerja; range tidak boleh memotong hari non-kerja.
+    for (const d of dates) {
+      try {
+        await assertWorkingDay(d);
+      } catch (e: any) {
+        if (e.message === "NOT_WORKING_DAY") {
+          return res.status(400).json({
+            message: "Tanggal pemesanan harus hari kerja dan tidak boleh melewati hari non-kerja",
+          });
+        }
+        throw e;
+      }
     }
 
     // SEAT (reguler) langsung disetujui; ROOM (sewa) butuh persetujuan admin.
@@ -189,36 +225,67 @@ export const createBooking = async (req: Request, res: Response) => {
 
     let booking;
     try {
-      await prisma.$transaction(async (tx) => {
-        await assertSlotAvailable(
-          tx,
-          {
-            roomId: Number(roomId),
-            sessionId: Number(sessionId),
-            date: new Date(date),
-            capacity: room.capacity,
-            session,
-          },
-          bookingType,
-        );
-
-        booking = await tx.booking.create({
-          data: {
-            roomId: Number(roomId),
-            sessionId: Number(sessionId),
-            userId: req.userId as string,
-            date: new Date(date),
-            status: needsApproval ? "PENDING" : "APPROVED",
-            type: bookingType,
-          },
-          include: {
-            room: {
-              include: { bookingPrice: true },
-            },
-            session: true,
-          },
+      if (bookingType === "SEAT") {
+        const session = await prisma.bookingSession.findUnique({
+          where: { id: Number(sessionId) },
         });
-      });
+        if (!session)
+          return res.status(404).json({ message: "Session Not Found" });
+
+        await prisma.$transaction(async (tx) => {
+          await assertSlotAvailable(
+            tx,
+            {
+              roomId: Number(roomId),
+              date: dates[0],
+              capacity: room.capacity,
+              session,
+            },
+            bookingType,
+          );
+
+          booking = await tx.booking.create({
+            data: {
+              roomId: Number(roomId),
+              sessionId: session.id,
+              userId: req.userId as string,
+              date: dates[0],
+              status: "APPROVED",
+              type: "SEAT",
+            },
+            include: {
+              room: { include: { bookingPrice: true } },
+              session: true,
+            },
+          });
+        });
+      } else {
+        // ROOM full-day: 1 row per tanggal (range => beberapa row).
+        const created: any[] = [];
+        await prisma.$transaction(async (tx) => {
+          for (const d of dates) {
+            await assertSlotAvailable(
+              tx,
+              { roomId: Number(roomId), date: d, capacity: room.capacity },
+              "ROOM",
+            );
+            created.push(
+              await tx.booking.create({
+                data: {
+                  roomId: Number(roomId),
+                  sessionId: null,
+                  userId: req.userId as string,
+                  date: d,
+                  status: needsApproval ? "PENDING" : "APPROVED",
+                  type: "ROOM",
+                },
+                include: { room: { include: { bookingPrice: true } } },
+              }),
+            );
+          }
+        });
+        booking = created;
+      }
     } catch (e: any) {
       if (e.message === "CAPACITY_FULL") {
         return res
@@ -276,7 +343,9 @@ export const cancelBooking = async (req: Request, res: Response) => {
     // Kirim email notifikasi secara asynchronous
     if (cancelled.user?.email) {
       const dateStr = cancelled.date.toISOString().split("T")[0];
-      const sessionStr = `${cancelled.session.startTime} - ${cancelled.session.finishTime}`;
+      const sessionStr = cancelled.session
+        ? `${cancelled.session.startTime} - ${cancelled.session.finishTime}`
+        : "Sehari Penuh";
       sendBookingCancellationEmail(
         cancelled.user.email,
         cancelled.user.name || "Pengguna",
@@ -388,10 +457,10 @@ export const updateBooking = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { date, sessionId } = req.body;
 
-    if (!date || !sessionId) {
+    if (!date) {
       return res
         .status(400)
-        .json({ message: "Date and sessionId are required" });
+        .json({ message: "Date is required" });
     }
 
     if (!req.userId) return res.status(401).json({ message: "Unauthorized" });
@@ -411,17 +480,90 @@ export const updateBooking = async (req: Request, res: Response) => {
         .json({ message: "Only pending or approved bookings can be updated" });
     }
 
-    const session = await prisma.bookingSession.findUnique({
-      where: { id: Number(sessionId) },
-    });
-    if (!session) return res.status(404).json({ message: "Session Not Found" });
+    if (booking.type === "SEAT") {
+      if (!sessionId) {
+        return res
+          .status(400)
+          .json({ message: "Date and sessionId are required" });
+      }
+      const session = await prisma.bookingSession.findUnique({
+        where: { id: Number(sessionId) },
+      });
+      if (!session) return res.status(404).json({ message: "Session Not Found" });
 
-    if (booking.type === "SEAT" && session.isRentOnly) {
-      return res
-        .status(400)
-        .json({ message: "Sesi ini khusus sewa ruangan, tidak dapat dipesan reguler" });
+      try {
+        await assertWorkingDay(new Date(date));
+      } catch (e: any) {
+        if (e.message === "NOT_WORKING_DAY") {
+          return res
+            .status(400)
+            .json({ message: "Tanggal pemesanan harus hari kerja" });
+        }
+        throw e;
+      }
+
+      const newDate = new Date(date);
+      const isSameDate =
+        booking.date.toISOString().split("T")[0] ===
+        newDate.toISOString().split("T")[0];
+      const isSameSession = booking.sessionId === Number(sessionId);
+
+      if (isSameDate && isSameSession) {
+        return res
+          .status(200)
+          .json({ message: "No changes made", data: booking });
+      }
+
+      let updatedBooking;
+      try {
+        // Gunakan Transaction untuk mencegah Race Condition saat cek kapasitas
+        await prisma.$transaction(async (tx) => {
+          await assertSlotAvailable(
+            tx,
+            {
+              roomId: booking.roomId,
+              date: newDate,
+              capacity: booking.room.capacity,
+              session,
+            },
+            booking.type,
+            booking.id,
+          );
+
+          updatedBooking = await tx.booking.update({
+            where: { id: booking.id },
+            data: {
+              date: newDate,
+              sessionId: Number(sessionId),
+            },
+            include: {
+              room: { include: { bookingPrice: true } },
+              session: true,
+            },
+          });
+        });
+      } catch (e: any) {
+        if (e.message === "CAPACITY_FULL") {
+          return res
+            .status(400)
+            .json({ message: "Conflict: Jadwal tersebut sudah penuh dipesan" });
+        }
+        if (e.message === "SESSION_OVERLAP") {
+          return res.status(400).json({
+            message:
+              "Waktu sesi bentrok dengan pemesanan lain pada tanggal ini",
+          });
+        }
+        throw e;
+      }
+
+      return res.status(200).json({
+        message: "Booking updated successfully",
+        data: updatedBooking,
+      });
     }
 
+    // ROOM (sewa full-day): hanya pindah tanggal, sesi tetap null.
     try {
       await assertWorkingDay(new Date(date));
     } catch (e: any) {
@@ -434,14 +576,11 @@ export const updateBooking = async (req: Request, res: Response) => {
     }
 
     const newDate = new Date(date);
-
-    // Cek apakah user benar-benar mengubah sesuatu
     const isSameDate =
       booking.date.toISOString().split("T")[0] ===
       newDate.toISOString().split("T")[0];
-    const isSameSession = booking.sessionId === Number(sessionId);
 
-    if (isSameDate && isSameSession) {
+    if (isSameDate) {
       return res
         .status(200)
         .json({ message: "No changes made", data: booking });
@@ -449,43 +588,28 @@ export const updateBooking = async (req: Request, res: Response) => {
 
     let updatedBooking;
     try {
-      // Gunakan Transaction untuk mencegah Race Condition saat cek kapasitas
       await prisma.$transaction(async (tx) => {
         await assertSlotAvailable(
           tx,
           {
             roomId: booking.roomId,
-            sessionId: Number(sessionId),
             date: newDate,
             capacity: booking.room.capacity,
-            session,
           },
-          booking.type,
+          "ROOM",
           booking.id,
         );
 
         updatedBooking = await tx.booking.update({
           where: { id: booking.id },
-          data: {
-            date: newDate,
-            sessionId: Number(sessionId),
-          },
-          include: {
-            room: { include: { bookingPrice: true } },
-            session: true,
-          },
+          data: { date: newDate, sessionId: null },
+          include: { room: { include: { bookingPrice: true } } },
         });
       });
     } catch (e: any) {
-      if (e.message === "CAPACITY_FULL") {
-        return res
-          .status(400)
-          .json({ message: "Conflict: Jadwal tersebut sudah penuh dipesan" });
-      }
       if (e.message === "SESSION_OVERLAP") {
         return res.status(400).json({
-          message:
-            "Waktu sesi bentrok dengan pemesanan lain pada tanggal ini",
+          message: "Tanggal tersebut sudah dipesan",
         });
       }
       throw e;

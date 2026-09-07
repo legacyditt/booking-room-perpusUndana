@@ -8,7 +8,6 @@ export interface Session {
   name: string;
   startTime: string;
   finishTime: string;
-  isRentOnly?: boolean;
   createdBy?: { name: string };
   updatedBy?: { name: string };
 }
@@ -16,14 +15,14 @@ export interface Session {
 export interface Booking {
   id: number;
   roomId: number;
-  sessionId: number;
+  sessionId: number | null;
   userId: string;
   date: string;
   status: BookingStatus;
   type: BookingType;
   createdAt: string;
   room: Room;
-  session: Session;
+  session: Session | null;
   user?: { name: string };
   decidedBy?: { name: string };
 }

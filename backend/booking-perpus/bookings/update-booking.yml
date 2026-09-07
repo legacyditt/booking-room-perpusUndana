@@ -1,0 +1,67 @@
+info:
+  name: Update Booking
+  type: http
+  seq: 2
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/bookings/21"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "date": "2026-09-15",
+        "sessionId": 2
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengubah tanggal (dan sesi untuk booking reguler) dari pemesanan milik
+  pengguna yang sedang login. Status harus `PENDING` atau `APPROVED`.
+
+  **Path Parameters:**
+  - `id` (number, required) — ID booking.
+
+  **Request Body (application/json):**
+  - `date` (string, `yyyy-MM-dd`, required) — tanggal baru (harus hari kerja).
+  - `sessionId` (number, **hanya untuk booking tipe SEAT**) — sesi baru.
+    Untuk booking tipe ROOM (sewa full-day) sesi TIDAK dikirim / diabaikan.
+
+  **Contoh SEAT:**
+  ```json
+  { "date": "2026-09-15", "sessionId": 2 }
+  ```
+
+  **Contoh ROOM (hanya pindah tanggal):**
+  ```json
+  { "date": "2026-09-15" }
+  ```
+
+  **Response 200:**
+  ```json
+  {
+    "message": "Booking updated successfully",
+    "data": {
+      "id": 21,
+      "roomId": 1,
+      "sessionId": null,
+      "status": "APPROVED",
+      "type": "ROOM",
+      "date": "2026-09-15T00:00:00.000Z"
+    }
+  }
+  ```
+
+  **Response 400 (tanggal sudah dipesan):**
+  ```json
+  { "message": "Tanggal tersebut sudah dipesan" }
+  ```

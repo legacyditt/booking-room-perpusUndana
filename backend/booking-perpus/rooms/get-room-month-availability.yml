@@ -1,0 +1,44 @@
+info:
+  name: Get Room Month Availability
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "{{baseUrl}}/rooms/1/month-availability?month=2026-09"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+docs: |-
+  Mengambil ketersediaan ruangan per hari untuk satu bulan kalender. Dipakai
+  mode sewa (ROOM) untuk mewarnai hari merah pada kalender range.
+
+  **Query Parameters:**
+  - `month` (string, required) — Bulan dalam format `yyyy-MM` (contoh `2026-09`).
+
+  **Path Parameters:**
+  - `id` (number, required) — ID ruangan.
+
+  Nilai `unavailable: true` berarti hari itu tidak dapat dipesan:
+  bukan hari kerja, sudah lewat, atau sudah ada booking apa pun (SEAT/ROOM).
+
+  **Response 200:**
+  ```json
+  {
+    "data": {
+      "2026-09-01": { "workingDay": true, "unavailable": false },
+      "2026-09-05": { "workingDay": false, "unavailable": true },
+      "2026-09-07": { "workingDay": true, "unavailable": true }
+    }
+  }
+  ```
+
+  **Response 400:**
+  ```json
+  { "message": "Month is required" }
+  ```

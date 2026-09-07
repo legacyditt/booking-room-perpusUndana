@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import {
+  format,
+  differenceInCalendarDays,
+  eachDayOfInterval,
+} from "date-fns";
 import { id } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
 import { useRouter } from "next/navigation";
 import {
   Calendar as CalendarIcon,
@@ -12,6 +17,7 @@ import {
   Tag,
   WhatsappLogo,
   ArrowSquareOut,
+  CalendarBlank,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -43,6 +49,7 @@ import { Session } from "@/types/booking";
 import { useSession } from "@/lib/api/auth-client";
 import { useCreateBooking } from "@/lib/hooks/use-create-booking";
 import { useDailyAvailability } from "@/lib/hooks/use-daily-availability";
+import { useMonthAvailability } from "@/lib/hooks/use-month-availability";
 import { errorMessage } from "@/lib/api/errors";
 import {
   formatWhatsappTemplate,
@@ -91,9 +98,6 @@ export function BookingDetailsForm({
   const createBookingMutation = useCreateBooking();
   const isLoading = createBookingMutation.isPending;
 
-  const { data: availabilityMap = {}, isFetching: isCheckingAvailability } =
-    useDailyAvailability(room.id, date);
-
   const router = useRouter();
 
   const rupiahFormatter = new Intl.NumberFormat("id-ID", {
@@ -107,93 +111,165 @@ export function BookingDetailsForm({
   const pricePerSessionMock = bookingPrice ? Number(bookingPrice.price) : 0;
   const isSewa = mode === "sewa";
 
-  // Sesi khusus sewa (isRentOnly) hanya tampil di mode sewa
-  const availableSessions = sessions.filter(
-    (s) => isSewa || !s.isRentOnly,
-  );
+  const todayNoTime = new Date();
+  todayNoTime.setHours(0, 0, 0, 0);
 
-  // Hitung ketersediaan sesi saat ini
+  // ── Mode Sewa: range date picker + ketersediaan bulanan ──
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [displayedMonth, setDisplayedMonth] = useState<Date | undefined>(
+    new Date(),
+  );
+  const { data: monthAvailability = {}, isFetching: isCheckingMonth } =
+    useMonthAvailability(room.id, displayedMonth);
+
+  const dateKey = (d: Date) => format(d, "yyyy-MM-dd");
+  const isPast = (d: Date) =>
+    format(d, "yyyy-MM-dd") < format(todayNoTime, "yyyy-MM-dd");
+  const isWorkingDay = (d: Date) =>
+    workingDays.includes(format(d, "EEEE", { locale: id }).toLowerCase());
+  const isBooked = (d: Date) =>
+    monthAvailability[dateKey(d)]?.unavailable === true &&
+    isWorkingDay(d) &&
+    !isPast(d);
+  const isBlockedDay = (d: Date) =>
+    isPast(d) || !isWorkingDay(d) || isBooked(d);
+
+  const rangeDays = dateRange?.from && dateRange.to
+    ? eachDayOfInterval({ start: dateRange.from, end: dateRange.to })
+    : [];
+
+  const handleRangeSelect = (range: DateRange | undefined) => {
+    if (!range?.from) {
+      setDateRange(undefined);
+      return;
+    }
+    if (isBooked(range.from)) {
+      setDateRange(undefined);
+      return;
+    }
+    if (range.to) {
+      const days = eachDayOfInterval({ start: range.from, end: range.to });
+      if (days.some((d) => isBlockedDay(d))) {
+        toast.add({
+          type: "error",
+          title: "Rentang Tidak Valid",
+          description:
+            "Rentang tidak boleh melewati hari yang sudah dipesan atau bukan hari kerja.",
+        });
+        setDateRange({ from: range.from, to: undefined });
+        return;
+      }
+      setDateRange(range);
+      return;
+    }
+    setDateRange({ from: range.from, to: undefined });
+  };
+
+  // ── Mode Reguler: ketersediaan sesi harian ──
+  const { data: availabilityMap = {}, isFetching: isCheckingAvailability } =
+    useDailyAvailability(room.id, date);
+
   const currentAvailability = selectedSession
     ? availabilityMap[selectedSession]
     : null;
   const isUnavailable = selectedSession
-    ? isSewa
-      ? (currentAvailability?.booked ?? 0) > 0
-      : currentAvailability?.remainingCapacity === 0
+    ? (currentAvailability?.remainingCapacity ?? 0) === 0
     : false;
 
   // Efek: Kosongkan opsi dropdown jika sesi yang sedang dipilih ternyata penuh di tanggal yang baru
   useEffect(() => {
     if (selectedSession && availabilityMap[selectedSession]) {
-      const sessionAvail = availabilityMap[selectedSession];
-      const isSessionFull = isSewa
-        ? sessionAvail.booked > 0
-        : sessionAvail.remainingCapacity === 0;
-
-      if (isSessionFull) {
+      if (availabilityMap[selectedSession].remainingCapacity === 0) {
         setSelectedSession("");
       }
     }
-  }, [availabilityMap, selectedSession, isSewa]);
+  }, [availabilityMap, selectedSession]);
 
   const handleBooking = () => {
+    if (isSewa) {
+      if (!dateRange?.from || !dateRange.to) return;
+
+      createBookingMutation.mutate(
+        {
+          roomId: room.id,
+          type: "ROOM",
+          startDate: dateKey(dateRange.from),
+          endDate: dateKey(dateRange.to),
+        },
+        bookingSuccessCallbacks,
+      );
+      return;
+    }
+
     if (!date || !selectedSession) return;
 
     createBookingMutation.mutate(
       {
         roomId: room.id,
         sessionId: Number(selectedSession),
-        date: format(date, "yyyy-MM-dd"),
-        type: isSewa ? "ROOM" : "SEAT",
+        date: dateKey(date),
+        type: "SEAT",
       },
-      {
-        onSuccess: () => {
-          toast.add({
-            type: "success",
-            title: "Pemesanan Berhasil",
-            description: `Ruangan ${room.name} berhasil dipesan.`,
-          });
-
-          const sessionObj = sessions.find(
-            (s) => s.id.toString() === selectedSession,
-          );
-          const sessionFormatted = sessionObj
-            ? `${sessionObj.name} (${sessionObj.startTime} - ${sessionObj.finishTime} WITA)`
-            : "-";
-          const dateFormatted = date
-            ? format(date, "EEEE, d MMMM yyyy", { locale: id })
-            : "-";
-          const priceFormatted = room.bookingPrice
-            ? formatRupiah(Number(room.bookingPrice.price))
-            : "-";
-
-          setLastBookingDetails({
-            dateText: dateFormatted,
-            sessionText: sessionFormatted,
-            priceText: priceFormatted,
-          });
-
-          setDate(undefined);
-          setSelectedSession("");
-
-          if (isSewa) {
-            setShowPaymentDialog(true);
-          } else {
-            router.push("/reservations");
-          }
-        },
-        onError: (error) => {
-          toast.add({
-            type: "error",
-            title: "Pemesanan Gagal",
-            description: errorMessage(
-              error,
-              "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
-            ),
-          });
-        },
-      },
+      bookingSuccessCallbacks,
     );
+  };
+
+  const bookingSuccessCallbacks = {
+    onSuccess: () => {
+      toast.add({
+        type: "success",
+        title: "Pemesanan Berhasil",
+        description: `Ruangan ${room.name} berhasil dipesan.`,
+      });
+
+      setLastBookingDetails(
+        isSewa && dateRange?.from && dateRange.to
+          ? {
+              dateText: `${format(dateRange.from, "d MMMM", { locale: id })} - ${format(dateRange.to, "d MMMM yyyy", { locale: id })}`,
+              sessionText: "Sehari Penuh",
+              priceText: formatRupiah(
+                pricePerSessionMock *
+                  (differenceInCalendarDays(dateRange.from, dateRange.to) + 1),
+              ),
+            }
+          : {
+              dateText: date
+                ? format(date, "EEEE, d MMMM yyyy", { locale: id })
+                : "-",
+              sessionText: (() => {
+                const sessionObj = sessions.find(
+                  (s) => s.id.toString() === selectedSession,
+                );
+                return sessionObj
+                  ? `${sessionObj.name} (${sessionObj.startTime} - ${sessionObj.finishTime} WITA)`
+                  : "-";
+              })(),
+              priceText: room.bookingPrice
+                ? formatRupiah(pricePerSessionMock)
+                : "-",
+            },
+      );
+
+      setDate(undefined);
+      setSelectedSession("");
+      setDateRange(undefined);
+
+      if (isSewa) {
+        setShowPaymentDialog(true);
+      } else {
+        router.push("/reservations");
+      }
+    },
+    onError: (error: unknown) => {
+      toast.add({
+        type: "error",
+        title: "Pemesanan Gagal",
+        description: errorMessage(
+          error,
+          "Terjadi kesalahan sistem saat memproses pemesanan Anda. Silakan coba lagi.",
+        ),
+      });
+    },
   };
 
   const currentSessionObj = sessions.find(
@@ -201,17 +277,34 @@ export function BookingDetailsForm({
   );
   const activeSessionText =
     lastBookingDetails?.sessionText ||
-    (currentSessionObj
-      ? `${currentSessionObj.name} (${currentSessionObj.startTime} - ${currentSessionObj.finishTime} WITA)`
-      : "-");
+    (isSewa
+      ? "Sehari Penuh"
+      : currentSessionObj
+        ? `${currentSessionObj.name} (${currentSessionObj.startTime} - ${currentSessionObj.finishTime} WITA)`
+        : "-");
 
   const activeDateText =
     lastBookingDetails?.dateText ||
-    (date ? format(date, "EEEE, d MMMM yyyy", { locale: id }) : "-");
+    (isSewa
+      ? dateRange?.from && dateRange.to
+        ? `${format(dateRange.from, "d MMMM", { locale: id })} - ${format(dateRange.to, "d MMMM yyyy", { locale: id })}`
+        : "-"
+      : date
+        ? format(date, "EEEE, d MMMM yyyy", { locale: id })
+        : "-");
 
   const activePriceText =
     lastBookingDetails?.priceText ||
-    (room.bookingPrice ? formatRupiah(Number(room.bookingPrice.price)) : "-");
+    (isSewa
+      ? dateRange?.from && dateRange.to
+        ? formatRupiah(
+            pricePerSessionMock *
+              (differenceInCalendarDays(dateRange.from, dateRange.to) + 1),
+          )
+        : "-"
+      : room.bookingPrice
+        ? formatRupiah(pricePerSessionMock)
+        : "-");
 
   const waMessage = formatWhatsappTemplate(
     whatsappTemplate || DEFAULT_WHATSAPP_TEMPLATE,
@@ -225,6 +318,10 @@ export function BookingDetailsForm({
   );
 
   const waUrl = formatWhatsappUrl(adminWhatsapp, waMessage);
+
+  const rangeCount = dateRange?.from && dateRange.to
+    ? differenceInCalendarDays(dateRange.from, dateRange.to) + 1
+    : 0;
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">
@@ -247,7 +344,7 @@ export function BookingDetailsForm({
             <div className="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-md w-fit">
               <Tag className="w-4 h-4" weight="bold" />
               <span className="text-sm font-bold tracking-wide">
-                {formatRupiah(pricePerSessionMock)} / sesi
+                {formatRupiah(pricePerSessionMock)} / hari
               </span>
             </div>
           )}
@@ -261,113 +358,200 @@ export function BookingDetailsForm({
         {/* Input Tanggal */}
         <div className="flex flex-col gap-2">
           <label className="text-xs font-bold text-neutral uppercase tracking-wider">
-            Pilih Tanggal
+            {isSewa ? "Pilih Rentang Tanggal" : "Pilih Tanggal"}
           </label>
-          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-            <PopoverTrigger
-              className={cn(
-                buttonVariants({ variant: "outline" }),
-                "w-full justify-start text-left font-normal px-4 py-3.5 bg-background shadow-sm",
-                !date && "text-muted-foreground",
-              )}
-            >
-              <CalendarIcon className="mr-3 h-5 w-5 text-neutral" />
-              {date ? (
-                format(date, "PPPP", { locale: id })
-              ) : (
-                <span>Pilih Tanggal Pemesanan</span>
-              )}
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={(selectedDate) => {
-                  setDate(selectedDate);
-                  setIsCalendarOpen(false);
-                }}
-                disabled={[
-                  { before: new Date(new Date().setHours(0, 0, 0, 0)) },
-                  (calendarDate) =>
-                    !workingDays.includes(
-                      format(calendarDate, "EEEE", { locale: id }).toLowerCase(),
-                    ),
-                ]}
-                locale={id}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
 
-        {/* Input Sesi */}
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold text-neutral uppercase tracking-wider">
-            Sesi Tersedia
-          </label>
-          <Select
-            value={selectedSession}
-            onValueChange={(val) => setSelectedSession(val || "")}
-            disabled={!date || isCheckingAvailability}
-          >
-            <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
-              <div className="flex items-center gap-3 flex-1 text-left">
-                <Clock className="h-5 w-5 text-neutral shrink-0" />
-                <span
-                  className={!selectedSession ? "text-muted-foreground" : ""}
-                >
-                  {selectedSession
-                    ? (() => {
-                        const s = availableSessions.find(
-                          (s) => s.id.toString() === selectedSession,
-                        );
-                        return s
-                          ? `${s.name} (${s.startTime} - ${s.finishTime})`
-                          : "Pilih Waktu Sesi";
-                      })()
-                    : "Pilih Waktu Sesi"}
-                </span>
+          {isSewa ? (
+            <>
+              <div className="p-3 bg-neutral-50/60 border border-border/50 rounded-lg text-sm">
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger
+                    className={cn(
+                      buttonVariants({ variant: "outline" }),
+                      "w-full justify-start text-left font-normal px-4 py-3.5 bg-background shadow-sm",
+                      !dateRange?.from && "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarBlank className="mr-3 h-5 w-5 text-neutral" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <span>
+                          {format(dateRange.from, "d MMM yyyy", {
+                            locale: id,
+                          })}{" "}
+                          -{" "}
+                          {format(dateRange.to, "d MMM yyyy", { locale: id })}
+                        </span>
+                      ) : (
+                        <span>
+                          {format(dateRange.from, "d MMM yyyy", { locale: id })}{" "}
+                          - <span className="text-muted-foreground">pilih akhir</span>
+                        </span>
+                      )
+                    ) : (
+                      <span>Pilih Rentang Tanggal Pemesanan</span>
+                    )}
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={handleRangeSelect}
+                      onMonthChange={(month) => setDisplayedMonth(month)}
+                      disabled={(d) => isPast(d) || !isWorkingDay(d)}
+                      modifiers={{ unavailable: (d) => isBooked(d) }}
+                      modifiersClassNames={{
+                        unavailable:
+                          "bg-red-100! text-red-600! opacity-100! rounded-(--cell-radius)",
+                      }}
+                      locale={id}
+                    />
+                    <div className="px-4 pb-3 flex flex-wrap gap-3 text-[11px] text-neutral/70">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-block size-3 rounded bg-red-100 border border-red-300" />
+                        Sudah dipesan
+                      </span>
+                      {dateRange?.from && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="inline-block size-3 rounded bg-primary" />
+                          Rentang pilihan
+                        </span>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-            </SelectTrigger>
-            <SelectContent>
-              {!date ? (
-                <SelectItem value="__no-date__" disabled>
-                  Pilih tanggal terlebih dahulu
-                </SelectItem>
-              ) : isCheckingAvailability ? (
-                <SelectItem value="__loading__" disabled>
-                  Memuat ketersediaan sesi...
-                </SelectItem>
-              ) : (
-                availableSessions.map((s) => {
-                  const sId = s.id.toString();
-                  const sessionAvail = availabilityMap[sId];
 
-                  // Cek apakah spesifik sesi ini penuh
-                  const isSessionFull = sessionAvail
-                    ? isSewa
-                      ? sessionAvail.booked > 0
-                      : sessionAvail.remainingCapacity === 0
-                    : false;
-
-                  return (
-                    <SelectItem
-                      key={s.id}
-                      value={sId}
-                      className={isSessionFull ? "opacity-50 py-3" : "py-3"}
-                      disabled={isSessionFull}
-                    >
-                      {s.name} ({s.startTime} - {s.finishTime})
-                      {isSessionFull && " - (Penuh)"}
-                    </SelectItem>
-                  );
-                })
+              {/* Ringkasan Range + Total Harga */}
+              {rangeCount > 0 && (
+                <Card className="mt-2 border-border/60 shadow-sm bg-neutral-50/50">
+                  <CardContent className="p-3 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-neutral">
+                        Jumlah Hari:
+                      </span>
+                      <Badge className="text-sm font-extrabold px-3 py-1 shadow-sm">
+                        {rangeCount} hari
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-neutral">
+                        Total Harga:
+                      </span>
+                      <span className="text-sm font-extrabold text-primary">
+                        {formatRupiah(pricePerSessionMock * rangeCount)}
+                      </span>
+                    </div>
+                    {isCheckingMonth && (
+                      <span className="text-xs text-neutral-500 animate-pulse">
+                        Memuat ketersediaan...
+                      </span>
+                    )}
+                  </CardContent>
+                </Card>
               )}
-            </SelectContent>
-          </Select>
+            </>
+          ) : (
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "w-full justify-start text-left font-normal px-4 py-3.5 bg-background shadow-sm",
+                  !date && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="mr-3 h-5 w-5 text-neutral" />
+                {date ? (
+                  format(date, "PPPP", { locale: id })
+                ) : (
+                  <span>Pilih Tanggal Pemesanan</span>
+                )}
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(selectedDate) => {
+                    setDate(selectedDate);
+                    setIsCalendarOpen(false);
+                  }}
+                  disabled={(calendarDate) =>
+                    isPast(calendarDate) || !isWorkingDay(calendarDate)
+                  }
+                  locale={id}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
 
-        {/* Indikator Sisa Kursi */}
-        {date && selectedSession && (
+        {/* Input Sesi (hanya mode Reguler) */}
+        {!isSewa && (
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-neutral uppercase tracking-wider">
+              Sesi Tersedia
+            </label>
+            <Select
+              value={selectedSession}
+              onValueChange={(val) => setSelectedSession(val || "")}
+              disabled={!date || isCheckingAvailability}
+            >
+              <SelectTrigger className="w-full px-4 py-3.5 border-border bg-background shadow-sm">
+                <div className="flex items-center gap-3 flex-1 text-left">
+                  <Clock className="h-5 w-5 text-neutral shrink-0" />
+                  <span
+                    className={!selectedSession ? "text-muted-foreground" : ""}
+                  >
+                    {selectedSession
+                      ? (() => {
+                          const s = sessions.find(
+                            (s) => s.id.toString() === selectedSession,
+                          );
+                          return s
+                            ? `${s.name} (${s.startTime} - ${s.finishTime})`
+                            : "Pilih Waktu Sesi";
+                        })()
+                      : "Pilih Waktu Sesi"}
+                  </span>
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                {!date ? (
+                  <SelectItem value="__no-date__" disabled>
+                    Pilih tanggal terlebih dahulu
+                  </SelectItem>
+                ) : isCheckingAvailability ? (
+                  <SelectItem value="__loading__" disabled>
+                    Memuat ketersediaan sesi...
+                  </SelectItem>
+                ) : (
+                  sessions.map((s) => {
+                    const sId = s.id.toString();
+                    const sessionAvail = availabilityMap[sId];
+                    const isSessionFull = sessionAvail
+                      ? sessionAvail.remainingCapacity === 0
+                      : false;
+
+                    return (
+                      <SelectItem
+                        key={s.id}
+                        value={sId}
+                        className={isSessionFull ? "opacity-50 py-3" : "py-3"}
+                        disabled={isSessionFull}
+                      >
+                        {s.name} ({s.startTime} - {s.finishTime})
+                        {isSessionFull && " - (Penuh)"}
+                      </SelectItem>
+                    );
+                  })
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* Indikator Sisa Kursi (mode Reguler) */}
+        {!isSewa && date && selectedSession && (
           <Card className="mt-2 border-border/60 shadow-sm bg-neutral-50/50">
             <CardContent className="p-3">
               {isCheckingAvailability ? (
@@ -377,27 +561,19 @@ export function BookingDetailsForm({
               ) : currentAvailability ? (
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-neutral">
-                    {isSewa ? "Ketersediaan Ruangan:" : "Ketersediaan Kursi:"}
+                    Ketersediaan Kursi:
                   </span>
                   <Badge
                     variant={
-                      isSewa
-                        ? currentAvailability.booked === 0
-                          ? "default"
-                          : "destructive"
-                        : currentAvailability.remainingCapacity > 0
-                          ? "default"
-                          : "destructive"
+                      currentAvailability.remainingCapacity > 0
+                        ? "default"
+                        : "destructive"
                     }
                     className="text-sm font-extrabold px-3 py-1.5 shadow-sm"
                   >
-                    {isSewa
-                      ? currentAvailability.booked === 0
-                        ? "Tersedia"
-                        : "Tidak Tersedia"
-                      : currentAvailability.remainingCapacity > 0
-                        ? `Tersedia ${currentAvailability.remainingCapacity} Kursi`
-                        : "Penuh"}
+                    {currentAvailability.remainingCapacity > 0
+                      ? `Tersedia ${currentAvailability.remainingCapacity} Kursi`
+                      : "Penuh"}
                   </Badge>
                 </div>
               ) : null}
@@ -416,29 +592,39 @@ export function BookingDetailsForm({
         <Button
           className={cn(
             "w-full py-6 text-base font-bold shadow-md transition-all lg:hover:-translate-y-1",
-            isUnavailable && "opacity-70",
+            isSewa
+              ? (isLoading || isCheckingMonth || rangeCount === 0) &&
+                  "opacity-70"
+              : isUnavailable && "opacity-70",
           )}
           disabled={
-            !date ||
-            !selectedSession ||
-            isLoading ||
-            isCheckingAvailability ||
-            isUnavailable
+            isSewa
+              ? isLoading || isCheckingMonth || rangeCount === 0
+              : !date ||
+                !selectedSession ||
+                isLoading ||
+                isCheckingAvailability ||
+                isUnavailable
           }
           onClick={handleBooking}
         >
           {isLoading ? (
             "Memproses..."
-          ) : isUnavailable ? (
-            isSewa ? (
-              "Ruangan Tidak Tersedia"
+          ) : isSewa ? (
+            rangeCount === 0 ? (
+              "Pilih Rentang Tanggal"
             ) : (
-              "Kapasitas Penuh"
+              <>
+                <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
+                Sewa Ruangan ({rangeCount} Hari)
+              </>
             )
+          ) : isUnavailable ? (
+            "Kapasitas Penuh"
           ) : (
             <>
               <CheckCircle className="w-5 h-5 mr-2" weight="bold" />
-              {isSewa ? "Sewa Ruangan" : "Reservasi Sekarang"}
+              Reservasi Sekarang
             </>
           )}
         </Button>

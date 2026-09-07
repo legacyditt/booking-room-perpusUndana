@@ -32,6 +32,7 @@ export const auth = betterAuth({
   // 3. Keamanan: Izinkan Frontend mengakses (CORS cookies)
   trustedOrigins: [
     "http://localhost:3000",
+    "https://booking-room-perpus-undana.vercel.app",
     process.env.FRONTEND_URL ?? "http://localhost:3000",
   ],
 

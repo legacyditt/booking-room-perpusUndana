@@ -1,5 +1,10 @@
 const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+  typeof window !== "undefined"
+    ? ""
+    : process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === "production"
+        ? "https://booking-room-perpus-undana-api.vercel.app"
+        : "http://localhost:3001");
 
 export async function requestPasswordReset(email: string): Promise<void> {
   const res = await fetch(`${apiUrl}/api/auth/forget-password`, {

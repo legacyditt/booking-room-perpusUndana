@@ -1,8 +1,13 @@
 import axios from "axios";
 import type { ApiResponse } from "@/types/api";
 
-const baseURL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const isServer = typeof window === "undefined";
+const baseURL = isServer
+  ? process.env.NEXT_PUBLIC_API_URL ||
+    (process.env.NODE_ENV === "production"
+      ? "https://booking-room-perpus-undana-api.vercel.app"
+      : "http://localhost:3001")
+  : "/api/backend";
 
 export const client = axios.create({ baseURL, withCredentials: true });
 // Interceptor Global untuk menangkap error dari seluruh pemanggilan API

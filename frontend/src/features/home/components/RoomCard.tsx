@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Users, CircleNotch } from "@phosphor-icons/react/dist/ssr";
@@ -18,6 +18,13 @@ export function RoomCard({ room, mode }: RoomCardProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setImageLoaded(true);
+    }
+  }, []);
 
   const href = `/room/${room.id}${mode === "sewa" ? "?mode=sewa" : ""}`;
 
@@ -40,6 +47,7 @@ export function RoomCard({ room, mode }: RoomCardProps) {
           <div className="absolute inset-0 bg-neutral-200/60 animate-pulse" />
         )}
         <img
+          ref={imgRef}
           src={room.imageUrlDisplay ?? room.imageUrl}
           alt={room.name}
           className={cn(

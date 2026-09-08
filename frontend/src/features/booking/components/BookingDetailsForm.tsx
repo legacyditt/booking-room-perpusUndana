@@ -166,15 +166,17 @@ export function BookingDetailsForm({
   };
 
   // ── Mode Reguler: ketersediaan sesi harian ──
-  const { data: availabilityMap = {}, isFetching: isCheckingAvailability } =
-    useDailyAvailability(room.id, date);
+  const {
+    data: availabilityMap = {},
+    isFetching: isCheckingAvailability,
+    isError: isAvailabilityError,
+  } = useDailyAvailability(room.id, date);
 
   const currentAvailability = selectedSession
     ? availabilityMap[selectedSession]
     : null;
-  const isUnavailable = selectedSession
-    ? (currentAvailability?.remainingCapacity ?? 0) === 0
-    : false;
+  const isUnavailable =
+    Boolean(selectedSession && currentAvailability && currentAvailability.remainingCapacity === 0);
 
   // Efek: Kosongkan opsi dropdown jika sesi yang sedang dipilih ternyata penuh di tanggal yang baru
   useEffect(() => {
@@ -576,7 +578,15 @@ export function BookingDetailsForm({
                       : "Penuh"}
                   </Badge>
                 </div>
-              ) : null}
+              ) : isAvailabilityError ? (
+                <span className="block text-xs text-destructive text-center font-medium">
+                  Gagal memuat ketersediaan kursi. Silakan muat ulang halaman.
+                </span>
+              ) : (
+                <span className="block text-xs text-neutral-500 animate-pulse text-center">
+                  Memuat informasi kursi...
+                </span>
+              )}
             </CardContent>
           </Card>
         )}
@@ -604,6 +614,7 @@ export function BookingDetailsForm({
                 !selectedSession ||
                 isLoading ||
                 isCheckingAvailability ||
+                !currentAvailability ||
                 isUnavailable
           }
           onClick={handleBooking}
@@ -619,8 +630,12 @@ export function BookingDetailsForm({
                 Sewa Ruangan ({rangeCount} Hari)
               </>
             )
+          ) : isCheckingAvailability ? (
+            "Memeriksa Ketersediaan..."
           ) : isUnavailable ? (
             "Kapasitas Penuh"
+          ) : !currentAvailability && selectedSession ? (
+            "Memuat Ketersediaan..."
           ) : (
             <>
               <CheckCircle className="w-5 h-5 mr-2" weight="bold" />

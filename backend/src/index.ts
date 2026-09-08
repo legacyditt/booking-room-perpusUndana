@@ -20,7 +20,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "https://booking-room-perpus-undana.vercel.app",
-  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL?.trim().replace(/\/$/, ""),
 ].filter(Boolean) as string[];
 
 app.use(

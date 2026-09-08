@@ -5,7 +5,8 @@ import prisma from "../lib/prisma.js";
 import { sendPasswordResetEmail } from "../lib/mailer.js";
 
 const frontendUrl =
-  process.env.FRONTEND_URL || "https://booking-room-perpus-undana.vercel.app";
+  process.env.FRONTEND_URL?.trim().replace(/\/$/, "") ||
+  "https://booking-room-perpus-undana.vercel.app";
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 jam
 
 // --- Helpers Domain (private) ---

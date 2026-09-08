@@ -6,7 +6,7 @@ import { sendPasswordResetEmail } from "../lib/mailer.js";
 
 const frontendUrl =
   process.env.FRONTEND_URL?.trim().replace(/\/$/, "") ||
-  "https://booking-room-perpus-undana.vercel.app";
+  "http://localhost:3000";
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 jam
 
 // --- Helpers Domain (private) ---

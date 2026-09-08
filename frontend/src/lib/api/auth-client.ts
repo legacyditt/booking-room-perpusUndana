@@ -2,7 +2,9 @@ import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
+  // ponytail: no baseURL — proxy rewrite in next.config.ts routes /api/auth/* to backend.
+  // This ensures session cookies are set on the frontend domain (same-origin),
+  // so SSR can forward them via headers() in Server Components.
   plugins: [
     inferAdditionalFields({
       user: {

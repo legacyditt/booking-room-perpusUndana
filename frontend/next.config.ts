@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const backendUrl =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+
 const nextConfig: NextConfig = {
   async redirects() {
     return [
@@ -9,6 +12,14 @@ const nextConfig: NextConfig = {
       //   destination: "/admin/overview",
       //   permanent: false,
       // },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/api/auth/:path*",
+        destination: `${backendUrl}/api/auth/:path*`,
+      },
     ];
   },
   images: {

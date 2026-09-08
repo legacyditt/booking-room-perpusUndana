@@ -4,7 +4,9 @@ import { hashPassword } from "@better-auth/utils/password";
 import prisma from "../lib/prisma.js";
 import { sendPasswordResetEmail } from "../lib/mailer.js";
 
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+const frontendUrl =
+  process.env.FRONTEND_URL?.trim().replace(/\/$/, "") ||
+  "http://localhost:3000";
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 jam
 
 // --- Helpers Domain (private) ---

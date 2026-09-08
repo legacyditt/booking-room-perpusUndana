@@ -17,11 +17,20 @@ import adminDatabaseRoute from "./routes/adminDatabase.routes.js";
 import authRoute from "./routes/auth.routes.js";
 
 const app = express();
-const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://booking-room-perpus-undana.vercel.app",
+  process.env.FRONTEND_URL?.trim().replace(/\/$/, ""),
+].filter(Boolean) as string[];
 
 app.use(
   cors({
-    origin: frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   }),
 );

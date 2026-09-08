@@ -1,8 +1,12 @@
-"use client"
+"use client";
+
+import { useState, useTransition, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Users } from "@phosphor-icons/react/dist/ssr";
+import { useRouter } from "next/navigation";
+import { Users, CircleNotch } from "@phosphor-icons/react/dist/ssr";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Room } from "@/types/room";
 
 interface RoomCardProps {
@@ -11,15 +15,48 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room, mode }: RoomCardProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    if (imgRef.current?.complete) {
+      setImageLoaded(true);
+    }
+  }, []);
+
   const href = `/room/${room.id}${mode === "sewa" ? "?mode=sewa" : ""}`;
+
+  const handleNavigate = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) {
+      return;
+    }
+    e.preventDefault();
+    if (isPending) return;
+
+    startTransition(() => {
+      router.push(href);
+    });
+  };
+
   return (
     <Card className="pt-0 overflow-hidden border-border bg-white shadow-sm transition-all hover:shadow-md">
-      <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted">
+      <div className="relative aspect-video sm:aspect-[4/3] w-full bg-muted overflow-hidden">
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-neutral-200/60 animate-pulse" />
+        )}
         <img
+          ref={imgRef}
           src={room.imageUrlDisplay ?? room.imageUrl}
           alt={room.name}
-          className="h-full w-full object-cover"
+          className={cn(
+            "h-full w-full object-cover transition-opacity duration-300",
+            imageLoaded ? "opacity-100" : "opacity-0",
+          )}
+          onLoad={() => setImageLoaded(true)}
           onError={(e) => {
+            setImageLoaded(true);
             e.currentTarget.src =
               "https://placehold.co/600x400/e2e8f0/4a4a4a?text=Gambar+Ruangan";
           }}
@@ -42,12 +79,24 @@ export function RoomCard({ room, mode }: RoomCardProps) {
       <CardFooter className="pt-4 pb-6 px-6">
         <Link
           href={href}
-          className={buttonVariants({
-            variant: "outlinePrimary",
-            className: "w-full min-h-[44px]",
-          })}
+          onClick={handleNavigate}
+          aria-disabled={isPending}
+          className={cn(
+            buttonVariants({
+              variant: "outlinePrimary",
+              className: "w-full min-h-[44px] transition-all",
+            }),
+            isPending && "pointer-events-none opacity-80 cursor-wait",
+          )}
         >
-          Pesan Ruangan
+          {isPending ? (
+            <>
+              <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+              Memuat...
+            </>
+          ) : (
+            "Pesan Ruangan"
+          )}
         </Link>
       </CardFooter>
     </Card>

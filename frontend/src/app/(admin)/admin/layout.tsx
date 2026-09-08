@@ -2,19 +2,20 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/features/admin/components/Sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/api/auth-client";
+
+const backendUrl = process.env.NEXT_PUBLIC_API_URL!;
 
 export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { data: session } = await authClient.getSession({
-    fetchOptions: {
-      headers: await headers(),
-      baseURL: process.env.NEXT_PUBLIC_API_URL,
-    },
+  const cookieHeader = (await headers()).get("cookie") ?? "";
+  const res = await fetch(`${backendUrl}/api/auth/get-session`, {
+    headers: { cookie: cookieHeader },
+    cache: "no-store",
   });
+  const { session } = await res.json();
 
   if (!session) {
     redirect("/login");

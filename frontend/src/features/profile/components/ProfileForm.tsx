@@ -125,7 +125,7 @@ export function ProfileForm() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAFAF9] pb-24 pt-10 md:pt-16">
+    <div className="w-full bg-[#FAFAF9] pb-12 pt-10 md:pt-16">
       <div className="container mx-auto max-w-3xl px-4 md:px-8">
         <div className="flex flex-col gap-8">
           

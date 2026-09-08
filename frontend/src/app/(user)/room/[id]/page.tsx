@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Header } from "@/features/home/components/Header";
+import { Footer } from "@/features/home/components/Footer";
 import { RoomImageGallery } from "@/features/booking/components/RoomImageGallery";
 import { BookingDetailsForm } from "@/features/booking/components/BookingDetailsForm";
 import { getRoom, getSessions, getSystemSettings } from "@/lib/api";
@@ -83,14 +84,7 @@ export default async function BookingPage({ params, searchParams }: PageProps) {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-16 py-8 border-t border-border bg-muted/30">
-        <div className="container mx-auto max-w-7xl px-4 md:px-8">
-          <p className="text-sm font-serif italic text-neutral">
-            © 2026 Booking Room Perpustakaan Undana.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

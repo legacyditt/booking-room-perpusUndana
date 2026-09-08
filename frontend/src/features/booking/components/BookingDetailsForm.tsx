@@ -229,7 +229,9 @@ export function BookingDetailsForm({
               sessionText: "Sehari Penuh",
               priceText: formatRupiah(
                 pricePerSessionMock *
-                  (differenceInCalendarDays(dateRange.from, dateRange.to) + 1),
+                  (Math.abs(
+                    differenceInCalendarDays(dateRange.to, dateRange.from),
+                  ) + 1),
               ),
             }
           : {
@@ -272,6 +274,11 @@ export function BookingDetailsForm({
     },
   };
 
+  const rangeCount =
+    dateRange?.from && dateRange.to
+      ? Math.abs(differenceInCalendarDays(dateRange.to, dateRange.from)) + 1
+      : 0;
+
   const currentSessionObj = sessions.find(
     (s) => s.id.toString() === selectedSession,
   );
@@ -297,10 +304,7 @@ export function BookingDetailsForm({
     lastBookingDetails?.priceText ||
     (isSewa
       ? dateRange?.from && dateRange.to
-        ? formatRupiah(
-            pricePerSessionMock *
-              (differenceInCalendarDays(dateRange.from, dateRange.to) + 1),
-          )
+        ? formatRupiah(pricePerSessionMock * rangeCount)
         : "-"
       : room.bookingPrice
         ? formatRupiah(pricePerSessionMock)
@@ -318,10 +322,6 @@ export function BookingDetailsForm({
   );
 
   const waUrl = formatWhatsappUrl(adminWhatsapp, waMessage);
-
-  const rangeCount = dateRange?.from && dateRange.to
-    ? differenceInCalendarDays(dateRange.from, dateRange.to) + 1
-    : 0;
 
   return (
     <div className="flex flex-col gap-5 p-6 bg-white border border-border/50 rounded-xl shadow-sm h-full">

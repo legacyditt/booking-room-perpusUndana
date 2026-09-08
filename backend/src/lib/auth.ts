@@ -4,7 +4,9 @@ import prisma from "./prisma.js";
 import { sendPasswordResetEmail } from "./mailer.js";
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3001",
+  baseURL:
+    process.env.BETTER_AUTH_URL ??
+    "https://booking-room-perpus-undana-api.vercel.app",
 
   database: prismaAdapter(prisma, {
     provider: "postgresql",

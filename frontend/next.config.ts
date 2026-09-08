@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const backendUrl =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+  process.env.NEXT_PUBLIC_API_URL ??
+  "https://booking-room-perpus-undana-api.vercel.app";
 
 const nextConfig: NextConfig = {
   async redirects() {

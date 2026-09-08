@@ -12,6 +12,7 @@ export default async function AdminLayout({
   const { data: session } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
+      baseURL: process.env.NEXT_PUBLIC_API_URL,
     },
   });
 

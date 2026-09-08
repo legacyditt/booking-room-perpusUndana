@@ -10,6 +10,7 @@ export default async function UserLayout({
   const { data: session } = await authClient.getSession({
     fetchOptions: {
       headers: await headers(),
+      baseURL: process.env.NEXT_PUBLIC_API_URL,
     },
   });
 

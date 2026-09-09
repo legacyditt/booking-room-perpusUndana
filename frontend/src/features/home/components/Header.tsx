@@ -10,6 +10,7 @@ import {
   X,
   UserCircle,
   SignOut,
+  CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
 import {
   DropdownMenu,
@@ -21,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession, signOut } from "@/lib/api/auth-client";
+import { cn } from "@/lib/utils";
 
 import {
   Dialog,
@@ -34,22 +36,34 @@ import { toast } from "@/components/ui/toast";
 export function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { data: session, isPending } = useSession();
+
   const handleLogout = () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+
     signOut({
       fetchOptions: {
         onSuccess: () => {
-          // 1. Tampilkan notifikasi
           toast.add({
             type: "success",
             title: "Berhasil Keluar",
             description: "Anda telah berhasil keluar dari sistem.",
           });
 
-          // 2. Beri jeda 1 detik
           setTimeout(() => {
             window.location.href = "/login";
           }, 1000);
+        },
+        onError: () => {
+          setIsLoggingOut(false);
+          toast.add({
+            type: "error",
+            title: "Gagal Keluar",
+            description:
+              "Terjadi kesalahan saat keluar dari sistem. Silakan coba lagi.",
+          });
         },
       },
     });
@@ -137,11 +151,27 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-border my-1" />
                 <DropdownMenuItem
-                  className="cursor-pointer rounded-sm hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50 p-2 text-sm font-medium flex items-center justify-between"
-                  onClick={handleLogout}
+                  disabled={isLoggingOut}
+                  className={cn(
+                    "cursor-pointer rounded-sm p-2 text-sm font-medium flex items-center justify-between transition-colors",
+                    isLoggingOut
+                      ? "opacity-70 cursor-not-allowed text-neutral-400 bg-neutral-50"
+                      : "hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50"
+                  )}
+                  onClick={(e) => {
+                    if (isLoggingOut) {
+                      e.preventDefault();
+                      return;
+                    }
+                    handleLogout();
+                  }}
                 >
-                  <span>Logout</span>
-                  <SignOut className="h-4 w-4" weight="bold" />
+                  <span>{isLoggingOut ? "Keluar..." : "Logout"}</span>
+                  {isLoggingOut ? (
+                    <CircleNotch className="h-4 w-4 animate-spin text-neutral-500" />
+                  ) : (
+                    <SignOut className="h-4 w-4" weight="bold" />
+                  )}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -226,13 +256,20 @@ export function Header() {
                 </Link>
                 <Button
                   variant="destructive"
-                  className="w-full h-10 justify-center font-semibold text-sm shadow-sm"
+                  disabled={isLoggingOut}
+                  className="w-full h-10 justify-center font-semibold text-sm shadow-sm gap-2"
                   onClick={() => {
-                    setIsOpen(false);
                     handleLogout();
                   }}
                 >
-                  Logout
+                  {isLoggingOut ? (
+                    <>
+                      <CircleNotch className="h-4 w-4 animate-spin" />
+                      <span>Keluar...</span>
+                    </>
+                  ) : (
+                    "Logout"
+                  )}
                 </Button>
               </div>
             ) : null}

@@ -1,3 +1,4 @@
+import { AdminOverviewHeader } from "@/features/admin/components/AdminOverviewHeader";
 import { StatCardsGrid, StatCardsSkeleton } from "@/features/admin/components/StatCardsGrid";
 import { DatabaseUsageCard } from "@/features/admin/components/DatabaseUsageCard";
 import { RecentBookingsTable } from "@/features/admin/components/RecentBookingsTable";
@@ -22,15 +23,8 @@ export default async function AdminOverviewPage() {
 
   return (
     <div className="p-8 space-y-8">
-      {/* ── Header ── */}
-      <div>
-        <h1 className="text-4xl font-serif font-bold text-primary mb-1">
-          Selamat datang, Admin! 👋
-        </h1>
-        <p className="text-neutral-500 text-sm">
-          Ini adalah ringkasan aktivitas dan peminjaman ruangan hari ini.
-        </p>
-      </div>
+      {/* ── Header Dinamis & Tanggal Operasional ── */}
+      <AdminOverviewHeader />
 
       {/* ── Kartu Statistik (3 Metrik + 1 Database Usage Card) ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

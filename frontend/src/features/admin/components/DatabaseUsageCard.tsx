@@ -47,7 +47,7 @@ export function DatabaseUsageCard({ stats }: DatabaseUsageCardProps) {
   const status = getStatusColor(percentage);
 
   return (
-    <Card className="hover:shadow-md transition-shadow duration-200 border-neutral-200 shadow-none rounded-xl">
+    <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 border-neutral-200 shadow-none rounded-xl">
       <CardContent className="p-5 flex flex-col justify-between h-full gap-3">
         {/* Baris atas: Label teks + Ikon */}
         <div className="flex items-start justify-between">
@@ -80,8 +80,11 @@ export function DatabaseUsageCard({ stats }: DatabaseUsageCardProps) {
 
           <div className="flex items-center justify-between text-xs text-neutral-500">
             <span className="font-medium">{percentage}% terpakai</span>
-            <div className="flex items-center gap-1.5 font-medium">
-              <span className={`w-2 h-2 rounded-full ${status.dot} animate-pulse`} />
+            <div
+              className="flex items-center gap-1.5 font-medium cursor-help px-2 py-0.5 rounded-full bg-neutral-100/80 hover:bg-neutral-200/60 transition-colors"
+              title={`Penyimpanan terpakai ${usedFormatted} dari kuota ${maxFormatted}. Status: ${status.label}.`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${status.dot} animate-pulse`} />
               <span className={status.text}>{status.label}</span>
             </div>
           </div>

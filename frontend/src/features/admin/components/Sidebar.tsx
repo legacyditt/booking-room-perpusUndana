@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useSession, signOut } from "@/lib/api/auth-client";
 import { toast } from "@/components/ui/toast";
+import { cn } from "@/lib/utils";
 import {
   SquaresFour,
   CalendarBlank,
@@ -17,6 +19,7 @@ import {
   ListMagnifyingGlass,
   ChartBar,
   Gear,
+  CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
 
 import {
@@ -55,8 +58,12 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+
     signOut({
       fetchOptions: {
         onSuccess: () => {
@@ -68,6 +75,15 @@ export function Sidebar() {
           setTimeout(() => {
             window.location.href = "/login";
           }, 1000);
+        },
+        onError: () => {
+          setIsLoggingOut(false);
+          toast.add({
+            type: "error",
+            title: "Gagal Keluar",
+            description:
+              "Terjadi kesalahan saat keluar dari sistem. Silakan coba lagi.",
+          });
         },
       },
     });
@@ -142,10 +158,24 @@ export function Sidebar() {
             </p>
             <button
               onClick={handleLogout}
-              className="mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-border rounded-md text-xs font-medium text-neutral-500 hover:border-destructive hover:text-destructive hover:bg-destructive/5 transition-all duration-200 cursor-pointer"
+              disabled={isLoggingOut}
+              className={cn(
+                "mt-1.5 w-full flex items-center justify-center gap-1.5 px-3 py-1.5 border border-border rounded-md text-xs font-medium text-neutral-500 transition-all duration-200",
+                isLoggingOut
+                  ? "opacity-70 cursor-not-allowed bg-neutral-50 text-neutral-400"
+                  : "hover:border-destructive hover:text-destructive hover:bg-destructive/5 cursor-pointer"
+              )}
             >
-              <SignOut size={13} weight="bold" />
-              Keluar
+              {isLoggingOut ? (
+                <CircleNotch
+                  size={13}
+                  weight="bold"
+                  className="animate-spin text-neutral-500"
+                />
+              ) : (
+                <SignOut size={13} weight="bold" />
+              )}
+              <span>{isLoggingOut ? "Keluar..." : "Keluar"}</span>
             </button>
           </div>
         </div>

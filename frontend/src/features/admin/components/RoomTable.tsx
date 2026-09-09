@@ -2,7 +2,15 @@
 
 import React from "react";
 import Link from "next/link";
-import { PencilSimple, Trash, BookOpen, Users, Star } from "@phosphor-icons/react";
+import {
+  PencilSimple,
+  Trash,
+  BookOpen,
+  Users,
+  Star,
+  Door,
+  ArrowCounterClockwise,
+} from "@phosphor-icons/react";
 import { Room } from "@/types/room";
 import {
   Table,
@@ -23,9 +31,37 @@ const rupiahFormatter = new Intl.NumberFormat("id-ID", {
 interface RoomTableProps {
   rooms: Room[];
   onDelete: (room: Room) => void;
+  onResetFilters?: () => void;
 }
 
-export function RoomTable({ rooms, onDelete }: RoomTableProps) {
+export function RoomTable({ rooms, onDelete, onResetFilters }: RoomTableProps) {
+  if (rooms.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center p-16 text-center">
+        <div className="w-14 h-14 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 mb-3">
+          <Door size={28} weight="duotone" />
+        </div>
+        <p className="font-serif font-bold text-neutral-800 text-base">
+          Tidak Ada Ruangan Ditemukan
+        </p>
+        <p className="text-xs text-neutral-500 mt-1 max-w-sm leading-relaxed">
+          Tidak ada inventaris ruangan yang cocok dengan kata kunci pencarian atau filter tipe yang dipilih.
+        </p>
+        {onResetFilters && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onResetFilters}
+            className="mt-4 gap-1.5 text-xs text-primary border-primary/30 hover:bg-primary/5"
+          >
+            <ArrowCounterClockwise size={14} />
+            Reset Semua Filter
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -140,12 +176,6 @@ export function RoomTable({ rooms, onDelete }: RoomTableProps) {
           })}
         </TableBody>
       </Table>
-
-      {rooms.length === 0 && (
-        <div className="py-16 text-center text-neutral-500">
-          <p className="text-lg">Tidak ada ruangan yang cocok.</p>
-        </div>
-      )}
     </div>
   );
 }

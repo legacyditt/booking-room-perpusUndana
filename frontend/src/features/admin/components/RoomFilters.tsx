@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -36,8 +36,18 @@ export function RoomFilters({
           placeholder="Cari Nama Ruangan..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-10 w-full bg-neutral-50/50 border-neutral-200 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-lg"
+          className="pl-10 pr-9 h-10 w-full bg-neutral-50/50 border-neutral-200 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-lg"
         />
+        {search && (
+          <button
+            type="button"
+            onClick={() => onSearchChange("")}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-colors"
+            title="Hapus pencarian"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* ── Kanan: Filter Tipe ── */}

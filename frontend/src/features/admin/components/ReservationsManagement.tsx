@@ -32,9 +32,22 @@ export function ReservationsManagement({
   const [page, setPage] = useState(1);
 
   const updateStatusMutation = useUpdateBookingStatus();
-  const isUpdatingId = updateStatusMutation.isPending
-    ? (updateStatusMutation.variables?.id ?? null)
-    : null;
+  const updatingAction =
+    updateStatusMutation.isPending && updateStatusMutation.variables
+      ? {
+          id: updateStatusMutation.variables.id,
+          status: updateStatusMutation.variables.status,
+        }
+      : null;
+
+  const handleResetFilters = () => {
+    setSearch("");
+    setStatusFilter("Semua");
+    setStartDate("");
+    setEndDate("");
+    setTypeFilter("Semua");
+    setPage(1);
+  };
 
   const handleUpdateStatus = (id: number, status: BookingStatus) => {
     updateStatusMutation.mutate(
@@ -140,7 +153,8 @@ export function ReservationsManagement({
         <ReservationTable
           bookings={pagedBookings}
           onUpdateStatus={handleUpdateStatus}
-          isUpdatingId={isUpdatingId}
+          updatingAction={updatingAction}
+          onResetFilters={handleResetFilters}
         />
       </div>
 

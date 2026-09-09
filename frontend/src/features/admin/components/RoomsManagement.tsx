@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { CircleNotch } from "@phosphor-icons/react";
 import { useRooms } from "@/lib/hooks/use-rooms";
 import { useDeleteRoom } from "@/lib/hooks/use-delete-room";
 
@@ -64,6 +65,12 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
     setPage(1);
   };
 
+  const handleResetFilters = () => {
+    setSearch("");
+    setTypeFilter("Semua");
+    setPage(1);
+  };
+
   const handleDelete = () => {
     if (!roomToDelete) return;
 
@@ -100,24 +107,30 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
 
       {/* Area Tabel Data */}
       <div className="flex-1 min-h-[400px]">
-        <RoomTable rooms={pagedRooms} onDelete={setRoomToDelete} />
+        <RoomTable
+          rooms={pagedRooms}
+          onDelete={setRoomToDelete}
+          onResetFilters={handleResetFilters}
+        />
       </div>
 
       {/* Area Pagination */}
-      <div className="p-5 border-t border-[#E2E8F0] bg-white">
-        <TablePagination
-          page={safePage}
-          pageSize={PAGE_SIZE}
-          totalItems={filtered.length}
-          onPageChange={setPage}
-        />
-      </div>
+      {filtered.length > 0 && (
+        <div className="p-5 border-t border-[#E2E8F0] bg-white">
+          <TablePagination
+            page={safePage}
+            pageSize={PAGE_SIZE}
+            totalItems={filtered.length}
+            onPageChange={setPage}
+          />
+        </div>
+      )}
 
       {/* Dialog Konfirmasi Hapus */}
       <Dialog
         open={!!roomToDelete}
         onOpenChange={(open) => {
-          if (!open) setRoomToDelete(null);
+          if (!open && !isDeleting) setRoomToDelete(null);
         }}
       >
         <DialogContent>
@@ -142,8 +155,16 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
+              className="gap-1.5"
             >
-              {isDeleting ? "Menghapus..." : "Hapus"}
+              {isDeleting ? (
+                <>
+                  <CircleNotch size={16} className="animate-spin" />
+                  <span>Menghapus...</span>
+                </>
+              ) : (
+                "Hapus"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

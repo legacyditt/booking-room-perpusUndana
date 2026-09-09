@@ -11,9 +11,15 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
-import { MagnifyingGlass, Funnel } from "@phosphor-icons/react";
+import {
+  MagnifyingGlass,
+  Funnel,
+  X,
+  CalendarBlank,
+  ClockCounterClockwise,
+} from "@phosphor-icons/react";
+import { EmptyState } from "@/components/shared/empty-state";
 
 interface ReservationClientProps {
   bookings: Booking[];
@@ -32,8 +38,8 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
     isBefore(parseISO(booking.date), today),
   );
 
-  const filterBookings = (bookings: Booking[]) => {
-    return bookings.filter((booking) => {
+  const filterBookings = (list: Booking[]) => {
+    return list.filter((booking) => {
       const matchesSearch = booking.room.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
@@ -45,6 +51,12 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
 
   const filteredUpcoming = filterBookings(upcomingBookings);
   const filteredPast = filterBookings(pastBookings);
+  const isFiltered = searchQuery.trim() !== "" || statusFilter !== "ALL";
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("ALL");
+  };
 
   return (
     <div className="w-full">
@@ -57,10 +69,20 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
           <Input
             type="text"
             placeholder="Cari ruangan..."
-            className="pl-10 w-full h-11 bg-white"
+            className="pl-10 pr-10 w-full h-11 bg-white"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-colors"
+              aria-label="Bersihkan pencarian"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
         <div className="w-full sm:w-[180px]">
           <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "ALL")}>
@@ -98,13 +120,13 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
             value="upcoming"
             className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none after:hidden"
           >
-            Mendatang
+            Mendatang ({upcomingBookings.length})
           </TabsTrigger>
           <TabsTrigger
             value="past"
             className="text-sm font-bold uppercase tracking-wider pb-3 px-1 whitespace-nowrap text-neutral/60 data-active:text-primary !border-0 !border-b-2 !border-transparent data-active:!border-primary transition-colors rounded-none after:hidden"
           >
-            Riwayat
+            Riwayat ({pastBookings.length})
           </TabsTrigger>
         </TabsList>
 
@@ -122,10 +144,23 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
                 />
               ))}
             </div>
+          ) : isFiltered ? (
+            <EmptyState
+              icon={<CalendarBlank size={32} weight="duotone" />}
+              title="Pemesanan Tidak Ditemukan"
+              description="Tidak ada pemesanan mendatang yang sesuai dengan filter pencarian Anda."
+              onReset={handleResetFilters}
+            />
           ) : (
-            <div className="text-center py-16 sm:py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl bg-white/50">
-              {upcomingBookings.length > 0 ? "Tidak ada pemesanan yang cocok dengan pencarian Anda." : "Belum ada pemesanan yang akan datang."}
-            </div>
+            <EmptyState
+              icon={<CalendarBlank size={32} weight="duotone" />}
+              title="Belum Ada Pemesanan Mendatang"
+              description="Anda belum memiliki jadwal pemesanan ruangan atau kursi perpustakaan."
+              resetLabel="Cari & Pesan Ruangan"
+              onReset={() => {
+                window.location.href = "/";
+              }}
+            />
           )}
         </TabsContent>
 
@@ -143,10 +178,19 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
                 />
               ))}
             </div>
+          ) : isFiltered ? (
+            <EmptyState
+              icon={<ClockCounterClockwise size={32} weight="duotone" />}
+              title="Pemesanan Tidak Ditemukan"
+              description="Tidak ada riwayat pemesanan yang sesuai dengan filter pencarian Anda."
+              onReset={handleResetFilters}
+            />
           ) : (
-            <div className="text-center py-16 sm:py-20 text-neutral/50 font-medium border-2 border-dashed border-border rounded-xl bg-white/50">
-              {pastBookings.length > 0 ? "Tidak ada pemesanan yang cocok dengan pencarian Anda." : "Riwayat pemesanan kosong."}
-            </div>
+            <EmptyState
+              icon={<ClockCounterClockwise size={32} weight="duotone" />}
+              title="Riwayat Pemesanan Kosong"
+              description="Belum ada riwayat pemesanan ruangan sebelumnya di akun Anda."
+            />
           )}
         </TabsContent>
       </Tabs>

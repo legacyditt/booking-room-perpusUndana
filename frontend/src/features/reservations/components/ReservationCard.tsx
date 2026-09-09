@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   format,
   formatDistanceToNow,
@@ -10,7 +11,7 @@ import {
 } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import Link from "next/link";
-import { CalendarBlank, Clock, Users } from "@phosphor-icons/react/dist/ssr";
+import { CalendarBlank, Clock, Users, CircleNotch } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -63,12 +64,14 @@ export function ReservationCard({
   session,
   sessions,
 }: ReservationCardProps) {
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
   const cancelMutation = useCancelBooking();
   const isCancelling = cancelMutation.isPending;
 
   const handleCancel = () => {
     cancelMutation.mutate(booking.id, {
       onSuccess: () => {
+        setIsCancelOpen(false);
         toast.add({
           type: "success",
           title: "Pemesanan Dibatalkan",
@@ -171,7 +174,13 @@ export function ReservationCard({
                 sessions={sessions}
               />
 
-              <Dialog>
+              <Dialog
+                open={isCancelOpen}
+                onOpenChange={(open) => {
+                  if (isCancelling) return;
+                  setIsCancelOpen(open);
+                }}
+              >
                 <DialogTrigger
                   render={
                     <Button
@@ -194,35 +203,42 @@ export function ReservationCard({
                     </DialogDescription>
                   </ShadcnDialogHeader>
                   <ShadcnDialogFooter className="mt-4 gap-2">
-                    <DialogClose
-                      render={
-                        <Button
-                          variant="outline"
-                          className="flex-1 sm:flex-none font-medium"
-                        >
-                          Kembali
-                        </Button>
-                      }
-                    />
-                    <DialogClose
-                      render={
-                        <Button
-                          variant="destructive"
-                          className="flex-1 sm:flex-none font-bold shadow-sm"
-                          onClick={handleCancel}
-                          disabled={isCancelling}
-                        >
-                          {isCancelling ? "Membatalkan..." : "Ya, Batalkan"}
-                        </Button>
-                      }
-                    />
+                    <Button
+                      variant="outline"
+                      className="flex-1 sm:flex-none font-medium"
+                      onClick={() => setIsCancelOpen(false)}
+                      disabled={isCancelling}
+                    >
+                      Kembali
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      className="flex-1 sm:flex-none font-bold shadow-sm"
+                      onClick={handleCancel}
+                      disabled={isCancelling}
+                    >
+                      {isCancelling ? (
+                        <>
+                          <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                          Membatalkan...
+                        </>
+                      ) : (
+                        "Ya, Batalkan"
+                      )}
+                    </Button>
                   </ShadcnDialogFooter>
                 </DialogContent>
               </Dialog>
             </>
           )}
           {booking.status === "PENDING" && (
-            <Dialog>
+            <Dialog
+              open={isCancelOpen}
+              onOpenChange={(open) => {
+                if (isCancelling) return;
+                setIsCancelOpen(open);
+              }}
+            >
               <DialogTrigger
                 render={
                   <Button
@@ -246,28 +262,29 @@ export function ReservationCard({
                   </DialogDescription>
                 </ShadcnDialogHeader>
                 <ShadcnDialogFooter className="mt-4 gap-2">
-                  <DialogClose
-                    render={
-                      <Button
-                        variant="outline"
-                        className="flex-1 sm:flex-none font-medium"
-                      >
-                        Kembali
-                      </Button>
-                    }
-                  />
-                  <DialogClose
-                    render={
-                      <Button
-                        variant="destructive"
-                        className="flex-1 sm:flex-none font-bold shadow-sm"
-                        onClick={handleCancel}
-                        disabled={isCancelling}
-                      >
-                        {isCancelling ? "Membatalkan..." : "Ya, Batalkan"}
-                      </Button>
-                    }
-                  />
+                  <Button
+                    variant="outline"
+                    className="flex-1 sm:flex-none font-medium"
+                    onClick={() => setIsCancelOpen(false)}
+                    disabled={isCancelling}
+                  >
+                    Kembali
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="flex-1 sm:flex-none font-bold shadow-sm"
+                    onClick={handleCancel}
+                    disabled={isCancelling}
+                  >
+                    {isCancelling ? (
+                      <>
+                        <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                        Membatalkan...
+                      </>
+                    ) : (
+                      "Ya, Batalkan"
+                    )}
+                  </Button>
                 </ShadcnDialogFooter>
               </DialogContent>
             </Dialog>

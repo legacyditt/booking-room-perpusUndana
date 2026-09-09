@@ -6,6 +6,7 @@ import { id as idLocale } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
   Clock,
+  CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -129,7 +130,13 @@ export function EditBookingModal({
     isSameAsCurrent;
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (isLoading) return;
+        setOpen(next);
+      }}
+    >
       <DialogTrigger
         render={
           <Button
@@ -277,16 +284,24 @@ export function EditBookingModal({
           <Button
             variant="outline"
             onClick={() => setOpen(false)}
+            disabled={isLoading}
             className="w-full sm:w-auto font-medium"
           >
             Batal
           </Button>
           <Button
             onClick={handleUpdate}
-            disabled={isSaveDisabled}
+            disabled={isSaveDisabled || isLoading}
             className="w-full sm:w-auto font-bold shadow-sm"
           >
-            {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
+            {isLoading ? (
+              <>
+                <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                Menyimpan...
+              </>
+            ) : (
+              "Simpan Perubahan"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

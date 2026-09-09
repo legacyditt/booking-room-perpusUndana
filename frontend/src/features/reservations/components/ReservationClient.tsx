@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { isBefore, parseISO, startOfDay } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReservationCard } from "@/features/reservations/components/ReservationCard";
@@ -27,6 +28,7 @@ interface ReservationClientProps {
 }
 
 export function ReservationClient({ bookings, sessions }: ReservationClientProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const today = startOfDay(new Date());
@@ -158,7 +160,7 @@ export function ReservationClient({ bookings, sessions }: ReservationClientProps
               description="Anda belum memiliki jadwal pemesanan ruangan atau kursi perpustakaan."
               resetLabel="Cari & Pesan Ruangan"
               onReset={() => {
-                window.location.href = "/";
+                router.push("/");
               }}
             />
           )}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Plus, Trash } from "@phosphor-icons/react/dist/ssr";
+import { Plus, Trash, CircleNotch } from "@phosphor-icons/react/dist/ssr";
 import { UserFilters } from "@/features/admin/components/UserFilters";
 import { UserTable } from "@/features/admin/components/UserTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
@@ -96,6 +96,13 @@ export function UsersManagement({
     (safePage - 1) * PAGE_SIZE,
     safePage * PAGE_SIZE,
   );
+
+  const handleResetFilters = () => {
+    setSearch("");
+    setRoleFilter("Semua");
+    setCategoryFilter("Semua");
+    setPage(1);
+  };
 
   const openEditDialog = (user: AdminUser) => {
     setEditingUser(user);
@@ -233,24 +240,27 @@ export function UsersManagement({
           onDelete={handleDeleteAdmin}
           hideCategoryColumn={hideCategory}
           actionType={actionType}
+          onResetFilters={handleResetFilters}
         />
       </div>
 
       {/* Area Pagination */}
-      <div className="p-5 border-t border-[#E2E8F0] bg-white">
-        <TablePagination
-          page={safePage}
-          pageSize={PAGE_SIZE}
-          totalItems={filtered.length}
-          onPageChange={setPage}
-        />
-      </div>
+      {filtered.length > 0 && (
+        <div className="p-5 border-t border-[#E2E8F0] bg-white">
+          <TablePagination
+            page={safePage}
+            pageSize={PAGE_SIZE}
+            totalItems={filtered.length}
+            onPageChange={setPage}
+          />
+        </div>
+      )}
 
       {/* Dialog Ubah Peran */}
       <Dialog
         open={!!editingUser}
         onOpenChange={(open) => {
-          if (!open) setEditingUser(null);
+          if (!open && !isSaving) setEditingUser(null);
         }}
       >
         <DialogContent>
@@ -288,18 +298,30 @@ export function UsersManagement({
               Batal
             </Button>
             <Button
-              className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90"
+              className="bg-[#0F2018] text-white hover:bg-[#0F2018]/90 gap-1.5"
               onClick={handleSaveRole}
               disabled={isSaving || dialogRole === editingUser?.role}
             >
-              {isSaving ? "Menyimpan..." : "Simpan"}
+              {isSaving ? (
+                <>
+                  <CircleNotch size={16} className="animate-spin" />
+                  <span>Menyimpan...</span>
+                </>
+              ) : (
+                "Simpan"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Dialog Tambah Admin */}
-      <Dialog open={isAddingAdmin} onOpenChange={setIsAddingAdmin}>
+      <Dialog
+        open={isAddingAdmin}
+        onOpenChange={(open) => {
+          if (!open && !isSaving) setIsAddingAdmin(false);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Tambah Admin Baru</DialogTitle>
@@ -365,11 +387,18 @@ export function UsersManagement({
               Batal
             </Button>
             <Button
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 gap-1.5"
               onClick={handleAddAdmin}
               disabled={isSaving || adminEmails.every(e => e.trim() === "")}
             >
-              {isSaving ? "Menambahkan..." : "Tambah Admin"}
+              {isSaving ? (
+                <>
+                  <CircleNotch size={16} className="animate-spin" />
+                  <span>Menambahkan...</span>
+                </>
+              ) : (
+                "Tambah Admin"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -403,8 +432,16 @@ export function UsersManagement({
               variant="destructive"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
+              className="gap-1.5"
             >
-              {isDeleting ? "Menghapus..." : "Hapus"}
+              {isDeleting ? (
+                <>
+                  <CircleNotch size={16} className="animate-spin" />
+                  <span>Menghapus...</span>
+                </>
+              ) : (
+                "Hapus"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

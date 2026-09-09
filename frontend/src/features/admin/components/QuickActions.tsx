@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   PlusCircle,
@@ -29,12 +30,23 @@ import { useClearBookings } from "@/lib/hooks/use-clear-bookings";
 const CONFIRMATION_KEYWORD = "HAPUS RIWAYAT";
 
 export function QuickActions() {
+  const router = useRouter();
+  const [isNavigating, startTransition] = useTransition();
+  const [targetRoute, setTargetRoute] = useState<string | null>(null);
+
   const [isExporting, setIsExporting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [confirmInput, setConfirmInput] = useState("");
 
   const clearMutation = useClearBookings();
   const isClearing = clearMutation.isPending;
+
+  const handleNavigate = (path: string) => {
+    setTargetRoute(path);
+    startTransition(() => {
+      router.push(path);
+    });
+  };
 
   // Handler untuk mengunduh file backup Excel
   const handleExportBackup = async () => {
@@ -98,31 +110,47 @@ export function QuickActions() {
             <Button
               variant="default"
               size="lg"
-              nativeButton={false}
+              disabled={isNavigating || isExporting || isClearing}
               className="w-full justify-center gap-2"
-              render={<Link href="/admin/rooms/add" />}
+              onClick={() => handleNavigate("/admin/rooms/add")}
             >
-              <PlusCircle size={18} />
-              Tambah Ruangan Baru
+              {isNavigating && targetRoute === "/admin/rooms/add" ? (
+                <CircleNotch size={18} className="animate-spin text-primary-foreground" />
+              ) : (
+                <PlusCircle size={18} />
+              )}
+              <span>
+                {isNavigating && targetRoute === "/admin/rooms/add"
+                  ? "Membuka..."
+                  : "Tambah Ruangan Baru"}
+              </span>
             </Button>
 
             {/* Tombol Buat Laporan */}
             <Button
               variant="outlinePrimary"
               size="lg"
-              nativeButton={false}
+              disabled={isNavigating || isExporting || isClearing}
               className="w-full justify-center gap-2"
-              render={<Link href="/admin/reports" />}
+              onClick={() => handleNavigate("/admin/reports")}
             >
-              <ChartBar size={18} />
-              Buat Laporan
+              {isNavigating && targetRoute === "/admin/reports" ? (
+                <CircleNotch size={18} className="animate-spin text-primary" />
+              ) : (
+                <ChartBar size={18} />
+              )}
+              <span>
+                {isNavigating && targetRoute === "/admin/reports"
+                  ? "Membuka..."
+                  : "Buat Laporan"}
+              </span>
             </Button>
 
             {/* Tombol Export Backup Database */}
             <Button
               variant="outline"
               size="lg"
-              disabled={isExporting}
+              disabled={isExporting || isNavigating || isClearing}
               onClick={handleExportBackup}
               className="w-full justify-center gap-2 border-neutral-200 text-neutral-700 hover:bg-neutral-50"
             >
@@ -138,6 +166,7 @@ export function QuickActions() {
             <Button
               variant="ghost"
               size="lg"
+              disabled={isClearing || isNavigating || isExporting}
               onClick={() => {
                 setConfirmInput("");
                 setIsDialogOpen(true);

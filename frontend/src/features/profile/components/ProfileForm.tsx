@@ -12,6 +12,7 @@ import {
   ArrowLeft,
   Eye,
   EyeSlash,
+  CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,7 @@ const statusLabel = (status?: string) =>
 
 export function ProfileForm() {
   const router = useRouter();
-  const { data: session, refetch } = useSession();
+  const { data: session, isPending, refetch } = useSession();
   const user = session?.user;
 
   const [name, setName] = useState(user?.name ?? "");
@@ -123,6 +124,63 @@ export function ProfileForm() {
       setIsSaving(false);
     }
   };
+
+  if (isPending && !user) {
+    return (
+      <div className="w-full bg-[#FAFAF9] pb-12 pt-10 md:pt-16">
+        <div className="container mx-auto max-w-3xl px-4 md:px-8">
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col items-start space-y-6">
+              <div className="h-5 w-20 bg-neutral-200 rounded animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-9 md:h-10 w-44 bg-neutral-200 rounded-lg animate-pulse" />
+                <div className="h-4 w-72 bg-neutral-200 rounded-md animate-pulse" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-10 bg-white p-6 md:p-10 rounded-xl border border-border shadow-sm animate-pulse">
+              <div className="space-y-6">
+                <div className="border-b border-[#D6D3D1] pb-2">
+                  <div className="h-5 w-36 bg-neutral-200 rounded" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex flex-col gap-2">
+                      <div className="h-3 w-28 bg-neutral-200 rounded" />
+                      <div className="h-11 w-full bg-neutral-100 rounded-md" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="border-b border-[#D6D3D1] pb-2">
+                  <div className="h-5 w-36 bg-neutral-200 rounded" />
+                </div>
+                <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-2">
+                    <div className="h-3 w-36 bg-neutral-200 rounded" />
+                    <div className="h-11 w-full bg-neutral-100 rounded-md" />
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-2">
+                      <div className="h-3 w-32 bg-neutral-200 rounded" />
+                      <div className="h-11 w-full bg-neutral-100 rounded-md" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className="h-3 w-36 bg-neutral-200 rounded" />
+                      <div className="h-11 w-full bg-neutral-100 rounded-md" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="pt-6 flex justify-end">
+                <div className="h-11 w-44 bg-neutral-200 rounded-md" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full bg-[#FAFAF9] pb-12 pt-10 md:pt-16">
@@ -390,7 +448,14 @@ export function ProfileForm() {
                 disabled={isSaving || !hasChanges}
                 className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground h-11 px-8 font-semibold shadow-sm transition-transform"
               >
-                {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
+                {isSaving ? (
+                  <>
+                    <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                    Menyimpan...
+                  </>
+                ) : (
+                  "Simpan Perubahan"
+                )}
               </Button>
             </div>
 

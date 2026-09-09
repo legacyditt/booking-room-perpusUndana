@@ -8,6 +8,7 @@ import {
   LockKey,
   Eye,
   EyeSlash,
+  CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import { toast } from "@/components/ui/toast";
 import { authClient, useSession } from "@/lib/api/auth-client";
 
 export function AdminProfileForm() {
-  const { data: session, refetch } = useSession();
+  const { data: session, isPending, refetch } = useSession();
   const user = session?.user;
 
   const [name, setName] = useState(user?.name ?? "");
@@ -103,6 +104,56 @@ export function AdminProfileForm() {
       setIsSaving(false);
     }
   };
+
+  if (isPending && !user) {
+    return (
+      <div className="flex flex-col gap-10 bg-white p-6 md:p-10 rounded-xl border border-border shadow-sm max-w-4xl animate-pulse">
+        <div className="space-y-6">
+          <div className="border-b border-[#D6D3D1] pb-2">
+            <div className="h-5 w-36 bg-neutral-200 rounded" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-28 bg-neutral-200 rounded" />
+              <div className="h-11 w-full bg-neutral-100 rounded-md" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-24 bg-neutral-200 rounded" />
+              <div className="h-11 w-full bg-neutral-100 rounded-md" />
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="h-3 w-20 bg-neutral-200 rounded" />
+            <div className="h-11 w-full sm:w-64 bg-neutral-100 rounded-md" />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="border-b border-[#D6D3D1] pb-2">
+            <div className="h-5 w-40 bg-neutral-200 rounded" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-32 bg-neutral-200 rounded" />
+              <div className="h-11 w-full bg-neutral-100 rounded-md" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-28 bg-neutral-200 rounded" />
+              <div className="h-11 w-full bg-neutral-100 rounded-md" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="h-3 w-36 bg-neutral-200 rounded" />
+              <div className="h-11 w-full bg-neutral-100 rounded-md" />
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-2 flex justify-end border-t border-[#E2E8F0]">
+          <div className="h-10 w-44 bg-neutral-200 rounded-md" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-10 bg-white p-6 md:p-10 rounded-xl border border-border shadow-sm max-w-4xl">
@@ -285,13 +336,20 @@ export function AdminProfileForm() {
 
       {/* Bagian 3: Actions */}
       <div className="pt-6 flex justify-end">
-        <Button 
+        <Button
           type="button"
           onClick={handleSave}
           disabled={isSaving || !hasChanges}
-          className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground h-11 px-8 font-semibold shadow-sm transition-transform"
+          className="bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground h-11 px-8 font-semibold shadow-sm transition-transform gap-1.5"
         >
-          {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
+          {isSaving ? (
+            <>
+              <CircleNotch size={18} className="animate-spin" />
+              <span>Menyimpan...</span>
+            </>
+          ) : (
+            "Simpan Perubahan"
+          )}
         </Button>
       </div>
 

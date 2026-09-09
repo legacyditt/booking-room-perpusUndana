@@ -1,7 +1,8 @@
-import { AddRoomButton } from "@/features/admin/components/AddRoomButton";
+import { Plus } from "@phosphor-icons/react/dist/ssr";
 import { RoomsManagement } from "@/features/admin/components/RoomsManagement";
 import { getRooms } from "@/lib/api";
 import { getCookieHeader } from "@/lib/api/server";
+import { NavActionButton } from "@/components/shared/nav-action-button";
 import type { Room } from "@/types/room";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,12 @@ export default async function AdminRoomsPage() {
             Awasi dan pelihara inventaris seluruh fasilitas akademik perpustakaan.
           </p>
         </div>
-        <AddRoomButton />
+        <NavActionButton
+          href="/admin/rooms/add"
+          label="Tambah Ruangan"
+          pendingLabel="Membuka..."
+          icon={<Plus weight="bold" className="w-4 h-4" />}
+        />
       </div>
 
       {/* ── Kontainer Utama (Filter, Tabel, Pagination) ── */}

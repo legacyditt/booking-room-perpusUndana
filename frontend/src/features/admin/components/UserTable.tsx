@@ -1,4 +1,4 @@
-import { PencilSimple, Trash } from "@phosphor-icons/react/dist/ssr";
+import { PencilSimple, Trash, Users } from "@phosphor-icons/react/dist/ssr";
 import { AdminUser } from "@/types/admin";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/empty-state";
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
@@ -36,6 +37,9 @@ interface UserTableProps {
   onDelete?: (user: AdminUser) => void;
   hideCategoryColumn?: boolean;
   actionType?: "edit" | "delete";
+  onResetFilters?: () => void;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 export function UserTable({
@@ -44,7 +48,21 @@ export function UserTable({
   onDelete,
   hideCategoryColumn = false,
   actionType = "edit",
+  onResetFilters,
+  emptyTitle = "Tidak Ada Pengguna Ditemukan",
+  emptyDescription = "Tidak ada pengguna yang cocok dengan kata kunci pencarian atau filter yang dipilih.",
 }: UserTableProps) {
+  if (users.length === 0) {
+    return (
+      <EmptyState
+        icon={<Users size={28} weight="duotone" />}
+        title={emptyTitle}
+        description={emptyDescription}
+        onReset={onResetFilters}
+      />
+    );
+  }
+
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -83,7 +101,6 @@ export function UserTable({
                 key={user.id}
                 className="hover:bg-neutral-50/50 transition-colors border-[#E2E8F0]"
               >
-                {/* Kolom Nama & Email */}
                 <TableCell className="px-5 py-4">
                   <div className="flex flex-col gap-0.5">
                     <span className="font-semibold text-primary">{user.name}</span>
@@ -91,19 +108,16 @@ export function UserTable({
                   </div>
                 </TableCell>
 
-                {/* Kolom Role */}
                 <TableCell className="px-5 py-4 text-center">
                   <Badge variant={role.variant} className="min-w-[100px] justify-center">
                     {role.label}
                   </Badge>
                 </TableCell>
 
-                {/* Kolom Tanggal Bergabung */}
                 <TableCell className="px-5 py-4 text-neutral-600 text-center">
                   {dateFormatter.format(new Date(user.createdAt))}
                 </TableCell>
 
-                {/* Kolom Kategori */}
                 {!hideCategoryColumn && (
                   <TableCell className="px-5 py-4 text-center">
                     <Badge
@@ -115,7 +129,6 @@ export function UserTable({
                   </TableCell>
                 )}
 
-                {/* Kolom Aksi */}
                 <TableCell className="px-5 py-4">
                   <div className="flex items-center justify-center gap-1">
                     {actionType === "edit" ? (
@@ -146,12 +159,6 @@ export function UserTable({
           })}
         </TableBody>
       </Table>
-
-      {users.length === 0 && (
-        <div className="py-16 text-center text-neutral-500">
-          <p className="text-lg">Tidak ada pengguna yang cocok.</p>
-        </div>
-      )}
     </div>
   );
 }

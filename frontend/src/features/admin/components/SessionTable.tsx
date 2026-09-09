@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { PencilSimple, Trash } from "@phosphor-icons/react";
+import { PencilSimple, Trash, Clock } from "@phosphor-icons/react";
 import { Session } from "@/types/booking";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/shared/empty-state";
 
 interface SessionTableProps {
   sessions: Session[];
@@ -35,6 +36,16 @@ const formatDuration = (startTime: string, finishTime: string) => {
 };
 
 export function SessionTable({ sessions, onDelete }: SessionTableProps) {
+  if (sessions.length === 0) {
+    return (
+      <EmptyState
+        icon={<Clock size={28} weight="duotone" />}
+        title="Belum Ada Sesi Tersedia"
+        description="Belum ada slot waktu sesi yang terdaftar di sistem. Klik tombol Tambah Sesi untuk membuat sesi baru."
+      />
+    );
+  }
+
   return (
     <div className="w-full">
       <Table className="whitespace-nowrap">
@@ -70,44 +81,28 @@ export function SessionTable({ sessions, onDelete }: SessionTableProps) {
               key={session.id}
               className="hover:bg-neutral-50/50 transition-colors border-[#E2E8F0]"
             >
-              {/* Kolom Nama Sesi (Rata Kiri) */}
               <TableCell className="px-5 py-4">
                 <span className="font-semibold text-primary">
                   {session.name}
                 </span>
               </TableCell>
-
-              {/* Kolom Waktu Mulai */}
               <TableCell className="px-5 py-4 text-neutral-600 text-center">
                 {session.startTime}
               </TableCell>
-
-              {/* Kolom Waktu Selesai */}
               <TableCell className="px-5 py-4 text-neutral-600 text-center">
                 {session.finishTime}
               </TableCell>
-
-              {/* Kolom Durasi */}
               <TableCell className="px-5 py-4 text-center">
-                <Badge
-                  variant="outline"
-                  className="min-w-[60px] justify-center"
-                >
+                <Badge variant="outline" className="min-w-[60px] justify-center">
                   {formatDuration(session.startTime, session.finishTime)}
                 </Badge>
               </TableCell>
-
-              {/* Kolom Dibuat Oleh */}
               <TableCell className="px-5 py-4 text-neutral-600 text-center">
                 {session.createdBy?.name || "-"}
               </TableCell>
-
-              {/* Kolom Diedit Oleh */}
               <TableCell className="px-5 py-4 text-neutral-600 text-center">
                 {session.updatedBy?.name || "-"}
               </TableCell>
-
-              {/* Kolom Aksi: Edit + Hapus */}
               <TableCell className="px-5 py-4">
                 <div className="flex items-center justify-center gap-1">
                   <Link href={`/admin/sessions/${session.id}/edit`}>

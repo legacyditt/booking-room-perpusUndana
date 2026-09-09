@@ -14,6 +14,7 @@ import {
   ArrowCounterClockwise,
   Sparkle,
   Checks,
+  CircleNotch,
 } from "@phosphor-icons/react/dist/ssr";
 import { useUpdateSystemSettings } from "@/lib/hooks/use-update-system-settings";
 
@@ -223,7 +224,11 @@ export function WhatsappTemplateSection({
           disabled={isSaving || !isChanged}
           className="bg-primary text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed gap-2 px-6"
         >
-          <FloppyDisk size={18} weight="bold" />
+          {isSaving ? (
+            <CircleNotch size={18} className="animate-spin" />
+          ) : (
+            <FloppyDisk size={18} weight="bold" />
+          )}
           {isSaving ? "Menyimpan..." : "Simpan Template Pesan"}
         </Button>
       </div>

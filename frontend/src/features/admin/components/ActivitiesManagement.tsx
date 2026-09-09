@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { ArrowCounterClockwise } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, ClockCounterClockwise } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TablePagination } from "@/features/admin/components/TablePagination";
+import { EmptyState } from "@/components/shared/empty-state";
 import type { AdminActivity, AdminUser } from "@/types/admin";
 import { useAdminActivities } from "@/lib/hooks/use-admin-activities";
 
@@ -113,6 +114,14 @@ export function ActivitiesManagement({
 
   const hasDateFilter = Boolean(startDate || endDate);
 
+  const handleResetFilters = () => {
+    setAdminFilter("Semua");
+    setActionFilter("Semua");
+    setStartDate("");
+    setEndDate("");
+    setPage(1);
+  };
+
   return (
     <div className="flex flex-col min-h-[500px]">
       {/* ── Filter Bar ── */}
@@ -202,77 +211,81 @@ export function ActivitiesManagement({
         </div>
       </div>
 
-      {/* ── Tabel ── */}
+      {/* ── Tabel atau Empty State ── */}
       <div className="flex-1 min-h-[380px]">
-        <Table className="whitespace-nowrap">
-          <TableHeader className="bg-[#FAFAFA] border-b border-[#E2E8F0]">
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
-                ADMIN
-              </TableHead>
-              <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
-                AKSI
-              </TableHead>
-              <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
-                DETAIL
-              </TableHead>
-              <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
-                WAKTU
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pagedActivities.map((activity) => {
-              const config = actionConfig[activity.action] ?? {
-                label: activity.action,
-                variant: "outline" as BadgeVariant,
-              };
-              return (
-                <TableRow
-                  key={activity.id}
-                  className="hover:bg-neutral-50/50 transition-colors border-[#E2E8F0]"
-                >
-                  <TableCell className="px-5 py-4">
-                    <span className="font-medium text-primary">
-                      {activity.admin.name}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-center">
-                    <Badge
-                      variant={config.variant}
-                      className="min-w-[130px] justify-center"
-                    >
-                      {config.label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-neutral-600 max-w-[300px] truncate">
-                    {activity.detail ?? "—"}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-neutral-600 text-center">
-                    {dateTimeFormatter.format(new Date(activity.createdAt))}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-
-        {filtered.length === 0 && (
-          <div className="py-16 text-center text-neutral-500">
-            <p className="text-lg">Tidak ada aktivitas yang cocok.</p>
-          </div>
+        {filtered.length === 0 ? (
+          <EmptyState
+            icon={<ClockCounterClockwise size={28} weight="duotone" />}
+            title="Tidak Ada Aktivitas Ditemukan"
+            description="Tidak ada riwayat aktivitas admin yang cocok dengan filter yang dipilih."
+            onReset={handleResetFilters}
+          />
+        ) : (
+          <Table className="whitespace-nowrap">
+            <TableHeader className="bg-[#FAFAFA] border-b border-[#E2E8F0]">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+                  ADMIN
+                </TableHead>
+                <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+                  AKSI
+                </TableHead>
+                <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto">
+                  DETAIL
+                </TableHead>
+                <TableHead className="px-5 py-4 font-semibold text-neutral-600 h-auto text-center">
+                  WAKTU
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pagedActivities.map((activity) => {
+                const config = actionConfig[activity.action] ?? {
+                  label: activity.action,
+                  variant: "outline" as BadgeVariant,
+                };
+                return (
+                  <TableRow
+                    key={activity.id}
+                    className="hover:bg-neutral-50/50 transition-colors border-[#E2E8F0]"
+                  >
+                    <TableCell className="px-5 py-4">
+                      <span className="font-medium text-primary">
+                        {activity.admin.name}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-center">
+                      <Badge
+                        variant={config.variant}
+                        className="min-w-[130px] justify-center"
+                      >
+                        {config.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-neutral-600 max-w-[300px] truncate">
+                      {activity.detail ?? "—"}
+                    </TableCell>
+                    <TableCell className="px-5 py-4 text-neutral-600 text-center">
+                      {dateTimeFormatter.format(new Date(activity.createdAt))}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
         )}
       </div>
 
-      {/* ── Pagination ── */}
-      <div className="p-5 border-t border-[#E2E8F0] bg-white">
-        <TablePagination
-          page={safePage}
-          pageSize={PAGE_SIZE}
-          totalItems={filtered.length}
-          onPageChange={setPage}
-        />
-      </div>
+      {filtered.length > 0 && (
+        <div className="p-5 border-t border-[#E2E8F0] bg-white">
+          <TablePagination
+            page={safePage}
+            pageSize={PAGE_SIZE}
+            totalItems={filtered.length}
+            onPageChange={setPage}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass, Plus } from "@phosphor-icons/react";
+import { MagnifyingGlass, Plus, X } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,7 +39,6 @@ export function UserFilters({
 }: UserFiltersProps) {
   return (
     <div className="p-5 border-b border-[#E2E8F0] bg-white flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-      {/* ── Kiri: Kolom Pencarian ── */}
       <div className="w-full md:w-96 relative group">
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400 group-focus-within:text-primary transition-colors">
           <MagnifyingGlass size={18} />
@@ -49,15 +48,24 @@ export function UserFilters({
           placeholder="Cari berdasarkan nama atau email..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-10 w-full bg-neutral-50/50 border-neutral-200 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-lg"
+          className="pl-10 pr-9 h-10 w-full bg-neutral-50/50 border-neutral-200 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-lg"
         />
+        {search && (
+          <button
+            type="button"
+            onClick={() => onSearchChange("")}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral-400 hover:text-neutral-600 transition-colors"
+            title="Hapus pencarian"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
-      {/* ── Kanan: Filter Dropdowns & Sort ── */}
       <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
         {showAddAdminButton && (
-          <Button 
-            onClick={onAddAdmin} 
+          <Button
+            onClick={onAddAdmin}
             className="h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 font-medium flex items-center gap-2"
           >
             <Plus weight="bold" size={16} />
@@ -75,7 +83,7 @@ export function UserFilters({
                   {({
                     Semua: "Semua Peran",
                     admin: "Admin",
-                    user: "Pengguna"
+                    user: "Pengguna",
                   }[role] ?? "Pilih Peran")}
                 </SelectValue>
               </SelectTrigger>
@@ -100,7 +108,7 @@ export function UserFilters({
                     Semua: "Semua Kategori",
                     mahasiswa: "Mahasiswa",
                     dosen: "Dosen",
-                    umum: "Umum"
+                    umum: "Umum",
                   }[category] ?? "Pilih Kategori")}
                 </SelectValue>
               </SelectTrigger>

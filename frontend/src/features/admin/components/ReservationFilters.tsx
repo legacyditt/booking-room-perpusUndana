@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { MagnifyingGlass, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { MagnifyingGlass, ArrowCounterClockwise, X } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,7 +41,6 @@ export function ReservationFilters({
 }: ReservationFiltersProps) {
   const handleStartDateChange = (val: string) => {
     onStartDateChange(val);
-    // Jika endDate kosong atau lebih kecil dari startDate baru, otomatis samakan endDate
     if (!endDate || endDate < val) {
       onEndDateChange(val);
     }
@@ -52,9 +51,7 @@ export function ReservationFilters({
   return (
     <div className="p-5 border-b border-[#E2E8F0] bg-white">
       <div className="flex flex-col xl:flex-row gap-4 items-end">
-        {/* Grup Form Filter (Flex) */}
         <div className="flex flex-col lg:flex-row gap-4 flex-1 w-full flex-wrap items-end">
-          {/* Pencarian */}
           <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
             <label className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">
               Cari Pemesanan
@@ -64,10 +61,20 @@ export function ReservationFilters({
               <Input
                 type="text"
                 placeholder="Cari ID, Nama..."
-                className="pl-9 h-10"
+                className="pl-9 pr-9 h-10"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
               />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => onSearchChange("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-700 p-1 rounded-sm transition-colors cursor-pointer z-10"
+                  title="Hapus pencarian"
+                >
+                  <X size={14} weight="bold" />
+                </button>
+              )}
             </div>
           </div>
 

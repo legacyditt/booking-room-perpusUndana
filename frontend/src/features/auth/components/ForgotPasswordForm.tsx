@@ -16,7 +16,7 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthLogo } from "./AuthLogo";
-import { ArrowLeft } from "@phosphor-icons/react";
+import { ArrowLeft, CircleNotch } from "@phosphor-icons/react";
 import { requestPasswordReset } from "@/lib/api/auth";
 import { errorMessage } from "@/lib/api/errors";
 
@@ -109,7 +109,14 @@ export function ForgotPasswordForm({
                     disabled={isLoading}
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11"
                   >
-                    {isLoading ? "Mengirim..." : "Kirim Tautan Reset"}
+                    {isLoading ? (
+                      <>
+                        <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                        Mengirim...
+                      </>
+                    ) : (
+                      "Kirim Tautan Reset"
+                    )}
                   </Button>
 
                   <Button

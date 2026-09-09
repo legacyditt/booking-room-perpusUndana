@@ -28,7 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Eye, EyeSlash } from "@phosphor-icons/react";
+import { Eye, EyeSlash, CircleNotch } from "@phosphor-icons/react";
 import { toast } from "@/components/ui/toast";
 
 type UserStatus = "mahasiswa" | "dosen" | "umum" | "";
@@ -359,7 +359,14 @@ export function SignupForm({
                   disabled={isLoading}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11"
                 >
-                  {isLoading ? "Mendaftarkan..." : "Daftar Sekarang"}
+                  {isLoading ? (
+                    <>
+                      <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                      Mendaftarkan...
+                    </>
+                  ) : (
+                    "Daftar Sekarang"
+                  )}
                 </Button>
                 <FieldDescription className="text-center mt-4">
                   Sudah punya akun?{" "}

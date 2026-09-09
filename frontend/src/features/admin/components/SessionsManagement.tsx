@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { CircleNotch } from "@phosphor-icons/react";
 import { SessionTable } from "@/features/admin/components/SessionTable";
 import { TablePagination } from "@/features/admin/components/TablePagination";
 import { Session } from "@/types/booking";
@@ -29,7 +30,6 @@ export function SessionsManagement({
   const { data: rawSessions = [] } = useSessions(initialSessions);
   const [page, setPage] = useState(1);
 
-  // Sorting: urut waktu mulai (startTime asc)
   const sessions = useMemo(() => {
     return [...rawSessions].sort((a, b) =>
       (a.startTime ?? "").localeCompare(b.startTime ?? ""),
@@ -76,27 +76,26 @@ export function SessionsManagement({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col bg-white rounded-xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-        {/* Area Tabel Data */}
         <div className="flex-1 min-h-[400px] overflow-x-auto">
           <SessionTable sessions={pagedSessions} onDelete={setSessionToDelete} />
         </div>
 
-        {/* Area Pagination */}
-        <div className="p-5 border-t border-[#E2E8F0] bg-white">
-          <TablePagination
-            page={safePage}
-            pageSize={PAGE_SIZE}
-            totalItems={sessions.length}
-            onPageChange={setPage}
-          />
-        </div>
+        {sessions.length > 0 && (
+          <div className="p-5 border-t border-[#E2E8F0] bg-white">
+            <TablePagination
+              page={safePage}
+              pageSize={PAGE_SIZE}
+              totalItems={sessions.length}
+              onPageChange={setPage}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Dialog Konfirmasi Hapus */}
       <Dialog
         open={!!sessionToDelete}
         onOpenChange={(open) => {
-          if (!open) setSessionToDelete(null);
+          if (!open && !isDeleting) setSessionToDelete(null);
         }}
       >
         <DialogContent>
@@ -121,8 +120,16 @@ export function SessionsManagement({
               variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
+              className="gap-1.5"
             >
-              {isDeleting ? "Menghapus..." : "Hapus"}
+              {isDeleting ? (
+                <>
+                  <CircleNotch size={16} className="animate-spin" />
+                  <span>Menghapus...</span>
+                </>
+              ) : (
+                "Hapus"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

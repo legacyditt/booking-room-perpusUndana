@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeSlash, CheckCircle } from "@phosphor-icons/react";
+import { Eye, EyeSlash, CheckCircle, CircleNotch } from "@phosphor-icons/react";
 import { resetPassword } from "@/lib/api/auth";
 import { errorMessage } from "@/lib/api/errors";
 
@@ -186,7 +186,14 @@ export function ResetPasswordForm({
                   disabled={isLoading}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11"
                 >
-                  {isLoading ? "Menyimpan..." : "Simpan Kata Sandi"}
+                  {isLoading ? (
+                    <>
+                      <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    "Simpan Kata Sandi"
+                  )}
                 </Button>
               </Field>
             </FieldGroup>

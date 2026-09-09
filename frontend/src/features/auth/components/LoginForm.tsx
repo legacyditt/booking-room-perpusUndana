@@ -22,7 +22,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeSlash } from "@phosphor-icons/react";
+import { Eye, EyeSlash, CircleNotch } from "@phosphor-icons/react";
 
 export function LoginForm({
   className,
@@ -196,7 +196,14 @@ export function LoginForm({
                   disabled={isLoading}
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11"
                 >
-                  {isLoading ? "Memproses..." : "Masuk ke Sistem"}
+                  {isLoading ? (
+                    <>
+                      <CircleNotch className="w-4 h-4 animate-spin mr-2" />
+                      Memproses...
+                    </>
+                  ) : (
+                    "Masuk ke Sistem"
+                  )}
                 </Button>
                 <FieldDescription className="text-center mt-4">
                   Belum punya akun?{" "}

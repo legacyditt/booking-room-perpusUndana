@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
@@ -37,6 +37,7 @@ import { errorMessage } from "@/lib/api/errors";
 import { useRoomAvailability } from "@/lib/hooks/use-room-availability";
 import { useMonthAvailability } from "@/lib/hooks/use-month-availability";
 import { useUpdateBooking } from "@/lib/hooks/use-update-booking";
+import { useUserBookings } from "@/lib/hooks/use-user-bookings";
 import { Booking, Session } from "@/types/booking";
 import { Room } from "@/types/room";
 
@@ -86,6 +87,15 @@ export function EditBookingModal({
 
   const updateMutation = useUpdateBooking();
   const isLoading = updateMutation.isPending;
+
+  const { data: userBookings = [] } = useUserBookings();
+
+  const userBookingsOnDate = userBookings.filter(
+    (b) =>
+      b.id !== booking.id &&
+      (b.status === "PENDING" || b.status === "APPROVED") &&
+      format(parseISO(b.date), "yyyy-MM-dd") === dateString,
+  );
 
   const handleUpdate = () => {
     if (!date) return;
@@ -240,11 +250,27 @@ export function EditBookingModal({
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  {sessions.map((s) => (
-                    <SelectItem key={s.id} value={s.id.toString()}>
-                      {s.name} ({s.startTime} - {s.finishTime})
-                    </SelectItem>
-                  ))}
+                  {sessions.map((s) => {
+                    const isCurrent = s.id.toString() === booking.sessionId?.toString() &&
+                      dateString === booking.date.split("T")[0];
+                    const isUserBooked = !isCurrent && Boolean(
+                      userBookingsOnDate.some(
+                        (b) => b.sessionId === s.id || b.type === "ROOM",
+                      ),
+                    );
+
+                    return (
+                      <SelectItem
+                        key={s.id}
+                        value={s.id.toString()}
+                        className={isUserBooked ? "opacity-50" : ""}
+                        disabled={isUserBooked}
+                      >
+                        {s.name} ({s.startTime} - {s.finishTime})
+                        {isUserBooked && " - (Sudah Dipesan)"}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>

@@ -233,6 +233,31 @@ export const createBooking = async (req: Request, res: Response) => {
           return res.status(404).json({ message: "Session Not Found" });
 
         await prisma.$transaction(async (tx) => {
+          const existingUserBookings = await tx.booking.findMany({
+            where: {
+              userId: req.userId as string,
+              date: dates[0],
+              status: { in: ["PENDING", "APPROVED"] },
+            },
+            include: { session: true },
+          });
+
+          const hasUserConflict = existingUserBookings.some((b) => {
+            if (b.type === "ROOM") return true;
+            if (b.sessionId === session.id) return true;
+            if (b.session) {
+              return (
+                toMin(session.startTime) < toMin(b.session.finishTime) &&
+                toMin(b.session.startTime) < toMin(session.finishTime)
+              );
+            }
+            return false;
+          });
+
+          if (hasUserConflict) {
+            throw new Error("USER_ALREADY_BOOKED_SESSION");
+          }
+
           await assertSlotAvailable(
             tx,
             {
@@ -260,10 +285,20 @@ export const createBooking = async (req: Request, res: Response) => {
           });
         });
       } else {
-        // ROOM full-day: 1 row per tanggal (range => beberapa row).
         const created: any[] = [];
         await prisma.$transaction(async (tx) => {
           for (const d of dates) {
+            const existingUserBooking = await tx.booking.findFirst({
+              where: {
+                userId: req.userId as string,
+                date: d,
+                status: { in: ["PENDING", "APPROVED"] },
+              },
+            });
+            if (existingUserBooking) {
+              throw new Error("USER_ALREADY_BOOKED_DAY");
+            }
+
             await assertSlotAvailable(
               tx,
               { roomId: Number(roomId), date: d, capacity: room.capacity },
@@ -287,6 +322,18 @@ export const createBooking = async (req: Request, res: Response) => {
         booking = created;
       }
     } catch (e: any) {
+      if (e.message === "USER_ALREADY_BOOKED_SESSION") {
+        return res.status(400).json({
+          message:
+            "Anda sudah memiliki pemesanan aktif pada sesi ini di tanggal yang dipilih",
+        });
+      }
+      if (e.message === "USER_ALREADY_BOOKED_DAY") {
+        return res.status(400).json({
+          message:
+            "Anda sudah memiliki pemesanan aktif pada tanggal yang dipilih",
+        });
+      }
       if (e.message === "CAPACITY_FULL") {
         return res
           .status(400)
@@ -298,7 +345,7 @@ export const createBooking = async (req: Request, res: Response) => {
             "Waktu sesi bentrok dengan pemesanan lain pada tanggal ini",
         });
       }
-      throw e; // Akan ditangkap oleh catch(error)
+      throw e;
     }
 
     return res.status(201).json({
@@ -516,8 +563,33 @@ export const updateBooking = async (req: Request, res: Response) => {
 
       let updatedBooking;
       try {
-        // Gunakan Transaction untuk mencegah Race Condition saat cek kapasitas
         await prisma.$transaction(async (tx) => {
+          const existingUserBookings = await tx.booking.findMany({
+            where: {
+              id: { not: booking.id },
+              userId: req.userId as string,
+              date: newDate,
+              status: { in: ["PENDING", "APPROVED"] },
+            },
+            include: { session: true },
+          });
+
+          const hasUserConflict = existingUserBookings.some((b) => {
+            if (b.type === "ROOM") return true;
+            if (b.sessionId === Number(sessionId)) return true;
+            if (b.session) {
+              return (
+                toMin(session.startTime) < toMin(b.session.finishTime) &&
+                toMin(b.session.startTime) < toMin(session.finishTime)
+              );
+            }
+            return false;
+          });
+
+          if (hasUserConflict) {
+            throw new Error("USER_ALREADY_BOOKED_SESSION");
+          }
+
           await assertSlotAvailable(
             tx,
             {
@@ -543,6 +615,12 @@ export const updateBooking = async (req: Request, res: Response) => {
           });
         });
       } catch (e: any) {
+        if (e.message === "USER_ALREADY_BOOKED_SESSION") {
+          return res.status(400).json({
+            message:
+              "Anda sudah memiliki pemesanan aktif pada sesi ini di tanggal yang dipilih",
+          });
+        }
         if (e.message === "CAPACITY_FULL") {
           return res
             .status(400)
@@ -589,6 +667,18 @@ export const updateBooking = async (req: Request, res: Response) => {
     let updatedBooking;
     try {
       await prisma.$transaction(async (tx) => {
+        const existingUserBooking = await tx.booking.findFirst({
+          where: {
+            id: { not: booking.id },
+            userId: req.userId as string,
+            date: newDate,
+            status: { in: ["PENDING", "APPROVED"] },
+          },
+        });
+        if (existingUserBooking) {
+          throw new Error("USER_ALREADY_BOOKED_DAY");
+        }
+
         await assertSlotAvailable(
           tx,
           {
@@ -607,6 +697,12 @@ export const updateBooking = async (req: Request, res: Response) => {
         });
       });
     } catch (e: any) {
+      if (e.message === "USER_ALREADY_BOOKED_DAY") {
+        return res.status(400).json({
+          message:
+            "Anda sudah memiliki pemesanan aktif pada tanggal yang dipilih",
+        });
+      }
       if (e.message === "SESSION_OVERLAP") {
         return res.status(400).json({
           message: "Tanggal tersebut sudah dipesan",

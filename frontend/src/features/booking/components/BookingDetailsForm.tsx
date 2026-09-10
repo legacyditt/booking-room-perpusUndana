@@ -5,6 +5,7 @@ import {
   format,
   differenceInCalendarDays,
   eachDayOfInterval,
+  parseISO,
 } from "date-fns";
 import { id } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
@@ -51,6 +52,7 @@ import { useSession } from "@/lib/api/auth-client";
 import { useCreateBooking } from "@/lib/hooks/use-create-booking";
 import { useDailyAvailability } from "@/lib/hooks/use-daily-availability";
 import { useMonthAvailability } from "@/lib/hooks/use-month-availability";
+import { useUserBookings } from "@/lib/hooks/use-user-bookings";
 import { errorMessage } from "@/lib/api/errors";
 import {
   formatWhatsappTemplate,
@@ -135,9 +137,10 @@ export function BookingDetailsForm({
   const isBlockedDay = (d: Date) =>
     isPast(d) || !isWorkingDay(d) || isBooked(d);
 
-  const rangeDays = dateRange?.from && dateRange.to
-    ? eachDayOfInterval({ start: dateRange.from, end: dateRange.to })
-    : [];
+  const rangeDays =
+    dateRange?.from && dateRange.to
+      ? eachDayOfInterval({ start: dateRange.from, end: dateRange.to })
+      : [];
 
   const handleRangeSelect = (range: DateRange | undefined) => {
     if (!range?.from) {
@@ -173,20 +176,38 @@ export function BookingDetailsForm({
     isError: isAvailabilityError,
   } = useDailyAvailability(room.id, date);
 
+  const { data: userBookings = [] } = useUserBookings();
+
+  const selectedDateStr = date ? dateKey(date) : "";
+  const userBookingsOnDate = userBookings.filter(
+    (b) =>
+      (b.status === "PENDING" || b.status === "APPROVED") &&
+      format(parseISO(b.date), "yyyy-MM-dd") === selectedDateStr,
+  );
+
   const currentAvailability = selectedSession
     ? availabilityMap[selectedSession]
     : null;
-  const isUnavailable =
-    Boolean(selectedSession && currentAvailability && currentAvailability.remainingCapacity === 0);
+  const isUnavailable = Boolean(
+    selectedSession &&
+    currentAvailability &&
+    currentAvailability.remainingCapacity === 0,
+  );
 
-  // Efek: Kosongkan opsi dropdown jika sesi yang sedang dipilih ternyata penuh di tanggal yang baru
+  // Efek: Kosongkan opsi jika sesi yang dipilih ternyata penuh atau sudah dipesan user di tanggal baru
   useEffect(() => {
-    if (selectedSession && availabilityMap[selectedSession]) {
-      if (availabilityMap[selectedSession].remainingCapacity === 0) {
+    if (selectedSession) {
+      const isFull = availabilityMap[selectedSession]?.remainingCapacity === 0;
+      const isUserAlreadyBooked =
+        availabilityMap[selectedSession]?.userBooked ||
+        userBookingsOnDate.some(
+          (b) => b.sessionId === Number(selectedSession) || b.type === "ROOM",
+        );
+      if (isFull || isUserAlreadyBooked) {
         setSelectedSession("");
       }
     }
-  }, [availabilityMap, selectedSession]);
+  }, [availabilityMap, selectedSession, userBookingsOnDate]);
 
   const handleBooking = () => {
     if (isSewa) {
@@ -234,7 +255,8 @@ export function BookingDetailsForm({
                 pricePerSessionMock *
                   (Math.abs(
                     differenceInCalendarDays(dateRange.to, dateRange.from),
-                  ) + 1),
+                  ) +
+                    1),
               ),
             }
           : {
@@ -382,13 +404,15 @@ export function BookingDetailsForm({
                           {format(dateRange.from, "d MMM yyyy", {
                             locale: id,
                           })}{" "}
-                          -{" "}
-                          {format(dateRange.to, "d MMM yyyy", { locale: id })}
+                          - {format(dateRange.to, "d MMM yyyy", { locale: id })}
                         </span>
                       ) : (
                         <span>
                           {format(dateRange.from, "d MMM yyyy", { locale: id })}{" "}
-                          - <span className="text-muted-foreground">pilih akhir</span>
+                          -{" "}
+                          <span className="text-muted-foreground">
+                            pilih akhir
+                          </span>
                         </span>
                       )
                     ) : (
@@ -534,16 +558,34 @@ export function BookingDetailsForm({
                     const isSessionFull = sessionAvail
                       ? sessionAvail.remainingCapacity === 0
                       : false;
+                    const isUserBookedHere = userBookingsOnDate.some(
+                      (b) =>
+                        b.roomId === room.id &&
+                        (b.sessionId === s.id || b.type === "ROOM"),
+                    );
+                    const isUserBooked = Boolean(
+                      sessionAvail?.userBooked ||
+                      userBookingsOnDate.some(
+                        (b) => b.sessionId === s.id || b.type === "ROOM",
+                      ),
+                    );
+                    const isUserBookedElsewhere =
+                      isUserBooked && !isUserBookedHere;
+                    const isDisabled = isSessionFull || isUserBooked;
+
+                    let labelSuffix = "";
+                    if (isUserBookedHere) labelSuffix = " - (Sudah Dipesan)";
+                    else if (isUserBookedElsewhere) labelSuffix = " - (Sesi dipesan di Ruangan Lain)";
+                    else if (isSessionFull) labelSuffix = " - (Penuh)";
 
                     return (
                       <SelectItem
                         key={s.id}
                         value={sId}
-                        className={isSessionFull ? "opacity-50 py-3" : "py-3"}
-                        disabled={isSessionFull}
+                        className={isDisabled ? "opacity-50 py-3" : "py-3"}
+                        disabled={isDisabled}
                       >
-                        {s.name} ({s.startTime} - {s.finishTime})
-                        {isSessionFull && " - (Penuh)"}
+                        {s.name} ({s.startTime} - {s.finishTime}){labelSuffix}
                       </SelectItem>
                     );
                   })
@@ -683,7 +725,11 @@ export function BookingDetailsForm({
               className="group relative flex flex-col items-center justify-center p-4 bg-emerald-50/50 hover:bg-emerald-100/60 border border-emerald-200 hover:border-emerald-400 rounded-xl transition-all duration-200 shadow-2xs hover:shadow-xs cursor-pointer text-center"
             >
               <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-1">
-                <WhatsappLogo size={16} weight="fill" className="text-[#25D366]" />
+                <WhatsappLogo
+                  size={16}
+                  weight="fill"
+                  className="text-[#25D366]"
+                />
                 <span>Nomor WhatsApp Admin</span>
               </div>
               <div className="text-xl font-bold text-primary group-hover:text-emerald-800 transition-colors inline-flex items-center gap-2">

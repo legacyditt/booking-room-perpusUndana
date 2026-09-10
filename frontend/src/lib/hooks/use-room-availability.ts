@@ -8,6 +8,7 @@ export interface Availability {
   remainingCapacity: number;
   capacity: number;
   booked: number;
+  userBooked?: boolean;
 }
 
 export function useRoomAvailability(

@@ -132,10 +132,8 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
     const room = await prisma.room.findUnique({ where: { id: Number(id) } });
     if (!room) return res.status(404).json({ message: "Room not found" });
 
-    // Tarik semua sesi yang ada di sistem
     const sessions = await prisma.bookingSession.findMany();
 
-    // [SINGLE QUERY] Tarik SEMUA booking di tanggal tersebut untuk ruangan ini
     const bookings = await prisma.booking.findMany({
       where: {
         roomId: Number(id),
@@ -150,11 +148,26 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
       },
     });
 
-    // Mapping ketersediaan untuk setiap sesi (berbasis overlap antar sesi)
+    const userBookings = req.userId
+      ? await prisma.booking.findMany({
+          where: {
+            userId: req.userId,
+            date: new Date(date as string),
+            status: {
+              in: ["PENDING", "APPROVED"],
+            },
+          },
+          select: {
+            type: true,
+            sessionId: true,
+            session: { select: { startTime: true, finishTime: true } },
+          },
+        })
+      : [];
+
     const availabilityMap: Record<string, any> = {};
 
     sessions.forEach((session) => {
-      // ROOM (sewa) memblokir seluruh hari untuk sesi mana pun.
       const roomBlocked = bookings.some((b) => b.type === "ROOM");
       const seatCount = bookings.filter(
         (b) =>
@@ -171,10 +184,24 @@ export const getRoomDailyAvailability = async (req: Request, res: Response) => {
         ? 0
         : Math.max(0, room.capacity - seatCount);
 
+      const userBooked = userBookings.some(
+        (b) =>
+          b.type === "ROOM" ||
+          b.sessionId === session.id ||
+          (b.session &&
+            overlaps(
+              session.startTime,
+              session.finishTime,
+              b.session.startTime,
+              b.session.finishTime,
+            )),
+      );
+
       availabilityMap[session.id] = {
         remainingCapacity,
         capacity: room.capacity,
         booked: roomBlocked ? 1 : seatCount,
+        userBooked,
       };
     });
 

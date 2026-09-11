@@ -138,8 +138,9 @@ export function RoomsManagement({ rooms: initialRooms }: RoomsManagementProps) {
             <DialogTitle>Hapus Ruangan</DialogTitle>
             <DialogDescription>
               Yakin ingin menghapus ruangan{" "}
-              <span className="font-semibold">{roomToDelete?.name}</span>? Aksi
-              ini tidak dapat dibatalkan.
+              <span className="font-semibold">{roomToDelete?.name}</span>?
+              Seluruh data booking ruangan ini akan ikut terhapus permanen.
+              Aksi ini tidak dapat dibatalkan.
             </DialogDescription>
           </DialogHeader>
 
